@@ -1,0 +1,9 @@
+name: kraken2
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+  - r
+dependencies:
+  - kraken2=2.0.8_beta
+

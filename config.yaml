@@ -1,0 +1,4 @@
+workdir: "toy_data"
+threads: 1
+samples: "samples.tsv"
+blast_DB: "/ngs-sw/Databases/blast_RefSeq_mito"

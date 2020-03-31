@@ -1,0 +1,297 @@
+# Goal: Identify animal species in a 16S metagenomic sequencing run. For Illumina PE reads
+# =====
+#
+# Run sample QC, clean reads and check number of reads -> fastp
+# OTU with VSEARCH
+# Blast OTU and re-id in samples
+# Create a report with: (tsv ->Rmarkdown?)
+    # A report per sample ?
+    # Trimming tab
+    # QC tab
+        #Important number of reads per sample
+    # Opt: Plots 
+        # Insert size distribution
+        # Hit abundance
+        # Species chart
+#
+# TODO:
+# =====
+# Clean input
+# Make unnescessary files temporary
+# Check and optimizes parameters
+# Compare database, evtl. curate by merging databases
+# Compare OTU with ASV analyse
+#
+# Credits:
+# ========
+# Sample table for import was written by Carlus Deneke @BfR https://gitlab.com/bfr_bioinformatics
+# The OTU clustering was adapted from the VSEARCH Pipeline from Torsten Rognes https://github.com/torognes/vsearch/wiki/Alternative-VSEARCH-pipeline
+
+
+import pandas as pd
+    
+# Settings ---------------------------
+ 
+configfile: "config.yaml"
+workdir: config["workdir"]
+ 
+samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t")
+samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
+
+# Functions ------------------------------------------
+
+def _get_fastq(wildcards,read_pair='fq1'):
+    "kudos to Carlus Deneke @BfR"
+    return samples.loc[(wildcards.sample), [read_pair]].dropna()[0]
+
+# Rules ------------------------------
+ 
+rule all:
+    input: 
+        expand("trimmed/{sample}_R1.fastq.gz", sample = samples.index),
+        expand("trimmed/{sample}_R2.fastq.gz", sample = samples.index),
+        expand("trimmed/reports/{sample}.json", sample = samples.index),
+        expand("trimmed/reports/{sample}.html", sample = samples.index),
+        expand("{sample}/sequence_quality.stats", sample = samples.index),
+        expand("{sample}/{sample}.derep.fasta", sample = samples.index),
+        "reports/sample_coverage.tsv",
+        "VSEARCH/all.derep.fasta",
+        "VSEARCH/otus.fasta",
+        expand("{sample}/{sample}_otutab.sorted.txt", sample = samples.index),
+
+# Reads preprocessing rules----------------------------
+ 
+rule run_fastp:
+    input:
+        r1 = lambda wildcards: _get_fastq(wildcards, 'fq1'),
+        r2 = lambda wildcards: _get_fastq(wildcards, 'fq2')
+    output:
+        r1 = "trimmed/{sample}_R1.fastq.gz",
+        r2 = "trimmed/{sample}_R2.fastq.gz",
+        json = "trimmed/reports/{sample}.json",
+        html = "trimmed/reports/{sample}.html"
+    threads: config["threads"]
+    message: "Running fastp on {wildcards.sample}"
+    conda: "envs/fastp.yaml"
+    log: 
+        "logs/{sample}_fastp.log"
+    shell:
+        "fastp -i {input.r1} -I {input.r2} -o {output.r1} -O {output.r2} -h {output.html} -j {output.json} --length_required 50 --qualified_quality_phred 15 --detect_adapter_for_pe --thread {threads} --report_title 'Sample {wildcards.sample}' | tee {log} 2>&1"
+        # Eventually add base correction --correction
+ 
+ # rule fastp_summary:
+ 
+rule merge_reads:
+    input:
+        r1 = "trimmed/{sample}_R1.fastq.gz",
+        r2 = "trimmed/{sample}_R2.fastq.gz"
+    output:
+        merged = "{sample}/{sample}.merged.fastq"
+    threads: config["threads"]
+    message: "Merging reads on {wildcards.sample}"
+    conda: "envs/vsearch.yaml"
+    log:
+        "logs/{sample}_merge.log"
+    shell:
+        "vsearch --fastq_mergepairs {input.r1} --reverse {input.r2} --threads {threads} --fastqout {output.merged} --fastq_eeout | tee {log} 2>&1"       
+
+rule qual_stat:
+    input: 
+        merged = "{sample}/{sample}.merged.fastq"
+    output:
+        stat = "{sample}/sequence_quality.stats"
+    message: "Collecting quality statistics for {wildcards.sample}"
+    conda: "envs/vsearch.yaml"
+    shell:
+        "vsearch --fastq_eestats {input.merged} --output {output.stat}"
+        
+rule quality_filter: # TODO check parameters
+    input: 
+        merged = "{sample}/{sample}.merged.fastq"
+    output:
+        filtered = "{sample}/{sample}_filtered.fasta"
+    params:
+        minlen = 200,
+        maxlen = 500,
+        maxee = 1
+    message: "Quality filtering {wildcards.sample}"
+    conda: "envs/vsearch.yaml"
+    log:
+        "logs/{sample}_filter.log"
+    shell:
+        "vsearch --fastq_filter {input.merged} --fastq_maxee {params.maxee} --fastq_minlen {params.minlen} --fastq_maxlen {params.maxlen} --fastq_maxns 0 --fastaout {output.filtered} --fasta_width 0 | tee {log} 2>&1"
+    
+rule dereplicate:
+    input: 
+        filtered = "{sample}/{sample}_filtered.fasta"
+    output:
+        derep = "{sample}/{sample}.derep.fasta"
+    message: "Dereplicating {wildcards.sample}"
+    conda: "envs/vsearch.yaml"
+    log:
+        "logs/{sample}_derep.log"
+    shell:
+        "vsearch --derep_fulllength {input.filtered} --strand plus --output {output.derep} --sizeout --relabel {wildcards.sample} --fasta_width 0 | tee {log} 2>&1"
+
+# TODO summary QC on pre-processing
+# NR1, NR2, Number of merged reads, number of reads after filtering, Number of unique reads, N filtered reads, % Filtered reads, Min, Max, Mean size after filtering, min, max, mean ee after filtering
+
+# rule coverage: #TODO fix sample name
+    # input:
+        # expand("{sample}/{sample}_filtered.fasta", sample = samples.index)
+    # output:
+        # "reports/sample_coverage.tsv"
+    # message: "Collecting sample coverage"
+    # shell:
+        # """
+        # echo "sample\treads" > {output}
+        # for i in {input}; do
+            # echo ${{i}} "\t" "$(grep -c "^>" ${{i}})" >> {output}
+        # done
+        # """
+    
+# Clustering rules----------------------------
+
+rule merge_samples:
+    input:
+        expand("{sample}/{sample}.derep.fasta", sample = samples.index)
+    output:
+        "VSEARCH/all.fasta"
+    message: "Merging samples"
+    shell:
+        """
+        cat {input} > {output}
+        echo
+        echo Sum of unique sequences in each sample: $(cat {output} | grep -c "^>")
+        echo
+        """
+
+rule derep_all:
+    input:
+        "VSEARCH/all.fasta"
+    output:
+        uc = "VSEARCH/all.derep.uc", # What is this for?
+        derep = "VSEARCH/all.derep.fasta"
+    conda: "envs/vsearch.yaml"
+    threads: config["threads"]
+    message: "Dereplicating"
+    log: 
+        "logs/derep_all.log"
+    shell:
+        """
+        vsearch --derep_fulllength {input} --threads {threads} --sizein --sizeout --fasta_width 0 --output {output.derep} --uc {output.uc} | tee {log} 2>&1
+        echo
+        echo Unique non-singleton sequences: $(grep -c "^>" {output.derep})
+        echo
+        """
+        
+rule cluster:
+    input: 
+        "VSEARCH/all.derep.fasta"
+    output:
+        "VSEARCH/centroids.fasta"
+    params:
+        clusterID = 0.97
+    conda: "envs/vsearch.yaml"
+    threads: config["threads"]
+    message: "Clustering sequences"
+    log:
+        "logs/clustering.log"
+    shell:
+        """
+        vsearch --cluster_size {input} --threads {threads} --id {params.clusterID} --strand plus --sizein --sizeout --fasta_width 0 --centroids {output} | tee {log} 2>&1
+        echo
+        echo Clusters: $(grep -c "^>" {output})
+        echo
+        """
+        
+rule sort_all:
+    input: 
+        "VSEARCH/centroids.fasta"
+    output:
+        "VSEARCH/sorted.fasta"
+    conda: "envs/vsearch.yaml"
+    threads: config["threads"]
+    message: "Sorting centroids and removing singleton"
+    log:
+        "logs/sort_all.log"
+    shell:
+        """
+        vsearch --sortbysize {input} --threads {threads} --sizein --sizeout --fasta_width 0 --minsize 2 --output {output} | tee {log} 2>&1
+        echo
+        echo Non-singleton clusters: $(grep -c "^>" {output})
+        echo
+        """
+        
+rule chimera:
+    input:
+        "VSEARCH/sorted.fasta"
+    output:
+        "VSEARCH/denovo.nonchimeras.fasta"
+    conda: "envs/vsearch.yaml"
+    message: "De novo chimera detection"
+    log:
+        "logs/denovo_chimera.log"
+    shell:
+        """
+        vsearch --uchime_denovo {input} --sizein --sizeout --fasta_width 0 --qmask none --nonchimeras {output}| tee {log} 2>&1
+        echo
+        echo Unique sequences after de novo chimera detection: $(grep -c "^>" {output})
+        echo
+        """
+        
+# TODO:DB chemira filtering
+
+rule relabel_otu:
+    input:
+        "VSEARCH/denovo.nonchimeras.fasta"
+    output:
+        "VSEARCH/otus.fasta"
+    threads: config["threads"]
+    conda: "envs/vsearch.yaml"
+    message: "Relabelling OTUs"
+    logs:
+        "logs/relabel_otus.log"
+    shell:
+        """
+        vsearch --fastx_filter {input} --threads {threads} --sizein --sizeout --fasta_width 0 --relabel OTU_ --fastaout {output} | tee {log} 2>&1
+        echo
+        echo Number of OTUs: $(grep -c "^>" {output})
+        echo
+        """
+        
+# rule clustering_summary       
+# Number of samples, Number of Reads (total), Number of reads (unique), Centroid number, De novo Chimera (%), DB chimera (%), OTU number
+
+
+
+# Read ID rules----------------------------
+        
+rule map_sample:
+    input:
+        fasta = "{sample}/{sample}.derep.fasta",
+        db = "VSEARCH/otus.fasta"
+    output:
+        tab = "{sample}/{sample}_otutab.txt",
+        sorted = "{sample}/{sample}_otutab.sorted.txt"
+    params:
+        clusterID = 0.97
+    threads: config["threads"]
+    conda: "envs/vsearch.yaml"
+    message: "Mapping {wildcards.sample} to OTUs"
+    log:
+        "logs/{sample}_map_reads.log"
+    shell:
+        """
+        vsearch --usearch_global {input.fasta} --threads {threads} --db {input.db} --id {params.clusterID} --strand plus --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --otutabout {output.tab} | tee {log} 2>&1
+        sort -k1.5n {output.tab} > {output.sorted}
+        """
+        
+# rule blast_otus:
+    # input: 
+        # otu = "OTU/otus.fasta"
+        # blast = config["blast_DB"]
+    # output:
+        # "OTU/translation_table.tsv"
+    # Needs to be able to deal with ambiguous blast results. Phylogeny. 
+# rule id_reads:
