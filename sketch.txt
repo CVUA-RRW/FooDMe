@@ -59,7 +59,7 @@ rule all:
         "VSEARCH/otus.fasta",
         expand("{sample}/{sample}_otutab.sorted.txt", sample = samples.index),
 
-# Reads preprocessing rules----------------------------
+# Fastp rules----------------------------
  
 rule run_fastp:
     input:
@@ -81,6 +81,8 @@ rule run_fastp:
  
  # rule fastp_summary:
  
+# Reads preprocessing rules----------------------------
+
 rule merge_reads:
     input:
         r1 = "trimmed/{sample}_R1.fastq.gz",
@@ -111,9 +113,9 @@ rule quality_filter: # TODO check parameters
     output:
         filtered = "{sample}/{sample}_filtered.fasta"
     params:
-        minlen = 200,
-        maxlen = 500,
-        maxee = 1
+        minlen= config["read_filter"]["min_length"],
+        maxlen = config["read_filter"]["max_length"],
+        maxee = config["read_filter"]["max_expected_errors"]
     message: "Quality filtering {wildcards.sample}"
     conda: "envs/vsearch.yaml"
     log:
@@ -191,7 +193,7 @@ rule cluster:
     output:
         "VSEARCH/centroids.fasta"
     params:
-        clusterID = 0.97
+        clusterID = config["cluster"]["cluster_identity"]
     conda: "envs/vsearch.yaml"
     threads: config["threads"]
     message: "Clustering sequences"
@@ -262,10 +264,6 @@ rule relabel_otu:
         
 # rule clustering_summary       
 # Number of samples, Number of Reads (total), Number of reads (unique), Centroid number, De novo Chimera (%), DB chimera (%), OTU number
-
-
-
-# Read ID rules----------------------------
         
 rule map_sample:
     input:
@@ -275,7 +273,7 @@ rule map_sample:
         tab = "{sample}/{sample}_otutab.txt",
         sorted = "{sample}/{sample}_otutab.sorted.txt"
     params:
-        clusterID = 0.97
+        clusterID = config["cluster"]["cluster_identity"]
     threads: config["threads"]
     conda: "envs/vsearch.yaml"
     message: "Mapping {wildcards.sample} to OTUs"
@@ -286,7 +284,9 @@ rule map_sample:
         vsearch --usearch_global {input.fasta} --threads {threads} --db {input.db} --id {params.clusterID} --strand plus --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --otutabout {output.tab} | tee {log} 2>&1
         sort -k1.5n {output.tab} > {output.sorted}
         """
-        
+
+# Blast rules----------------------------
+
 # rule blast_otus:
     # input: 
         # otu = "OTU/otus.fasta"

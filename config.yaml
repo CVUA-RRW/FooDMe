@@ -1,4 +1,24 @@
+#Working directory:
 workdir: "toy_data"
-threads: 1
+
+# Number of threads per sample:
+threads: 1 
+
+# Path to sample sheet:
 samples: "samples.tsv"
-blast_DB: "/ngs-sw/Databases/blast_RefSeq_mito"
+
+# Merged reads quality filtering parameters:
+read_filter:
+    min_length: 200
+    max_length: 500
+    max_expected_errors: 1
+    
+# Clustering parameters:
+cluster:
+    cluster_identity: 0,97
+    chimera_DB: "none"
+
+# Blast parameters:
+blast:
+    blast_DB: "/ngs-sw/Databases/blast_RefSeq_mito"
+
