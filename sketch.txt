@@ -58,6 +58,7 @@ rule all:
         "VSEARCH/all.derep.fasta",
         "VSEARCH/otus.fasta",
         expand("{sample}/{sample}_otutab.sorted.txt", sample = samples.index),
+        "blast/blast_search.out"
 
 # Fastp rules----------------------------
  
@@ -252,7 +253,7 @@ rule relabel_otu:
     threads: config["threads"]
     conda: "envs/vsearch.yaml"
     message: "Relabelling OTUs"
-    logs:
+    log:
         "logs/relabel_otus.log"
     shell:
         """
@@ -287,11 +288,28 @@ rule map_sample:
 
 # Blast rules----------------------------
 
-# rule blast_otus:
-    # input: 
-        # otu = "OTU/otus.fasta"
-        # blast = config["blast_DB"]
-    # output:
-        # "OTU/translation_table.tsv"
-    # Needs to be able to deal with ambiguous blast results. Phylogeny. 
+rule blast_otus:
+    input: 
+        "VSEARCH/otus.fasta"
+    output:
+        "blast/blast_search.out"
+    params:
+        blast_DB = config["blast"]["blast_DB"],
+        taxdb = config["blast"]["taxdb"],
+        e_value = 10,
+        perc_identity = 0,
+        qcov = 0        
+    message: "BLASTing OTUs against local database"
+    conda: "envs/blast.yaml"
+    log:
+        "logs/blast.log"
+    shell:
+        """
+        export BLASTDB={params.taxdb}
+        blastn -db {params.blast_DB} -query {input} -out {output} -task 'megablast' -evalue {params.e_value} -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} \
+        -outfmt '6 qseqid sseqid evalue pident bitscore sgi sacc staxids sscinames scomnames stitle' | tee {log} 2>&1
+        """
+
+#snakemake -s sketch.txt --use-conda -f blast_otus
+
 # rule id_reads:

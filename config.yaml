@@ -20,5 +20,7 @@ cluster:
 
 # Blast parameters:
 blast:
-    blast_DB: "/ngs-sw/Databases/blast_RefSeq_mito"
-
+    # Path to the BLAST database, or just name if located in the taxdb folder
+    blast_DB: "mitochondrion.16S.metazoan.faa" 
+    # Path to the folder containing the taxdb database
+    taxdb: "/ngs-sw/Databases/blast_RefSeq_mito/"

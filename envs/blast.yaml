@@ -1,7 +1,7 @@
-name: fastp
+name: blast
 channels:
   - defaults
   - conda-forge
   - bioconda
 dependencies:
-  - fastp
+  - blast
