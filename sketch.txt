@@ -4,17 +4,15 @@
 #
 # TODO:
 # =====
-# Set CPU use for CLustering and chimera detection to the total cpu number from Snakemake (analysis bottelneck)
-# Clean input rule
 # Make unnescessary files temporary
-# Check and optimizes parameters
+# Check and optimize parameters
 # Compare database, evtl. curate by merging databases
 # Compare OTU with ASV analyse
 # Make fancy html report
 #
 # Credits:
 # ========
-# Sample table for import was written by Carlus Deneke @BfR https://gitlab.com/bfr_bioinformatics
+# Sample table for import and fastp report parsing was written by Carlus Deneke @BfR https://gitlab.com/bfr_bioinformatics
 # The OTU clustering was adapted from the VSEARCH Pipeline from Torsten Rognes https://github.com/torognes/vsearch/wiki/Alternative-VSEARCH-pipeline
 
 import pandas as pd
@@ -47,16 +45,19 @@ rule all:
         expand("{sample}/{sample}.derep.fasta", sample = samples.index),
         "VSEARCH/all.derep.fasta",
         "VSEARCH/otus.fasta",
-        expand("{sample}/{sample}_otutab.sorted.txt", sample = samples.index),
+        expand("{sample}/{sample}_otutab.tsv", sample = samples.index),
         # BLAST
         "blast/blast_search.tsv",        
         # Sample reports
         expand("trimmed/reports/{sample}.tsv", sample = samples.index),
-        expand("{sample}/{sample}_filtering_report.tsv", sample = samples.index),
+        expand("{sample}/{sample}_qc_filtering_report.tsv", sample = samples.index),
         expand("{sample}/sequence_quality.stats", sample = samples.index),
+        expand("{sample}/{sample}_mapping_report.tsv", sample = samples.index),
         # Global reports
         "reports/fastp_stats.tsv",
-        "reports/qc_filtering_stats.tsv"
+        "reports/qc_filtering_stats.tsv",
+        "reports/clustering_stats.tsv",
+        "reports/mapping_stats.tsv"
 
 # Fastp rules----------------------------
  
@@ -86,7 +87,7 @@ rule parse_fastp:
         html = "trimmed/reports/{sample}.html"
     output:
         tsv = "trimmed/reports/{sample}.tsv"
-    message: "Parsing fastp json report for {wilcards.sample}"
+    message: "Parsing fastp json report"
     run:
         with open(input.json,'r') as handle:
             data = json.load(handle)
@@ -113,7 +114,7 @@ rule collect_fastp_stats:
         done
         """
  
-# Reads preprocessing rules----------------------------
+# Reads merging and quality filtering rules----------------------------
 
 rule merge_reads:
     input:
@@ -196,13 +197,13 @@ rule qc_stats:
         discarded=$(grep -c "^>" {input.discarded})
         dereplicated=$(grep -c "^>" {input.dereplicated})
         # Calculating fractions
-        reads_total=$(expr $merged + $notmerged)
+        reads_total=$(($merged + $notmerged))
         notmerged_perc=$(echo "scale=2;(100* $notmerged / $reads_total)" | bc)
         discarded_perc=$(echo "scale=2;(100* $discarded / $merged)" | bc)
         kept=$(echo "scale=2;(100* $dereplicated / $reads_total)" | bc)
         # Writing report
-        echo "Total reads\tMerged reads\tMerging failures\tMerging failures [%]\tQuality filtered reads\tDiscarded reads\tDiscarded reads [%]\tNumber of unique reads\tReads kept [%]" > {output}
-        echo "$reads_total\t$merged\t$notmerged\t$notmerged_perc\t$filtered\t$discarded\t$discarded_perc\t$dereplicated\t$kept" >> {output}
+        echo "Sample\tTotal reads\tMerged reads\tMerging failures\tMerging failures [%]\tQuality filtered reads\tDiscarded reads\tDiscarded reads [%]\tNumber of unique reads\tReads kept [%]" > {output}
+        echo "{wildcards.sample}\t$reads_total\t$merged\t$notmerged\t$notmerged_perc\t$filtered\t$discarded\t$discarded_perc\t$dereplicated\t$kept" >> {output}
         """
         
 rule collect_qc_stats:
@@ -230,28 +231,20 @@ rule merge_samples:
     shell:
         """
         cat {input} > {output}
-        echo
-        echo Sum of unique sequences in each sample: $(cat {output} | grep -c "^>")
-        echo
         """
 
 rule derep_all:
     input:
         "VSEARCH/all.fasta"
     output:
-        uc = "VSEARCH/all.derep.uc", # What is this for?
-        derep = "VSEARCH/all.derep.fasta"
+        "VSEARCH/all.derep.fasta"
     conda: "envs/vsearch.yaml"
-    threads: config["threads"]
     message: "Dereplicating"
     log: 
         "logs/derep_all.log"
     shell:
         """
-        vsearch --derep_fulllength {input} --threads {threads} --sizein --sizeout --fasta_width 0 --output {output.derep} --uc {output.uc} | tee {log} 2>&1
-        echo
-        echo Unique non-singleton sequences: $(grep -c "^>" {output.derep}) | tee {log}
-        echo
+        vsearch --derep_fulllength {input} --sizein --sizeout --fasta_width 0 --output {output} | tee {log} 2>&1
         """
         
 rule cluster:
@@ -262,16 +255,13 @@ rule cluster:
     params:
         clusterID = config["cluster"]["cluster_identity"]
     conda: "envs/vsearch.yaml"
-    threads: config["threads"]
+    threads: config["cores"]
     message: "Clustering sequences"
     log:
         "logs/clustering.log"
     shell:
         """
         vsearch --cluster_size {input} --threads {threads} --id {params.clusterID} --strand plus --sizein --sizeout --fasta_width 0 --centroids {output} | tee {log} 2>&1
-        echo
-        echo Clusters: $(grep -c "^>" {output}) | tee {log}
-        echo
         """
         
 rule sort_all:
@@ -280,16 +270,13 @@ rule sort_all:
     output:
         "VSEARCH/sorted.fasta"
     conda: "envs/vsearch.yaml"
-    threads: config["threads"]
+    threads: config["cores"]
     message: "Sorting centroids and removing singleton"
     log:
         "logs/sort_all.log"
     shell:
         """
         vsearch --sortbysize {input} --threads {threads} --sizein --sizeout --fasta_width 0 --minsize 2 --output {output} | tee {log} 2>&1
-        echo
-        echo Non-singleton clusters: $(grep -c "^>" {output}) | tee {log}
-        echo
         """
         
 rule chimera_denovo:
@@ -304,9 +291,6 @@ rule chimera_denovo:
     shell:
         """
         vsearch --uchime_denovo {input} --sizein --sizeout --fasta_width 0 --qmask none --nonchimeras {output}| tee {log} 2>&1
-        echo
-        echo Unique sequences after de novo chimera detection: $(grep -c "^>" {output}) | tee {log}
-        echo
         """
         
 rule chimera_db:
@@ -316,7 +300,7 @@ rule chimera_db:
         "VSEARCH/nonchimeras.fasta"
     params:
         DB = config["cluster"]["chimera_DB"]
-    threads: config["threads"]
+    threads: config["cores"]
     conda: "envs/vsearch.yaml"
     message: "Reference chimera detection"
     log:
@@ -324,9 +308,6 @@ rule chimera_db:
     shell:
         """
         vsearch --uchime_ref {input} --db {params.DB} --threads {threads} --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --nonchimeras {output}| tee {log} 2>&1
-        echo
-        echo Unique sequences after reference chimera detection: $(grep -c "^>" {output}) | tee {log}
-        echo
         """
 
 rule relabel_otu:
@@ -334,29 +315,68 @@ rule relabel_otu:
         "VSEARCH/nonchimeras.fasta"
     output:
         "VSEARCH/otus.fasta"
-    threads: config["threads"]
     conda: "envs/vsearch.yaml"
     message: "Relabelling OTUs"
     log:
         "logs/relabel_otus.log"
     shell:
         """
-        vsearch --fastx_filter {input} --threads {threads} --sizein --sizeout --fasta_width 0 --relabel OTU_ --fastaout {output} | tee {log} 2>&1
-        echo
-        echo Number of OTUs: $(grep -c "^>" {output}) | tee {log}
-        echo
+        vsearch --fastx_filter {input} --sizein --sizeout --fasta_width 0 --relabel OTU_ --fastaout {output} | tee {log} 2>&1
         """
         
-# rule clustering_summary       
-# Number of samples, Number of Reads (total), Number of reads (unique), Centroid number, De novo Chimera (%), DB chimera (%), OTU number
+rule clustering_stats:
+    input:
+        samples = expand("{sample}/{sample}.derep.fasta", sample = samples.index),
+        all = "VSEARCH/all.fasta",
+        derep = "VSEARCH/all.derep.fasta",
+        centroids = "VSEARCH/centroids.fasta",
+        nonsinglet = "VSEARCH/sorted.fasta",
+        non_chimera_denovo = "VSEARCH/denovo.nonchimeras.fasta",
+        non_chimera_db = "VSEARCH/nonchimeras.fasta"
+    output:
+        "reports/clustering_stats.tsv"
+    message: "Collecting clustering stats"
+    shell:
+        """
+        # Collecting counts
+        samples=({input.samples})
+        n_samples=${{#samples[@]}}
+        all=$(grep "^>" {input.all} | awk -F '=' '{{s+=$2}}END{{print s}}')
+        uniques=$(grep "^>" {input.derep} | awk -F '=' '{{s+=$2}}END{{print s}}')
+        centroids=$(grep -c "^>" {input.centroids})
+        nonsinglet=$(grep -c "^>" {input.nonsinglet})
+        nonsinglet_read=$(grep "^>" {input.nonsinglet} | awk -F '=' '{{s+=$2}}END{{print s}}')
+        non_chimera_denovo=$(grep -c "^>" {input.non_chimera_denovo})
+        non_chimera_db=$(grep -c "^>" {input.non_chimera_db})
+        non_chimera_denovo_read=$(grep "^>" {input.non_chimera_denovo} | awk -F '=' '{{s+=$2}}END{{print s}}')
+        non_chimera_db_read=$(grep "^>" {input.non_chimera_db} | awk -F '=' '{{s+=$2}}END{{print s}}')
         
+        # Calculating fractions
+        nonsinglet_perc=$(echo "scale=2;(100* $nonsinglet / $centroids)" | bc)
+        nonsinglet_perc_read=$(echo "scale=2;(100* $nonsinglet_read / $all)" | bc)
+        chim_denovo=$(($nonsinglet - $non_chimera_denovo))
+        chim_denovo_perc=$(echo "scale=2;(100* $chim_denovo / $nonsinglet)" | bc)
+        chim_denovo_read=$(($nonsinglet_read - $non_chimera_denovo_read))
+        chim_denovo_perc_read=$(echo "scale=2;(100* $chim_denovo_read / $nonsinglet_read)" | bc)
+        chim_db=$(($non_chimera_denovo - $non_chimera_db))
+        chim_db_perc=$(echo "scale=2;(100* $chim_db / $nonsinglet)" | bc)
+        chim_db_read=$(($non_chimera_denovo_read - $non_chimera_db_read))
+        chim_db_perc_read=$(echo "scale=2;(100* $chim_db_read / $nonsinglet_read)" | bc)
+        non_chimera_perc=$(echo "scale=2;(100* $non_chimera_db_read / $all)" | bc)
+        
+        # Writting report
+        echo "Number of samples\tNumber of Reads (total)\tNumber of reads (unique)\tCentroid number\tNon-singleton centroids\tNon-singleton centroids [%]\tNon-singleton centroids [read number]\tNon-singleton centroids [% of reads]\tChimera (de novo)\tChimera (de novo) [%]\tChimera (database)\tChimera (database) [%]\tChimera (de novo) [reads]\tChimera (de novo) [% of reads]\tChimera (database) [reads]\tChimera (database) [% of reads]\tOTU number\tReads in OTU\tReads in OTU [%]" > {output}
+        echo "$n_samples\t$all\t$uniques\t$centroids\t$nonsinglet\t$nonsinglet_perc\t$nonsinglet_read\t$nonsinglet_perc_read\t$chim_denovo\t$chim_denovo_perc\t$chim_db\t$chim_db_perc\t$chim_denovo_read\t$chim_denovo_perc_read\t$chim_db_read\t$chim_db_perc_read\t$non_chimera_db\t$non_chimera_db_read\t$non_chimera_perc" >> {output}
+        """
+
+# Reads mapping rules----------------------------
+
 rule map_sample:
     input:
         fasta = "{sample}/{sample}.derep.fasta",
         db = "VSEARCH/otus.fasta"
     output:
-        tab = "{sample}/{sample}_otutab.txt",
-        sorted = "{sample}/{sample}_otutab.sorted.txt"
+        otu = "{sample}/{sample}_otutab.tsv",
     params:
         clusterID = config["cluster"]["cluster_identity"]
     threads: config["threads"]
@@ -367,14 +387,50 @@ rule map_sample:
     shell:
         """
         vsearch --usearch_global {input.fasta} --threads {threads} --db {input.db} --id {params.clusterID}\
-        --strand plus --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --otutabout {output.tab} |\
-        tee {log} 2>&1
-        
-        sort -k1.5n {output.tab} > {output.sorted}
+        --strand plus --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --otutabout {output.otu} | tee {log} 2>&1     
+
+        tail -n +2 {output.otu} | sort -k 2,2nr -o {output.otu} 
         """
 
-# Blast rules----------------------------
+rule mapping_stats:
+    input: 
+        fasta = "{sample}/{sample}.derep.fasta",
+        otu = "{sample}/{sample}_otutab.tsv"
+    output:
+        "{sample}/{sample}_mapping_report.tsv"
+    message: "Collecting mapping summary for {wildcards.sample}"
+    shell:
+        """
+        # Collecting counts
+        nreads=$(grep "^>" {input.fasta} | awk -F '=' '{{s+=$2}}END{{print s}}')
+        nmapped=$(awk '{{s+=$2}}END{{print s}}' {input.otu})
+        notu=$(grep -c "OTU_" {input.otu})
+        max=$(head -n 1 {input.otu} | cut -f 2)
+        min=$(tail -n 1 {input.otu} | cut -f 2)
+        
+        # Calculating fractions
+        map_perc=$(echo "scale=2;(100* $nmapped / $nreads)" | bc)
+        
+        #Writting to file
+        echo "Sample\tRead number\tReads mapped\tReads mapped [%]\tOTU number\tMax count\tMin count" > {output}
+        echo "{wildcards.sample}\t$nreads\t$nmapped\t$map_perc\t$notu\t$max\t$min" >> {output}
+        """
 
+rule collect_mapping_stats:
+    input:
+        expand("{sample}/{sample}_mapping_report.tsv", sample = samples.index)
+    output:
+        "reports/mapping_stats.tsv"
+    message: "Collecting mapping stats"
+    shell:
+        """
+        cat {input[0]} | head -n 1 > {output}
+        for i in {input}; do 
+            cat ${{i}} | tail -n +2 >> {output}
+        done
+        """
+        
+# Reads assignment rules----------------------------
 rule blast_otus:
     input: 
         "VSEARCH/otus.fasta"
@@ -398,9 +454,9 @@ rule blast_otus:
         -outfmt '6 qseqid sseqid evalue pident bitscore sgi sacc staxids sscinames scomnames stitle' |\
         tee {log} 2>&1
         """
-# Filter Blast results with soft masks and report for each OTU:
-# Taxonomic consensus (Lowest common ancestor)
-# All Hits above thresholds with Evalue, percent identity and bitscore
+# Filter Blast results with soft masks and report for each OTU.
+# Taxonomic consensus (Lowest common ancestor).
+# All Hits above thresholds with Evalue, percent identity and bitscore.
 
 # For each sample map the OTUS (with abundance) to the BLAST reports
 

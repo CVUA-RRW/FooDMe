@@ -5,7 +5,9 @@ workdir: "toy_data"
 samples: "samples.tsv"
 
 # Number of threads per sample:
-threads: 4 
+threads: 3 
+# Max number of threads to use:
+cores: 6
 
 # Merged reads quality filtering parameters:
 read_filter:
