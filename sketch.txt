@@ -1,34 +1,26 @@
+# SPEZID
 # Goal: Identify animal species in a 16S metagenomic sequencing run. For Illumina PE reads
 # =====
 #
-# Run sample QC, clean reads and check number of reads -> fastp
-# OTU with VSEARCH
-# Blast OTU and re-id in samples
-# Create a report with: (tsv ->Rmarkdown?)
-    # A report per sample ?
-    # Trimming tab
-    # QC tab
-        #Important number of reads per sample
-    # Opt: Plots 
-        # Insert size distribution
-        # Hit abundance
-        # Species chart
-#
 # TODO:
 # =====
-# Clean input
+# Set CPU use for CLustering and chimera detection to the total cpu number from Snakemake (analysis bottelneck)
+# Clean input rule
 # Make unnescessary files temporary
 # Check and optimizes parameters
 # Compare database, evtl. curate by merging databases
 # Compare OTU with ASV analyse
+# Make fancy html report
 #
 # Credits:
 # ========
 # Sample table for import was written by Carlus Deneke @BfR https://gitlab.com/bfr_bioinformatics
 # The OTU clustering was adapted from the VSEARCH Pipeline from Torsten Rognes https://github.com/torognes/vsearch/wiki/Alternative-VSEARCH-pipeline
 
-
 import pandas as pd
+import os, json, csv
+
+shell.executable("bash")
     
 # Settings ---------------------------
  
@@ -48,17 +40,23 @@ def _get_fastq(wildcards,read_pair='fq1'):
  
 rule all:
     input: 
+        # fastp
         expand("trimmed/{sample}_R1.fastq.gz", sample = samples.index),
         expand("trimmed/{sample}_R2.fastq.gz", sample = samples.index),
-        expand("trimmed/reports/{sample}.json", sample = samples.index),
-        expand("trimmed/reports/{sample}.html", sample = samples.index),
-        expand("{sample}/sequence_quality.stats", sample = samples.index),
+        # VSEARCH
         expand("{sample}/{sample}.derep.fasta", sample = samples.index),
-        "reports/sample_coverage.tsv",
         "VSEARCH/all.derep.fasta",
         "VSEARCH/otus.fasta",
         expand("{sample}/{sample}_otutab.sorted.txt", sample = samples.index),
-        "blast/blast_search.out"
+        # BLAST
+        "blast/blast_search.tsv",        
+        # Sample reports
+        expand("trimmed/reports/{sample}.tsv", sample = samples.index),
+        expand("{sample}/{sample}_filtering_report.tsv", sample = samples.index),
+        expand("{sample}/sequence_quality.stats", sample = samples.index),
+        # Global reports
+        "reports/fastp_stats.tsv",
+        "reports/qc_filtering_stats.tsv"
 
 # Fastp rules----------------------------
  
@@ -77,10 +75,43 @@ rule run_fastp:
     log: 
         "logs/{sample}_fastp.log"
     shell:
-        "fastp -i {input.r1} -I {input.r2} -o {output.r1} -O {output.r2} -h {output.html} -j {output.json} --length_required 50 --qualified_quality_phred 15 --detect_adapter_for_pe --thread {threads} --report_title 'Sample {wildcards.sample}' | tee {log} 2>&1"
+        "fastp -i {input.r1} -I {input.r2} -o {output.r1} -O {output.r2} -h {output.html} -j {output.json}\
+        --length_required 50 --qualified_quality_phred 15 --detect_adapter_for_pe --thread {threads} --report_title 'Sample {wildcards.sample}' |\
+        tee {log} 2>&1"
         # Eventually add base correction --correction
- 
- # rule fastp_summary:
+
+rule parse_fastp:
+    input:
+        json = "trimmed/reports/{sample}.json",
+        html = "trimmed/reports/{sample}.html"
+    output:
+        tsv = "trimmed/reports/{sample}.tsv"
+    message: "Parsing fastp json report for {wilcards.sample}"
+    run:
+        with open(input.json,'r') as handle:
+            data = json.load(handle)
+          
+        link_path = os.path.join("..", input.html)
+        header = "sample\ttotal_reads_before\ttotal_bases_before\ttotal_reads_after\ttotal_bases_after\tq20_rate_after\tq30_rate_after\tduplication_rate\tinsert_size_peak\tlink_to_report"
+        datalist = [wildcards.sample, data["summary"]["before_filtering"]["total_reads"],data["summary"]["before_filtering"]["total_bases"],data["summary"]["after_filtering"]["total_reads"],data["summary"]["after_filtering"]["total_bases"],data["summary"]["after_filtering"]["q20_rate"],data["summary"]["after_filtering"]["q30_rate"],data["duplication"]["rate"],data["insert_size"]["peak"], link_path]
+        with open (output.tsv,"w") as outfile:
+            outfile.write(header+"\n")
+            writer=csv.writer(outfile, delimiter='\t')
+            writer.writerow(datalist) 
+
+rule collect_fastp_stats:
+    input:
+        expand('trimmed/reports/{sample}.tsv', sample=samples.index)
+    output:
+        "reports/fastp_stats.tsv"
+    message: "Collecting fastp stats"
+    shell:
+        """
+        cat {input[0]} | head -n 1 > {output}
+        for i in {input}; do 
+            cat ${{i}} | tail -n +2 >> {output}
+        done
+        """
  
 # Reads preprocessing rules----------------------------
 
@@ -89,16 +120,21 @@ rule merge_reads:
         r1 = "trimmed/{sample}_R1.fastq.gz",
         r2 = "trimmed/{sample}_R2.fastq.gz"
     output:
-        merged = "{sample}/{sample}.merged.fastq"
+        merged = "{sample}/{sample}.merged.fastq",
+        notmerged_fwd = "{sample}/{sample}.notmerged.fwd.fasta",
+        notmerged_rev = "{sample}/{sample}.notmerged.rev.fasta"
     threads: config["threads"]
     message: "Merging reads on {wildcards.sample}"
     conda: "envs/vsearch.yaml"
     log:
         "logs/{sample}_merge.log"
     shell:
-        "vsearch --fastq_mergepairs {input.r1} --reverse {input.r2} --threads {threads} --fastqout {output.merged} --fastq_eeout | tee {log} 2>&1"       
+        "vsearch --fastq_mergepairs {input.r1} --reverse {input.r2} --threads {threads} --fastqout {output.merged} \
+        --fastq_eeout --fastaout_notmerged_fwd {output.notmerged_fwd} --fastaout_notmerged_rev {output.notmerged_rev} | \
+        tee {log} 2>&1"       
 
 rule qual_stat:
+# Remove?
     input: 
         merged = "{sample}/{sample}.merged.fastq"
     output:
@@ -108,11 +144,12 @@ rule qual_stat:
     shell:
         "vsearch --fastq_eestats {input.merged} --output {output.stat}"
         
-rule quality_filter: # TODO check parameters
+rule quality_filter: 
     input: 
         merged = "{sample}/{sample}.merged.fastq"
     output:
-        filtered = "{sample}/{sample}_filtered.fasta"
+        filtered = "{sample}/{sample}_filtered.fasta",
+        discarded = "{sample}/{sample}_discarded.fasta"
     params:
         minlen= config["read_filter"]["min_length"],
         maxlen = config["read_filter"]["max_length"],
@@ -122,8 +159,11 @@ rule quality_filter: # TODO check parameters
     log:
         "logs/{sample}_filter.log"
     shell:
-        "vsearch --fastq_filter {input.merged} --fastq_maxee {params.maxee} --fastq_minlen {params.minlen} --fastq_maxlen {params.maxlen} --fastq_maxns 0 --fastaout {output.filtered} --fasta_width 0 | tee {log} 2>&1"
-    
+        "vsearch --fastq_filter {input.merged} --fastq_maxee {params.maxee} --fastq_minlen {params.minlen} --fastq_maxlen {params.maxlen}\
+        --fastq_maxns 0 --fastaout {output.filtered} --fasta_width 0 --fastaout_discarded {output.discarded} |\
+        tee {log} 2>&1"
+
+
 rule dereplicate:
     input: 
         filtered = "{sample}/{sample}_filtered.fasta"
@@ -136,23 +176,49 @@ rule dereplicate:
     shell:
         "vsearch --derep_fulllength {input.filtered} --strand plus --output {output.derep} --sizeout --relabel {wildcards.sample} --fasta_width 0 | tee {log} 2>&1"
 
-# TODO summary QC on pre-processing
-# NR1, NR2, Number of merged reads, number of reads after filtering, Number of unique reads, N filtered reads, % Filtered reads, Min, Max, Mean size after filtering, min, max, mean ee after filtering
-
-# rule coverage: #TODO fix sample name
-    # input:
-        # expand("{sample}/{sample}_filtered.fasta", sample = samples.index)
-    # output:
-        # "reports/sample_coverage.tsv"
-    # message: "Collecting sample coverage"
-    # shell:
-        # """
-        # echo "sample\treads" > {output}
-        # for i in {input}; do
-            # echo ${{i}} "\t" "$(grep -c "^>" ${{i}})" >> {output}
-        # done
-        # """
-    
+rule qc_stats:
+    input:
+        merged = "{sample}/{sample}.merged.fastq",
+        filtered = "{sample}/{sample}_filtered.fasta",
+        notmerged_fwd = "{sample}/{sample}.notmerged.fwd.fasta",
+        notmerged_rev = "{sample}/{sample}.notmerged.rev.fasta",
+        discarded = "{sample}/{sample}_discarded.fasta",
+        dereplicated = "{sample}/{sample}.derep.fasta"
+    output:
+        "{sample}/{sample}_qc_filtering_report.tsv"
+    message: "Collecting quality filtering summary for {wildcards.sample}"
+    shell:
+        """
+        # Parsing fasta/fastq files
+        merged=$(grep -c "^@" {input.merged})
+        notmerged=$(grep -c "^>" {input.notmerged_fwd})
+        filtered=$(grep -c "^>" {input.filtered})
+        discarded=$(grep -c "^>" {input.discarded})
+        dereplicated=$(grep -c "^>" {input.dereplicated})
+        # Calculating fractions
+        reads_total=$(expr $merged + $notmerged)
+        notmerged_perc=$(echo "scale=2;(100* $notmerged / $reads_total)" | bc)
+        discarded_perc=$(echo "scale=2;(100* $discarded / $merged)" | bc)
+        kept=$(echo "scale=2;(100* $dereplicated / $reads_total)" | bc)
+        # Writing report
+        echo "Total reads\tMerged reads\tMerging failures\tMerging failures [%]\tQuality filtered reads\tDiscarded reads\tDiscarded reads [%]\tNumber of unique reads\tReads kept [%]" > {output}
+        echo "$reads_total\t$merged\t$notmerged\t$notmerged_perc\t$filtered\t$discarded\t$discarded_perc\t$dereplicated\t$kept" >> {output}
+        """
+        
+rule collect_qc_stats:
+    input:
+        expand("{sample}/{sample}_qc_filtering_report.tsv", sample = samples.index)
+    output:
+        "reports/qc_filtering_stats.tsv"
+    message: "Collecting quality filtering stats"
+    shell:
+        """
+        cat {input[0]} | head -n 1 > {output}
+        for i in {input}; do 
+            cat ${{i}} | tail -n +2 >> {output}
+        done
+        """
+        
 # Clustering rules----------------------------
 
 rule merge_samples:
@@ -184,7 +250,7 @@ rule derep_all:
         """
         vsearch --derep_fulllength {input} --threads {threads} --sizein --sizeout --fasta_width 0 --output {output.derep} --uc {output.uc} | tee {log} 2>&1
         echo
-        echo Unique non-singleton sequences: $(grep -c "^>" {output.derep})
+        echo Unique non-singleton sequences: $(grep -c "^>" {output.derep}) | tee {log}
         echo
         """
         
@@ -204,7 +270,7 @@ rule cluster:
         """
         vsearch --cluster_size {input} --threads {threads} --id {params.clusterID} --strand plus --sizein --sizeout --fasta_width 0 --centroids {output} | tee {log} 2>&1
         echo
-        echo Clusters: $(grep -c "^>" {output})
+        echo Clusters: $(grep -c "^>" {output}) | tee {log}
         echo
         """
         
@@ -222,11 +288,11 @@ rule sort_all:
         """
         vsearch --sortbysize {input} --threads {threads} --sizein --sizeout --fasta_width 0 --minsize 2 --output {output} | tee {log} 2>&1
         echo
-        echo Non-singleton clusters: $(grep -c "^>" {output})
+        echo Non-singleton clusters: $(grep -c "^>" {output}) | tee {log}
         echo
         """
         
-rule chimera:
+rule chimera_denovo:
     input:
         "VSEARCH/sorted.fasta"
     output:
@@ -239,15 +305,33 @@ rule chimera:
         """
         vsearch --uchime_denovo {input} --sizein --sizeout --fasta_width 0 --qmask none --nonchimeras {output}| tee {log} 2>&1
         echo
-        echo Unique sequences after de novo chimera detection: $(grep -c "^>" {output})
+        echo Unique sequences after de novo chimera detection: $(grep -c "^>" {output}) | tee {log}
         echo
         """
         
-# TODO:DB chemira filtering
+rule chimera_db:
+    input:
+        "VSEARCH/denovo.nonchimeras.fasta"
+    output:
+        "VSEARCH/nonchimeras.fasta"
+    params:
+        DB = config["cluster"]["chimera_DB"]
+    threads: config["threads"]
+    conda: "envs/vsearch.yaml"
+    message: "Reference chimera detection"
+    log:
+        "logs/ref_chimera.log"
+    shell:
+        """
+        vsearch --uchime_ref {input} --db {params.DB} --threads {threads} --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --nonchimeras {output}| tee {log} 2>&1
+        echo
+        echo Unique sequences after reference chimera detection: $(grep -c "^>" {output}) | tee {log}
+        echo
+        """
 
 rule relabel_otu:
     input:
-        "VSEARCH/denovo.nonchimeras.fasta"
+        "VSEARCH/nonchimeras.fasta"
     output:
         "VSEARCH/otus.fasta"
     threads: config["threads"]
@@ -259,7 +343,7 @@ rule relabel_otu:
         """
         vsearch --fastx_filter {input} --threads {threads} --sizein --sizeout --fasta_width 0 --relabel OTU_ --fastaout {output} | tee {log} 2>&1
         echo
-        echo Number of OTUs: $(grep -c "^>" {output})
+        echo Number of OTUs: $(grep -c "^>" {output}) | tee {log}
         echo
         """
         
@@ -282,7 +366,10 @@ rule map_sample:
         "logs/{sample}_map_reads.log"
     shell:
         """
-        vsearch --usearch_global {input.fasta} --threads {threads} --db {input.db} --id {params.clusterID} --strand plus --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --otutabout {output.tab} | tee {log} 2>&1
+        vsearch --usearch_global {input.fasta} --threads {threads} --db {input.db} --id {params.clusterID}\
+        --strand plus --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --otutabout {output.tab} |\
+        tee {log} 2>&1
+        
         sort -k1.5n {output.tab} > {output.sorted}
         """
 
@@ -292,7 +379,7 @@ rule blast_otus:
     input: 
         "VSEARCH/otus.fasta"
     output:
-        "blast/blast_search.out"
+        "blast/blast_search.tsv"
     params:
         blast_DB = config["blast"]["blast_DB"],
         taxdb = config["blast"]["taxdb"],
@@ -306,10 +393,17 @@ rule blast_otus:
     shell:
         """
         export BLASTDB={params.taxdb}
+        
         blastn -db {params.blast_DB} -query {input} -out {output} -task 'megablast' -evalue {params.e_value} -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} \
-        -outfmt '6 qseqid sseqid evalue pident bitscore sgi sacc staxids sscinames scomnames stitle' | tee {log} 2>&1
+        -outfmt '6 qseqid sseqid evalue pident bitscore sgi sacc staxids sscinames scomnames stitle' |\
+        tee {log} 2>&1
         """
+# Filter Blast results with soft masks and report for each OTU:
+# Taxonomic consensus (Lowest common ancestor)
+# All Hits above thresholds with Evalue, percent identity and bitscore
 
-#snakemake -s sketch.txt --use-conda -f blast_otus
+# For each sample map the OTUS (with abundance) to the BLAST reports
 
-# rule id_reads:
+# Report rules----------------------------
+
+# TODO

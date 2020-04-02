@@ -1,11 +1,11 @@
 #Working directory:
 workdir: "toy_data"
 
-# Number of threads per sample:
-threads: 1 
-
 # Path to sample sheet:
 samples: "samples.tsv"
+
+# Number of threads per sample:
+threads: 4 
 
 # Merged reads quality filtering parameters:
 read_filter:
@@ -15,8 +15,9 @@ read_filter:
     
 # Clustering parameters:
 cluster:
-    cluster_identity: 0,97
-    chimera_DB: "none"
+    cluster_identity: 0.97
+    # Path to database for chimera filtering
+    chimera_DB: "/ngs-sw/Databases/blast_RefSeq_mito/mitochondrion.16S.metazoan.faa"
 
 # Blast parameters:
 blast:
@@ -24,3 +25,9 @@ blast:
     blast_DB: "mitochondrion.16S.metazoan.faa" 
     # Path to the folder containing the taxdb database
     taxdb: "/ngs-sw/Databases/blast_RefSeq_mito/"
+    taxmap: "db/"
+    # Hard filters: Results under these will not be reported
+    
+    # Soft filters: Results under these will be reported but filtered out of the taxonomy analysis
+
+    

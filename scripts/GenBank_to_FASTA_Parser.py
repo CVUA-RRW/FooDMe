@@ -3,13 +3,14 @@
 
 from Bio import SeqIO
 from Bio.SeqFeature import FeatureLocation
-import os
+import os, sys
 
 # Extracts all sequences matching 16S and Metazoa from a gbff file and exports a fasta file
 # It will create one fasta record for each occurence of 16S feature. Because of messy annotation of gbff files this can lead to duplicate records
 
-input_file = "./ncbi_dump/mitochondrion.merged.genomic.gbff" #Your GenBank file location. e.g C:\\Sequences\\my_genbank.gb
-output_file_name = "./ncbi_dump/mitochondrion.16S.metazoan.faa" #The name out your fasta output
+
+input_file = sys.argv[1] #Your GenBank file location. e.g C:\\Sequences\\my_genbank.gb
+output_file_name = sys.argv[2] #The name out your fasta output
 #accession_numbers = [line.strip() for line in open(input_file)] #the same as your input file, defines the headers for each sequence
 
 if not os.path.exists(output_file_name): #checks for a pre-existing file with the same name as the output

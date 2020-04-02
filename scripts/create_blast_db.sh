@@ -11,13 +11,18 @@ wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_gb.accession
 wget https://ftp.ncbi.nlm.nih.gov/refseq/release/mitochondrion/mitochondrion.1.genomic.gbff.gz
 wget https://ftp.ncbi.nlm.nih.gov/refseq/release/mitochondrion/mitochondrion.2.genomic.gbff.gz
 
+gunzip mitochondrion.1.genomic.gbff.gz
+gunzip mitochondrion.2.genomic.gbff.gz
+gunzip nucl_gb.accession2taxid.gz
+
 cd ${BLASTDB}
 
 # Extract taxid database
 tar -xzvf ncbi_dump/taxdb.tar.gz
 
 # Parse gbff to extract 16S sequences from Metazoans
-python GenBank_to_FASTA_Parser.py
+cat ncbi_dump/mitochondrion.1.genomic.gbff ncbi_dump/mitochondrion.2.genomic.gbff > ncbi_dump/mitochondrion.merged.genomic.gbff
+python GenBank_to_FASTA_Parser.py ncbi_dump/mitochondrion.merged.genomic.gbff ncbi_dump/mitochondrion.16S.metazoan.faa
 
 # Remove duplicates (Multtiple entries of the 16s rRNA for the same organism)
 sed '/^>/s/$/@/' < ncbi_dump/mitochondrion.16S.metazoan.faa |\
@@ -29,7 +34,7 @@ tr '\t' '\n/' |\
 tail -n +2 > mitochondrion.16S.metazoan.faa
 
 # Clean Accession to taxid table
-cut -f 1,3 ncbi_dump/nucl_gb.accession2taxid.txt | tail -n +2 > ncbi_dump/acc2taxid.tsv
+cut -f 1,3 ncbi_dump/nucl_gb.accession2taxid | tail -n +2 > ncbi_dump/acc2taxid.tsv
 
 # Make BLAST database
 makeblastdb -in mitochondrion.16S.metazoan.faa -parse_seqids -blastdb_version 5 -taxid_map ncbi_dump/acc2taxid.tsv -title "Metazoa_16S" -dbtype nucl
