@@ -3,32 +3,26 @@
 
 from Bio import SeqIO
 from Bio.SeqFeature import FeatureLocation
-import os, sys
+import os, sys, argparse
 
-# Extracts all sequences matching 16S and Metazoa from a gbff file and exports a fasta file
-# It will create one fasta record for each occurence of 16S feature. Because of messy annotation of gbff files this can lead to duplicate records
-
-
-input_file = sys.argv[1] #Your GenBank file location. e.g C:\\Sequences\\my_genbank.gb
-output_file_name = sys.argv[2] #The name out your fasta output
-#accession_numbers = [line.strip() for line in open(input_file)] #the same as your input file, defines the headers for each sequence
-
-if not os.path.exists(output_file_name): #checks for a pre-existing file with the same name as the output
-	for rec in SeqIO.parse(input_file, "gb"): #calls the record for the genbank file and SeqIO (BioPython module) to parse it
-#		acc = rec.annotations['accessions'][0] #Defines your accession numbers
-#		organism = rec.annotations['organism'] #defines your organism ID
-#		tax_line = ("| ").join(rec.annotations['taxonomy']) #defines your taxonomy and seperates entries with a |, remove this line, the 'tax_line', and the {2} in your save for a simpler output
-		try:
-			if rec.annotations["taxonomy"][1] == "Metazoa": #Taxonomy filter
-				for feature in rec.features: #looks for features in the genbank
-					for key, val in feature.qualifiers.items(): #looks for val in the feature qualifiers
-						if any("16S" in s for s in val): #Finds all the features with 16S in them
+def gbff_2_faa(input_file, output_file_name, tax_name, targets):
+	for rec in SeqIO.parse(input_file, "gb"):
+		if any(tax_name in s for s in rec.annotations["taxonomy"]):
+			for feature in rec.features: #looks for features in the genbank
+				for key, val in feature.qualifiers.items(): #looks for val in the feature qualifiers
+					for t in targets:
+						if any(t in s for s in val):
 							seq = rec.seq[feature.location.start:feature.location.end] # retrieve Sequence
-							description = rec.description.split(",")[0]+", 16S rRNA"  #Sequence descriptor
 							with open(output_file_name, "a") as ofile: #opens the output file and "a" designates it for appending
-								ofile.write(">{0} {1}\n{2}\n".format(rec.id, description, seq)) #Writes my FASTA format sequences to the output file
-		except:
-			continue
+								ofile.write(">{0} {1}, {2}\n{3}\n".format(rec.name, rec.annotations["organism"], t, seq)) #Writes my FASTA format sequences to the output file
+								
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description="Parse a gbff file to extract sequence entries corresponding to the given taxa and features and outputs a fasta file")
+	parser.add_argument("-i", dest = "input_file", type = str, required = True, help ="<required> Input GBFF file path")
+	parser.add_argument("-o", dest = "output_file_name", type = str, required = True, help="<required> Output FASTA file path")
+	parser.add_argument("-t", dest= "tax_name", type = str, required = True, help = "<required> Name of the taxa to select, use a high rank name to filter several taxa (e.g 'Vertebrata', 'Metazoa')")
+	parser.add_argument("-f", dest = "targets", type = str, action = 'append', required = True, help = "<required> Features to extract. e.g. -f 16S -f l-rRNA")
+	
+	args = parser.parse_args()
 
-else:
-	print ("The output file already seem to exist in the current working directory {0}. Please change the name of the output file".format(os.getcwd())) #error code, so you don't overwirite your files
+	gbff_2_faa(args.input_file, args.output_file_name, args.tax_name, args.targets)

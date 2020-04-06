@@ -9,27 +9,28 @@ threads: 3
 # Max number of threads to use:
 cores: 6
 
-# Merged reads quality filtering parameters:
 read_filter:
     min_length: 200
     max_length: 500
     max_expected_errors: 1
     
-# Clustering parameters:
 cluster:
     cluster_identity: 0.97
     # Path to database for chimera filtering
-    chimera_DB: "/ngs-sw/Databases/blast_RefSeq_mito/mitochondrion.16S.metazoan.faa"
+    chimera_DB: "/ngs-sw/Databases/blast_RefSeq_mito/mitochondrion.LSU.faa"
 
-# Blast parameters:
 blast:
     # Path to the BLAST database, or just name if located in the taxdb folder
-    blast_DB: "mitochondrion.16S.metazoan.faa" 
+    blast_DB: "mitochondrion.LSU.faa" 
     # Path to the folder containing the taxdb database
     taxdb: "/ngs-sw/Databases/blast_RefSeq_mito/"
-    taxmap: "db/"
-    # Hard filters: Results under these will not be reported
-    
-    # Soft filters: Results under these will be reported but filtered out of the taxonomy analysis
+    # Report filters
+    e_value: 1e-30
+    perc_identity: 97
+    qcov: 10
+    # Post-filtering
+    bit_score_diff: 128
 
-    
+taxonomy:
+    names_dmp: "/home/debian/NGS/SpezID/db/taxdump/names.dmp"
+    nodes_dmp: "/home/debian/NGS/SpezID/db/taxdump/nodes.dmp"

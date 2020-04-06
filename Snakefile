@@ -1,5 +1,5 @@
 # SPEZID
-# Goal: Identify animal species in a 16S metagenomic sequencing run. For Illumina PE reads
+# Goal: Identify animal species in a 16S metagenomic sequencing run. For Illumina PE reads.
 # =====
 #
 # TODO:
@@ -14,6 +14,7 @@
 # ========
 # Sample table for import and fastp report parsing was written by Carlus Deneke @BfR https://gitlab.com/bfr_bioinformatics
 # The OTU clustering was adapted from the VSEARCH Pipeline from Torsten Rognes https://github.com/torognes/vsearch/wiki/Alternative-VSEARCH-pipeline
+# Toxonomic lineage extraction uses the 2018-ncbi-lineages scripts from Titus Brown, https://github.com/dib-lab/2018-ncbi-lineages
 
 import pandas as pd
 import os, json, csv
@@ -31,9 +32,8 @@ samples.index = samples.index.astype('str', copy=False) # in case samples are in
 # Functions ------------------------------------------
 
 def _get_fastq(wildcards,read_pair='fq1'):
-    "kudos to Carlus Deneke @BfR"
     return samples.loc[(wildcards.sample), [read_pair]].dropna()[0]
-
+    
 # Rules ------------------------------
  
 rule all:
@@ -57,7 +57,9 @@ rule all:
         "reports/fastp_stats.tsv",
         "reports/qc_filtering_stats.tsv",
         "reports/clustering_stats.tsv",
-        "reports/mapping_stats.tsv"
+        "reports/mapping_stats.tsv",
+        "reports/consensus_table.tsv",
+        "reports/blast_stats.tsv"
 
 # Fastp rules----------------------------
  
@@ -430,7 +432,8 @@ rule collect_mapping_stats:
         done
         """
         
-# Reads assignment rules----------------------------
+# OTU BLAST rules----------------------------
+
 rule blast_otus:
     input: 
         "VSEARCH/otus.fasta"
@@ -439,9 +442,10 @@ rule blast_otus:
     params:
         blast_DB = config["blast"]["blast_DB"],
         taxdb = config["blast"]["taxdb"],
-        e_value = 10,
-        perc_identity = 0,
-        qcov = 0        
+        e_value = config["blast"]["e_value"],
+        perc_identity = config["blast"]["perc_identity"],
+        qcov = config["blast"]["qcov"] 
+    threads: config["cores"]
     message: "BLASTing OTUs against local database"
     conda: "envs/blast.yaml"
     log:
@@ -451,9 +455,53 @@ rule blast_otus:
         export BLASTDB={params.taxdb}
         
         blastn -db {params.blast_DB} -query {input} -out {output} -task 'megablast' -evalue {params.e_value} -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} \
-        -outfmt '6 qseqid sseqid evalue pident bitscore sgi sacc staxids sscinames scomnames stitle' |\
+        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxids sscinames scomnames stitle' -num_threads {threads} |\
         tee {log} 2>&1
         """
+
+rule filter_blast:
+    input:
+        "blast/blast_search.tsv"
+    output:
+        "blast/blast_filtered.tsv"
+    params:
+        bit_diff= 16
+    message: "Filtering BLAST results"
+    shell:
+        """
+        # TODO filtering with bit score difference + evtl. clean OTU names
+        cat {input} > {output} 
+        """
+
+rule blast2lca:
+    input:
+        "blast/blast_filtered.tsv"
+    output:
+        "reports/consensus_table.tsv" 
+    params:
+        names = config["taxonomy"]["names_dmp"],
+        nodes = config["taxonomy"]["nodes_dmp"]
+    message: "Lowest common ancestor determination"
+    script:
+        "scripts/blast_to_lca.py"
+        
+rule blast_report:
+    input:
+        "reports/consensus_table.tsv" 
+    output:
+        "reports/blast_stats.tsv"
+    message: "Collecting blast statistics"
+    shell:
+        """
+        touch {output}
+        """
+
+# BLAST report
+# # OTUS, # No hits, # Specy consensus, # Genus consensus, # Familly consensus, # Order or above 
+# All
+# Per sample
+
+
 # Filter Blast results with soft masks and report for each OTU.
 # Taxonomic consensus (Lowest common ancestor).
 # All Hits above thresholds with Evalue, percent identity and bitscore.
