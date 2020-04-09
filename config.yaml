@@ -25,11 +25,11 @@ blast:
     # Path to the folder containing the taxdb database
     taxdb: "/ngs-sw/Databases/blast_RefSeq_mito/"
     # Report filters
-    e_value: 1e-30
-    perc_identity: 97
-    qcov: 10
+    e_value: 100
+    perc_identity: 1
+    qcov: 1
     # Post-filtering
-    bit_score_diff: 128
+    bit_score_diff: 1024
 
 taxonomy:
     names_dmp: "/home/debian/NGS/SpezID/db/taxdump/names.dmp"

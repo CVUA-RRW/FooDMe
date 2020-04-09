@@ -3,7 +3,7 @@
 
 import argparse, os
 from collections import defaultdict
-from ncbi_lineages import ncbi_taxdump_utils
+import ncbi_taxdump_utils
 
 want_taxonomy = ['superkingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']	
 	
@@ -52,7 +52,7 @@ def get_consensus(entry):
 def main(blast_report, output, names_dmp, nodes_dmp):
 	otu_dict = parse_blast(blast_report)
 	with open(output, 'w') as out:
-		out.write("queryID\tConsensus\tTaxonomic level\n")
+		out.write("queryID\tConsensus\tRank\n")
 	for queryID, taxid_list in otu_dict.items():
 		lineages = []
 		for taxid in taxid_list:

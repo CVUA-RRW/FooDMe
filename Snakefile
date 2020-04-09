@@ -4,11 +4,12 @@
 #
 # TODO:
 # =====
+# Readme
 # Make unnescessary files temporary
 # Check and optimize parameters
+# Make fancy html report
 # Compare database, evtl. curate by merging databases
 # Compare OTU with ASV analyse
-# Make fancy html report
 #
 # Credits:
 # ========
@@ -47,19 +48,24 @@ rule all:
         "VSEARCH/otus.fasta",
         expand("{sample}/{sample}_otutab.tsv", sample = samples.index),
         # BLAST
-        "blast/blast_search.tsv",        
+        "blast/blast_search.tsv",    
+        "blast/blast_filtered.tsv",
+        # Taxonomy
+        "blast/consensus_table.tsv",
+        expand("{sample}/{sample}_composition.tsv", sample = samples.index),
         # Sample reports
         expand("trimmed/reports/{sample}.tsv", sample = samples.index),
         expand("{sample}/{sample}_qc_filtering_report.tsv", sample = samples.index),
         expand("{sample}/sequence_quality.stats", sample = samples.index),
         expand("{sample}/{sample}_mapping_report.tsv", sample = samples.index),
+        expand("{sample}/{sample}_taxonomy_stats.tsv", sample = samples.index),
         # Global reports
         "reports/fastp_stats.tsv",
         "reports/qc_filtering_stats.tsv",
         "reports/clustering_stats.tsv",
         "reports/mapping_stats.tsv",
-        "reports/consensus_table.tsv",
-        "reports/blast_stats.tsv"
+        "reports/blast_stats.tsv",
+        "reports/taxonomy_stats.tsv"
 
 # Fastp rules----------------------------
  
@@ -465,19 +471,32 @@ rule filter_blast:
     output:
         "blast/blast_filtered.tsv"
     params:
-        bit_diff= 16
+        bit_diff= config["blast"]["bit_score_diff"]
     message: "Filtering BLAST results"
     shell:
         """
-        # TODO filtering with bit score difference + evtl. clean OTU names
-        cat {input} > {output} 
+        OTUs=$(cat {input} | cut -d";" -f1 | sort -u)
+        for otu in $OTUs
+        do
+            max=$(grep -E "^${{otu}};" {input} | cut -f5 | sort -rn | head -n1)
+            for hit in $(grep "^${{otu}};" {input} | tr '\t' '#' | tr ' ' '@')
+            do
+                val=$(echo $hit | cut -d'#' -f5)
+                if [ $[$max - val] -le {params.bit_diff} ]
+                then
+                    echo $hit | tr '@' ' ' | tr '#' '\t' | tr ';' '\t' | cut -d'\t' --complement -f2  >> {output}
+                fi
+            done
+        done
         """
+
+# Taxonomy determination rules----------------------------
 
 rule blast2lca:
     input:
         "blast/blast_filtered.tsv"
     output:
-        "reports/consensus_table.tsv" 
+        "blast/consensus_table.tsv" 
     params:
         names = config["taxonomy"]["names_dmp"],
         nodes = config["taxonomy"]["nodes_dmp"]
@@ -485,29 +504,113 @@ rule blast2lca:
     script:
         "scripts/blast_to_lca.py"
         
-rule blast_report:
+rule blast_stats:
     input:
-        "reports/consensus_table.tsv" 
+        otus = "VSEARCH/otus.fasta",
+        blast = "blast/blast_search.tsv",
+        filtered = "blast/blast_filtered.tsv",
+        lca = "blast/consensus_table.tsv" 
     output:
         "reports/blast_stats.tsv"
-    message: "Collecting blast statistics"
+    params:
+        bit_diff= config["blast"]["bit_score_diff"]
+    message: "Collecting BLAST stats"
+    shell:
+        """      
+        # Get list of all OTUs
+        OTUs=$(grep "^>" {input.otus} | cut -d";" -f1 | tr -d '>' | sort -u)
+        
+        for otu in $OTUs
+        do
+            bhits=$(grep -c -E "^${{otu}};" {input.blast} || true)
+            if [ $bhits -eq 0 ]
+            then
+                # When there is no blast hit
+                echo "$otu\t0\t0\t0\t0\t0\t-\t-" >> {output}
+            else
+                # Otherwise collect and print stats to file
+                bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -rn | head -n1)
+                bit_low=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -n | head -n1)
+                bit_thr=$(($bit_best-{params.bit_diff}))
+                shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
+                cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2)
+                rank=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f3)
+                
+                echo "$otu\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t$rank" >> {output}
+            fi
+        done
+        
+        # Sort by number of blast hits and add header (just to get hits on top)
+        sort -k2,2nr -o {output} {output}
+        sed -i '1 i\Query\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank' {output}
+        """
+
+rule otutab2lca:
+    input:
+        otu = "{sample}/{sample}_otutab.tsv",
+        lca = "reports/blast_stats.tsv"
+    output:
+        "{sample}/{sample}_composition.tsv"
+    message:
+        "Determining the composition of {wildcards.sample}"
     shell:
         """
-        touch {output}
+        echo "Query\tsize\tConsensus\tRank" > {output}
+        
+        while IFS= read -r line
+        do
+            otu=$(echo $line | cut -d' ' -f1)
+            size=$(echo $line | cut -d' ' -f2)
+            cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f7)
+            rank=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f8)
+            echo "$otu\t$size\t$cons\t$rank" >> {output}
+        done < {input.otu} 
         """
-
-# BLAST report
-# # OTUS, # No hits, # Specy consensus, # Genus consensus, # Familly consensus, # Order or above 
-# All
-# Per sample
-
-
-# Filter Blast results with soft masks and report for each OTU.
-# Taxonomic consensus (Lowest common ancestor).
-# All Hits above thresholds with Evalue, percent identity and bitscore.
-
-# For each sample map the OTUS (with abundance) to the BLAST reports
+        
+rule tax_stats:
+    input:
+        "{sample}/{sample}_composition.tsv"
+    output:
+        "{sample}/{sample}_taxonomy_stats.tsv"
+    message: "Collecting taxonomy stats for {wildcards.sample}"
+    shell:
+        """
+        echo "Sample\tNo Blast hit\tSpecy consensus\tGenus consensus\tFamily consensus\tHigher rank consensus" > {output}
+        
+        nohits=$(grep -c "-" {input} || true)
+        spec=$(grep -c "species" {input} || true)
+        gen=$(grep -c "genus" {input} || true)
+        fam=$(grep -c "family" {input} || true)
+        other=$(( $(grep -c "OTU_" {input} || true) - $nohits - $spec - $gen - $fam ))
+        
+        echo "{wildcards.sample}\t$nohits\t$spec\t$gen\t$fam\t$other" >> {output}
+        """
+        
+rule collect_tax_stats:
+    input:
+        expand("{sample}/{sample}_taxonomy_stats.tsv", sample = samples.index)
+    output:
+        "reports/taxonomy_stats.tsv"
+    message: "Collecting blast statistics"
+    shell:
+        """          
+        for i in {input}; do 
+            cat ${{i}} | tail -n +2 >> {output}
+        done
+        
+        # Sums 
+        cut -d'\t' -f2 {output} | grep . | paste -sd+ - | bc
+        nohits=$(cut -d'\t' -f2 {output} | grep . | paste -sd+ - | bc)
+        spec=$(cut -d'\t' -f3 {output} | grep . | paste -sd+ - | bc)
+        gen=$(cut -d'\t' -f5 {output} | grep . | paste -sd+ - | bc)
+        fam=$(cut -d'\t' -f5 {output} | grep . | paste -sd+ - | bc)
+        other=$(cut -d'\t' -f6 {output} | grep . | paste -sd+ - | bc)
+        
+        # Insert Header and sums
+        sed -i "1 i\All\t$nohits\t$spec\t$gen\t$fam\t$other" {output}
+        sed -i "1 i\Sample\tNo Blast hit\tSpecy consensus\tGenus consensus\tFamily consensus\tHigher rank consensus" {output}
+        """
 
 # Report rules----------------------------
 
-# TODO
+# TODO nice html reports + plots
