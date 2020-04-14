@@ -59,6 +59,7 @@ rule all:
         expand("{sample}/sequence_quality.stats", sample = samples.index),
         expand("{sample}/{sample}_mapping_report.tsv", sample = samples.index),
         expand("{sample}/{sample}_taxonomy_stats.tsv", sample = samples.index),
+        expand("reports/results/{sample}_result_summary.tsv", sample = samples.index),
         # Global reports
         "reports/fastp_stats.tsv",
         "reports/qc_filtering_stats.tsv",
@@ -66,6 +67,7 @@ rule all:
         "reports/mapping_stats.tsv",
         "reports/blast_stats.tsv",
         "reports/taxonomy_stats.tsv"
+        
 
 # Fastp rules----------------------------
  
@@ -78,6 +80,9 @@ rule run_fastp:
         r2 = "trimmed/{sample}_R2.fastq.gz",
         json = "trimmed/reports/{sample}.json",
         html = "trimmed/reports/{sample}.html"
+	params:
+		length_required = config["fastp"]["length_required"]
+		qualified_quality_phred = config["fatsp"]["qualified_quality_phred"]
     threads: config["threads"]
     message: "Running fastp on {wildcards.sample}"
     conda: "envs/fastp.yaml"
@@ -85,9 +90,8 @@ rule run_fastp:
         "logs/{sample}_fastp.log"
     shell:
         "fastp -i {input.r1} -I {input.r2} -o {output.r1} -O {output.r2} -h {output.html} -j {output.json}\
-        --length_required 50 --qualified_quality_phred 15 --detect_adapter_for_pe --thread {threads} --report_title 'Sample {wildcards.sample}' |\
+        --length_required {params.length_required} --qualified_quality_phred {params.qualified_quality_phred} --detect_adapter_for_pe --thread {threads} --report_title 'Sample {wildcards.sample}' |\
         tee {log} 2>&1"
-        # Eventually add base correction --correction
 
 rule parse_fastp:
     input:
@@ -610,6 +614,21 @@ rule collect_tax_stats:
         sed -i "1 i\All\t$nohits\t$spec\t$gen\t$fam\t$other" {output}
         sed -i "1 i\Sample\tNo Blast hit\tSpecy consensus\tGenus consensus\tFamily consensus\tHigher rank consensus" {output}
         """
+
+rule summarize_results:
+    input:
+        "{sample}/{sample}_composition.tsv"
+    output:
+        "reports/results/{sample}_result_summary.tsv"
+    message:
+        "Summarizing results for {wiildcards.sample}
+    shell:
+        """
+        touch {output}
+        """
+    #TODO
+    # Table with Taxa , N reads, % of reads
+    
 
 # Report rules----------------------------
 

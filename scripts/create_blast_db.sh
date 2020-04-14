@@ -2,11 +2,13 @@
 
 if [ $# -eq 0 ]
 then
-    BLASTDB=$(pwd)
+	SCRIPT=$(dirname $(readlink -f "$0"))
+	BLASTDB=$SCRIPT/../db/blast
 else
 	BLASTDB=$1
-	mkdir -p ${BLASTDB} && cd ${BLASTDB}
 fi
+
+mkdir -p ${BLASTDB} && cd ${BLASTDB}
 
 # Get datasets
 wget https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz && tar -xzvf taxdb.tar.gz && rm taxdb.tar.gz

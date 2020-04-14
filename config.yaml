@@ -9,6 +9,10 @@ threads: 3
 # Max number of threads to use:
 cores: 6
 
+fastp:
+    length_required: 50
+    qualified_quality_phred: 15
+
 read_filter:
     min_length: 200
     max_length: 500
