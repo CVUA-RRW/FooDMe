@@ -1,21 +1,10 @@
-# SPEZID
-# Goal: Identify animal species in a 16S metagenomic sequencing run. For Illumina PE reads.
-# =====
-#
 # TODO:
 # =====
-# Readme
 # Make unnescessary files temporary
 # Check and optimize parameters
 # Make fancy html report
 # Compare database, evtl. curate by merging databases
 # Compare OTU with ASV analyse
-#
-# Credits:
-# ========
-# Sample table for import and fastp report parsing was written by Carlus Deneke @BfR https://gitlab.com/bfr_bioinformatics
-# The OTU clustering was adapted from the VSEARCH Pipeline from Torsten Rognes https://github.com/torognes/vsearch/wiki/Alternative-VSEARCH-pipeline
-# Toxonomic lineage extraction uses the 2018-ncbi-lineages scripts from Titus Brown, https://github.com/dib-lab/2018-ncbi-lineages
 
 import pandas as pd
 import os, json, csv
@@ -80,9 +69,9 @@ rule run_fastp:
         r2 = "trimmed/{sample}_R2.fastq.gz",
         json = "trimmed/reports/{sample}.json",
         html = "trimmed/reports/{sample}.html"
-	params:
-		length_required = config["fastp"]["length_required"]
-		qualified_quality_phred = config["fatsp"]["qualified_quality_phred"]
+    params:
+        length_required = config["fastp"]["length_required"]
+        qualified_quality_phred = config["fatsp"]["qualified_quality_phred"]
     threads: config["threads"]
     message: "Running fastp on {wildcards.sample}"
     conda: "envs/fastp.yaml"
@@ -622,13 +611,12 @@ rule summarize_results:
         "reports/results/{sample}_result_summary.tsv"
     message:
         "Summarizing results for {wiildcards.sample}
-    shell:
-        """
-        touch {output}
-        """
-    #TODO
-    # Table with Taxa , N reads, % of reads
-    
+    run:
+        df = pd.read_csv({input}, sep="\t", header=0)
+		groups = df.groupby('Consensus')['size'].sum().sort_values(ascending=False).to_frame()
+		groups['perc']= groups['size']/groups['size'].sum() *100
+		groups.rename(columns={"size":"Number of reads", "perc":"Percent of total"}, index={"-": "No match"}, inplace = True)
+		groups.to_csv({output}, sep="\t")
 
 # Report rules----------------------------
 
