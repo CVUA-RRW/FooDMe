@@ -42,7 +42,7 @@ Additional environments should be installed during the first execution of the pi
 ### BLAST database
 
 Taxonomic assignment of reads requires sequence alignment against a nucleotide database. Such a database can be directly downloaded from the [NCBI server](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
-or built using the provided helper script. 
+or built using the provided helper script. This will require both `blast` and `biopython` to be present in the environment.  
 
 ```bash
 bash ${REPO}/FooDMe/scripts/create_blast_db.sh 
@@ -119,8 +119,8 @@ Here is a breakdown of the parameters:
 
 ## Reports
 
-FooDMe generates .tsv files with quality summaries of the different steps of the analysis. These files are located in the reports subfolder of the working directory.
-The final result consists of a composition table summarizing the abundance of each taxa in the different samples. These can be found in the reports/results subfolder.
+FooDMe generates .tsv files with quality summaries of the different steps of the analysis. These files are located in the reports and sample subfolders of the working directory.
+The final result consists of a composition table summarizing the abundance of each taxa in the different samples. These can be found in the sample subfolders.
 
 ## Workflow details
 

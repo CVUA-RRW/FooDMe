@@ -1,8 +1,8 @@
 # TODO:
 # =====
-# Make unnescessary files temporary
 # Check and optimize parameters
-# Make fancy html report
+# Make fancy mardown report
+# Make unnescessary files temporary
 # Compare database, evtl. curate by merging databases
 # Compare OTU with ASV analyse
 
@@ -49,7 +49,7 @@ rule all:
         expand("{sample}/{sample}_mapping_report.tsv", sample = samples.index),
         expand("{sample}/{sample}_taxonomy_stats.tsv", sample = samples.index),
         expand("{sample}/{sample}_composition.tsv", sample = samples.index),
-        expand("reports/results/{sample}_result_summary.tsv", sample = samples.index),
+        expand("{sample}/{sample}_result_summary.tsv", sample = samples.index),
         expand("{sample}/{sample}_summary.tsv", sample = samples.index),
         # Global reports
         "reports/fastp_stats.tsv",
@@ -58,9 +58,10 @@ rule all:
         "reports/mapping_stats.tsv",
         "reports/blast_stats.tsv",
         "reports/taxonomy_stats.tsv",
-        "reports/summary.tsv"
+        "reports/summary.tsv",
+        "reports/software_versions.tsv",
+        "reports/db_versions.tsv"
         
-
 # Fastp rules----------------------------
  
 rule run_fastp:
@@ -610,7 +611,7 @@ rule summarize_results:
     input:
         compo = "{sample}/{sample}_composition.tsv"
     output:
-        report = "reports/results/{sample}_result_summary.tsv"
+        report = "{sample}/{sample}_result_summary.tsv"
     message:
         "Summarizing results for {wildcards.sample}"
     run:
@@ -678,5 +679,33 @@ rule collect_summaries:
     # message:
         # "Generating report for {wildcards.sample}"
         
-# rule report_versions:
+rule software_versions:
+    output:
+        "reports/software_versions.tsv"
+    message: "Collecting software versions"
+    shell:
+        """
+        echo "Software\tVersion" > {output}
+        grep fastp= {workflow.basedir}/envs/fastp.yaml | sed 's/  - //' | tr "=" "\t" >> {output}
+        grep blast= {workflow.basedir}/envs/blast.yaml | sed 's/  - //' | tr "=" "\t" >> {output}
+        grep vsearch= {workflow.basedir}/envs/vsearch.yaml | sed 's/  - //' | tr "=" "\t" >> {output}
+        """
 
+rule database_version:
+    output:
+        "reports/db_versions.tsv"
+    message: "Collecting databases versions"
+    params:
+        chimera = config["cluster"]["chimera_DB"],
+        blast = config["blast"]["blast_DB"],
+        taxdb = config["blast"]["taxdb"],
+        taxdump = config["taxonomy"]["nodes_dmp"]
+    shell:
+        """
+        echo "Database\tLast modified\tFull path" > {output}
+        
+        paste <(echo "Chimera") <(date +%F -r {params.chimera}) <(echo {params.chimera}) >> {output}
+        paste <(echo "BLAST") <(date +%F -r {params.blast}) <(echo {params.blast}) >> {output}
+        paste <(echo "taxdb") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.chimera}/taxdb[.bti/.btd]) >> {output}
+        paste <(echo "taxdump") <(date +%F -r {params.taxdump}) <(echo $(dirname {params.taxdump})/[names.dmp/nodes.dmp]) >> {output}
+        """

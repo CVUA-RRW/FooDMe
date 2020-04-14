@@ -5,4 +5,4 @@ channels:
   - defaults
   - r
 dependencies:
-  - vsearch
+  - vsearch=2.14.2

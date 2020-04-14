@@ -24,8 +24,8 @@ cluster:
     chimera_DB: "/ngs-sw/Databases/blast_RefSeq_mito/mitochondrion.LSU.faa"
 
 blast:
-    # Path to the BLAST database, or just name if located in the taxdb folder
-    blast_DB: "mitochondrion.LSU.faa" 
+    # Path to the BLAST database
+    blast_DB: "/ngs-sw/Databases/blast_RefSeq_mito/mitochondrion.LSU.faa" 
     # Path to the folder containing the taxdb database
     taxdb: "/ngs-sw/Databases/blast_RefSeq_mito/"
     # Report filters
