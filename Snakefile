@@ -48,14 +48,17 @@ rule all:
         expand("{sample}/sequence_quality.stats", sample = samples.index),
         expand("{sample}/{sample}_mapping_report.tsv", sample = samples.index),
         expand("{sample}/{sample}_taxonomy_stats.tsv", sample = samples.index),
+        expand("{sample}/{sample}_composition.tsv", sample = samples.index),
         expand("reports/results/{sample}_result_summary.tsv", sample = samples.index),
+        expand("{sample}/{sample}_summary.tsv", sample = samples.index),
         # Global reports
         "reports/fastp_stats.tsv",
         "reports/qc_filtering_stats.tsv",
         "reports/clustering_stats.tsv",
         "reports/mapping_stats.tsv",
         "reports/blast_stats.tsv",
-        "reports/taxonomy_stats.tsv"
+        "reports/taxonomy_stats.tsv",
+        "reports/summary.tsv"
         
 
 # Fastp rules----------------------------
@@ -70,8 +73,8 @@ rule run_fastp:
         json = "trimmed/reports/{sample}.json",
         html = "trimmed/reports/{sample}.html"
     params:
-        length_required = config["fastp"]["length_required"]
-        qualified_quality_phred = config["fatsp"]["qualified_quality_phred"]
+        length_required = config["fastp"]["length_required"],
+        qualified_quality_phred = config["fastp"]["qualified_quality_phred"]
     threads: config["threads"]
     message: "Running fastp on {wildcards.sample}"
     conda: "envs/fastp.yaml"
@@ -201,7 +204,7 @@ rule qc_stats:
         reads_total=$(($merged + $notmerged))
         notmerged_perc=$(echo "scale=2;(100* $notmerged / $reads_total)" | bc)
         discarded_perc=$(echo "scale=2;(100* $discarded / $merged)" | bc)
-        kept=$(echo "scale=2;(100* $dereplicated / $reads_total)" | bc)
+        kept=$(echo "scale=2;(100* $filtered / $reads_total)" | bc)
         # Writing report
         echo "Sample\tTotal reads\tMerged reads\tMerging failures\tMerging failures [%]\tQuality filtered reads\tDiscarded reads\tDiscarded reads [%]\tNumber of unique reads\tReads kept [%]" > {output}
         echo "{wildcards.sample}\t$reads_total\t$merged\t$notmerged\t$notmerged_perc\t$filtered\t$discarded\t$discarded_perc\t$dereplicated\t$kept" >> {output}
@@ -592,7 +595,6 @@ rule collect_tax_stats:
         done
         
         # Sums 
-        cut -d'\t' -f2 {output} | grep . | paste -sd+ - | bc
         nohits=$(cut -d'\t' -f2 {output} | grep . | paste -sd+ - | bc)
         spec=$(cut -d'\t' -f3 {output} | grep . | paste -sd+ - | bc)
         gen=$(cut -d'\t' -f5 {output} | grep . | paste -sd+ - | bc)
@@ -606,18 +608,75 @@ rule collect_tax_stats:
 
 rule summarize_results:
     input:
-        "{sample}/{sample}_composition.tsv"
+        compo = "{sample}/{sample}_composition.tsv"
     output:
-        "reports/results/{sample}_result_summary.tsv"
+        report = "reports/results/{sample}_result_summary.tsv"
     message:
-        "Summarizing results for {wiildcards.sample}
+        "Summarizing results for {wildcards.sample}"
     run:
-        df = pd.read_csv({input}, sep="\t", header=0)
-		groups = df.groupby('Consensus')['size'].sum().sort_values(ascending=False).to_frame()
-		groups['perc']= groups['size']/groups['size'].sum() *100
-		groups.rename(columns={"size":"Number of reads", "perc":"Percent of total"}, index={"-": "No match"}, inplace = True)
-		groups.to_csv({output}, sep="\t")
+        df = pd.read_csv(input.compo, sep="\t", header=0)
+        groups = df.groupby('Consensus')['size'].sum().sort_values(ascending=False).to_frame()
+        groups['perc']= groups['size']/groups['size'].sum() *100
+        groups.rename(columns={"size":"Number of reads", "perc":"Percent of total"}, index={"-": "No match"}, inplace = True)
+        groups.to_csv(output.report, sep="\t")
 
 # Report rules----------------------------
 
-# TODO nice html reports + plots
+rule summary_report:
+    input:
+        fastp = "trimmed/reports/{sample}.tsv",
+        filter = "{sample}/{sample}_qc_filtering_report.tsv",
+        map = "{sample}/{sample}_mapping_report.tsv",
+        tax = "{sample}/{sample}_taxonomy_stats.tsv"
+    output:
+        "{sample}/{sample}_summary.tsv"
+    message: "Summarizing statistics for {wildcards.sample}"
+    shell:
+        """
+        echo "Sample\tQ30\tFiltered reads\tFiltered reads [%]\tMapped reads [%]\tOTU number\tSpecy consensus\tGenus consensus\tHigher rank\tNo consensus" > {output}
+        
+        Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f7)
+        fil_reads=$(tail -n +2 {input.filter} | cut -d'\t' -f6)
+        fil_perc=$(tail -n +2 {input.filter} | cut -d'\t' -f10) 
+        mapped=$(tail -n +2 {input.map} | cut -d'\t' -f4)
+        otu=$(tail -n +2 {input.map} | cut -d'\t' -f5)
+        spec=$(tail -n +2 {input.tax} | cut -d'\t' -f3)
+        gen=$(tail -n +2 {input.tax} | cut -d'\t' -f4)
+        high=$(tail -n +2 {input.tax} | cut -d'\t' -f5)
+        noc=$(tail -n +2 {input.tax} | cut -d'\t' -f2)
+        
+        echo "{wildcards.sample}\t$Q30\t$fil_reads\t$fil_perc\t$mapped\t$otu\t$spec\t$gen\t$high\t$noc" >> {output}
+        """
+        
+rule collect_summaries:        
+    input:
+        expand("{sample}/{sample}_summary.tsv", sample= samples.index)
+    output:
+        "reports/summary.tsv"
+    message: "Collecting summary reports"
+    shell:
+        """
+        cat {input[0]} | head -n 1 > {output}
+        for i in {input}; do 
+            cat ${{i}} | tail -n +2 >> {output}
+        done
+        """
+
+# rule report_all:
+    # input:
+        
+    # output:
+        # "reports/summary.html"
+    # message: "Generating html report"
+    
+        
+# rule sample_report:
+    # input:
+    
+    # output:
+        # "reports/{sample}_report.html"
+    # message:
+        # "Generating report for {wildcards.sample}"
+        
+# rule report_versions:
+
