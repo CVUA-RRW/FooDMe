@@ -1,0 +1,11 @@
+name: rmarkdown
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+  - r
+dependencies:
+  - r-dt=0.4
+  - r-rmarkdown=1.10
+  - r-knitr=1.20
+  - r-ggplot2=3.0.0
