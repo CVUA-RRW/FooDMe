@@ -59,8 +59,11 @@ rule all:
         "reports/blast_stats.tsv",
         "reports/taxonomy_stats.tsv",
         "reports/summary.tsv",
+        "reports/result_summary.tsv",
         "reports/software_versions.tsv",
-        "reports/db_versions.tsv"
+        "reports/db_versions.tsv",
+        # Markdown
+        "reports/summary.html"
         
 # Fastp rules----------------------------
  
@@ -98,7 +101,7 @@ rule parse_fastp:
             data = json.load(handle)
           
         link_path = os.path.join("..", input.html)
-        header = "sample\ttotal_reads_before\ttotal_bases_before\ttotal_reads_after\ttotal_bases_after\tq20_rate_after\tq30_rate_after\tduplication_rate\tinsert_size_peak\tlink_to_report"
+        header = "Sample\tTotal reads before\tTotal bases before\tTotal reads after\tTotal bases after\tQ20 rate after\tQ30 rate after\tDuplication rate\tInsert size peak\tlink_to_report"
         datalist = [wildcards.sample, data["summary"]["before_filtering"]["total_reads"],data["summary"]["before_filtering"]["total_bases"],data["summary"]["after_filtering"]["total_reads"],data["summary"]["after_filtering"]["total_bases"],data["summary"]["after_filtering"]["q20_rate"],data["summary"]["after_filtering"]["q30_rate"],data["duplication"]["rate"],data["insert_size"]["peak"], link_path]
         with open (output.tsv,"w") as outfile:
             outfile.write(header+"\n")
@@ -207,7 +210,7 @@ rule qc_stats:
         discarded_perc=$(echo "scale=2;(100* $discarded / $merged)" | bc)
         kept=$(echo "scale=2;(100* $filtered / $reads_total)" | bc)
         # Writing report
-        echo "Sample\tTotal reads\tMerged reads\tMerging failures\tMerging failures [%]\tQuality filtered reads\tDiscarded reads\tDiscarded reads [%]\tNumber of unique reads\tReads kept [%]" > {output}
+        echo "Sample\tTotal reads\tMerged reads\tMerging failures\tMerging failures [%]\tQuality filtered reads\tDiscarded reads\tDiscarded reads [%]\tNumber of unique sequences\tReads kept [%]" > {output}
         echo "{wildcards.sample}\t$reads_total\t$merged\t$notmerged\t$notmerged_perc\t$filtered\t$discarded\t$discarded_perc\t$dereplicated\t$kept" >> {output}
         """
         
@@ -566,7 +569,7 @@ rule otutab2lca:
         
 rule tax_stats:
     input:
-        "{sample}/{sample}_composition.tsv"
+        "{sample}/{sample}_composition.tsv" 
     output:
         "{sample}/{sample}_taxonomy_stats.tsv"
     message: "Collecting taxonomy stats for {wildcards.sample}"
@@ -585,25 +588,28 @@ rule tax_stats:
         
 rule collect_tax_stats:
     input:
-        expand("{sample}/{sample}_taxonomy_stats.tsv", sample = samples.index)
+        samples = expand("{sample}/{sample}_taxonomy_stats.tsv", sample = samples.index),
+        all = "reports/blast_stats.tsv"
     output:
         "reports/taxonomy_stats.tsv"
     message: "Collecting blast statistics"
     shell:
-        """          
-        for i in {input}; do 
+        """              
+        # Summary
+        nohits=$(grep -c "-" <(tail -n +2 {input.all}) || true)
+        spec=$(grep -c "species" <(tail -n +2 {input.all}) || true)
+        gen=$(grep -c "genus" <(tail -n +2 {input.all}) || true)
+        fam=$(grep -c "family" <(tail -n +2 {input.all}) || true)
+        other=$(( $(grep -c "OTU_" <(tail -n +2 {input.all}) || true) - $nohits - $spec - $gen - $fam ))
+        
+        echo "All\t$nohits\t$spec\t$gen\t$fam\t$other" >> {output}
+        
+        # Per sample
+        for i in {input.samples}; do 
             cat ${{i}} | tail -n +2 >> {output}
         done
         
-        # Sums 
-        nohits=$(cut -d'\t' -f2 {output} | grep . | paste -sd+ - | bc)
-        spec=$(cut -d'\t' -f3 {output} | grep . | paste -sd+ - | bc)
-        gen=$(cut -d'\t' -f5 {output} | grep . | paste -sd+ - | bc)
-        fam=$(cut -d'\t' -f5 {output} | grep . | paste -sd+ - | bc)
-        other=$(cut -d'\t' -f6 {output} | grep . | paste -sd+ - | bc)
-        
-        # Insert Header and sums
-        sed -i "1 i\All\t$nohits\t$spec\t$gen\t$fam\t$other" {output}
+        # Insert Header 
         sed -i "1 i\Sample\tNo Blast hit\tSpecy consensus\tGenus consensus\tFamily consensus\tHigher rank consensus" {output}
         """
 
@@ -616,10 +622,25 @@ rule summarize_results:
         "Summarizing results for {wildcards.sample}"
     run:
         df = pd.read_csv(input.compo, sep="\t", header=0)
-        groups = df.groupby('Consensus')['size'].sum().sort_values(ascending=False).to_frame()
-        groups['perc']= groups['size']/groups['size'].sum() *100
+        groups = df.groupby(['Consensus', 'Rank'])['size'].sum().sort_values(ascending=False).to_frame().reset_index()
+        groups['perc']= round(groups['size']/groups['size'].sum() *100, 2)
+        groups.insert(0, 'Sample', wildcards.sample)
         groups.rename(columns={"size":"Number of reads", "perc":"Percent of total"}, index={"-": "No match"}, inplace = True)
-        groups.to_csv(output.report, sep="\t")
+        groups.to_csv(output.report, sep="\t", index = False)
+        
+rule collect_results:
+    input:
+        expand("{sample}/{sample}_result_summary.tsv", sample = samples.index)
+    output:
+        "reports/result_summary.tsv"
+    message: "Collecting results"
+    shell:
+        """
+        cat {input[0]} | head -n 1 > {output}
+        for i in {input}; do 
+            cat ${{i}} | tail -n +2 >> {output}
+        done
+        """
 
 # Report rules----------------------------
 
@@ -634,7 +655,7 @@ rule summary_report:
     message: "Summarizing statistics for {wildcards.sample}"
     shell:
         """
-        echo "Sample\tQ30\tFiltered reads\tFiltered reads [%]\tMapped reads [%]\tOTU number\tSpecy consensus\tGenus consensus\tHigher rank\tNo consensus" > {output}
+        echo "Sample\tQ30 rate\tFiltered reads\tFiltered reads [%]\tMapped reads [%]\tOTU number\tSpecy consensus\tGenus consensus\tHigher rank\tNo consensus" > {output}
         
         Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f7)
         fil_reads=$(tail -n +2 {input.filter} | cut -d'\t' -f6)
@@ -663,22 +684,30 @@ rule collect_summaries:
         done
         """
 
-# rule report_all:
-    # input:
-        
-    # output:
-        # "reports/summary.html"
-    # message: "Generating html report"
-    
-        
-# rule sample_report:
-    # input:
-    
-    # output:
-        # "reports/{sample}_report.html"
-    # message:
-        # "Generating report for {wildcards.sample}"
-        
+rule report_all:
+    input:
+        summary = "reports/summary.tsv",
+        fastp = "reports/fastp_stats.tsv",
+        qc_filtering = "reports/qc_filtering_stats.tsv",
+        clustering = "reports/clustering_stats.tsv",
+        mapping = "reports/mapping_stats.tsv",
+        blast = "reports/blast_stats.tsv",
+        taxonomy = "reports/taxonomy_stats.tsv",
+        result = "reports/result_summary.tsv",
+        db = "reports/db_versions.tsv",
+        soft = "reports/software_versions.tsv"
+    params:
+        workdir = config["workdir"]
+    output:
+        "reports/summary.html"
+    conda:
+        "envs/rmarkdown.yaml"
+    log:
+        "logs/rmarkdown.log"
+    message: "Generating html report"
+    script:
+        "scripts/write_report.Rmd"
+          
 rule software_versions:
     output:
         "reports/software_versions.tsv"
@@ -686,9 +715,9 @@ rule software_versions:
     shell:
         """
         echo "Software\tVersion" > {output}
-        grep fastp= {workflow.basedir}/envs/fastp.yaml | sed 's/  - //' | tr "=" "\t" >> {output}
-        grep blast= {workflow.basedir}/envs/blast.yaml | sed 's/  - //' | tr "=" "\t" >> {output}
-        grep vsearch= {workflow.basedir}/envs/vsearch.yaml | sed 's/  - //' | tr "=" "\t" >> {output}
+        paste <(echo "fastp") <(grep fastp= {workflow.basedir}/envs/fastp.yaml | cut -d "=" -f2) >> {output}
+        paste <(echo "blast") <(grep blast= {workflow.basedir}/envs/blast.yaml | cut -d "=" -f2) >> {output}
+        paste <(echo "vsearch") <(grep vsearch= {workflow.basedir}/envs/vsearch.yaml | cut -d "=" -f2) >> {output}
         """
 
 rule database_version:
@@ -702,8 +731,7 @@ rule database_version:
         taxdump = config["taxonomy"]["nodes_dmp"]
     shell:
         """
-        echo "Database\tLast modified\tFull path" > {output}
-        
+        echo "Database\tLast modified\tFull path" > {output}      
         paste <(echo "Chimera") <(date +%F -r {params.chimera}) <(echo {params.chimera}) >> {output}
         paste <(echo "BLAST") <(date +%F -r {params.blast}) <(echo {params.blast}) >> {output}
         paste <(echo "taxdb") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.chimera}/taxdb[.bti/.btd]) >> {output}

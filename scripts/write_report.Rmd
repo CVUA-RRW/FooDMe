@@ -1,0 +1,340 @@
+---
+title: "FooDMe - Food DNA Metabarcoding - analysis report"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+theme: default
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(out.width = '80%',fig.asp= 0.5,fig.align='center',echo=FALSE, warning=FALSE, message=FALSE)
+options(markdown.HTML.header = system.file("misc", "datatables.html", package = "knitr"))
+
+library(DT, quietly = T)
+library(ggplot2, quietly = T)
+
+executor <- Sys.info()["user"]
+```
+
+---
+author: `r paste0(executor)`
+---
+
+```{r init}
+workdir <- snakemake@params[["workdir"]]
+overview <- snakemake@input[["summary"]]
+fastp <- snakemake@input[["fastp"]]
+qc_filtering <- snakemake@input[["qc_filtering"]]
+clustering <- snakemake@input[["clustering"]]
+mapping <- snakemake@input[["mapping"]]
+blast <- snakemake@input[["blast"]]
+taxonomy <- snakemake@input[["taxonomy"]]
+result <- snakemake@input[["result"]]
+db <- snakemake@input[["db"]]
+soft <- snakemake@input[["soft"]]
+
+# infer run name from workdir
+run <- head(tail(strsplit(workdir,"/")[[1]],2),1)
+
+# Number of samples
+nsamples <- nrow(read.csv(file = overview, sep = "\t", check.names=FALSE))
+```
+
+# Analysis report for run: `r run` {.tabset}
+
+## Overview
+
+* Run name: `r head(tail(strsplit(workdir,"/",fixed = T)[[1]],3),1)`
+	
+* Number of samples: `r nsamples`
+
+* Run directory: `r workdir`
+
+* config file: <a href=../config.yaml>`r file.path(workdir,"config.yaml")`<a/>
+
+* log files in folder: `r file.path(workdir,"logs")`
+
+* snakemake logs in folder: `r file.path(workdir,".snakemake")`
+
+## Quality summary
+
+```{r summary}
+data_table <- read.csv(file = overview, sep = "\t", check.names=FALSE)
+datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
+		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
+		options = list(	
+					dom = 'BRrltpi',
+					autoWidth=FALSE,
+					scrollX = TRUE,
+					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
+					ColReorder = TRUE,
+					buttons =
+					list(
+						'copy',
+						'print',
+						list(
+						extend = 'collection',
+						buttons = c('csv', 'excel', 'pdf'),
+						text = 'Download'
+						),
+						I('colvis')
+						)
+						))
+```
+
+## Trimming statistics
+
+```{r trimming}
+data_table <- read.csv(file = fastp, sep = "\t", check.names=FALSE)
+
+# Create hyperlinks
+data_table$links <- paste0("<a href=", data_table$link_to_report, ">file</a>")
+data_table$link_to_report = NULL
+
+datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
+		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
+		options = list(	
+					dom = 'BRrltpi',
+					autoWidth=FALSE,
+					scrollX = TRUE,
+					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
+					ColReorder = TRUE,
+					buttons =
+					list(
+						'copy',
+						'print',
+						list(
+						extend = 'collection',
+						buttons = c('csv', 'excel', 'pdf'),
+						text = 'Download'
+						),
+						I('colvis')
+						)
+						))
+```
+
+## Read filtering statistics
+
+```{r filtering}
+data_table <- read.csv(file = qc_filtering, sep = "\t", check.names=FALSE)
+datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
+		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
+		options = list(	
+					dom = 'BRrltpi',
+					autoWidth=FALSE,
+					scrollX = TRUE,
+					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
+					ColReorder = TRUE,
+					buttons =
+					list(
+						'copy',
+						'print',
+						list(
+						extend = 'collection',
+						buttons = c('csv', 'excel', 'pdf'),
+						text = 'Download'
+						),
+						I('colvis')
+						)
+						))
+```
+
+## Clustering statistics
+
+```{r clustering}
+data_table <- read.csv(file = clustering, sep = "\t", check.names=FALSE)
+datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
+		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
+		options = list(	
+					dom = 'BRrltpi',
+					autoWidth=FALSE,
+					scrollX = TRUE,
+					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
+					ColReorder = TRUE,
+					buttons =
+					list(
+						'copy',
+						'print',
+						list(
+						extend = 'collection',
+						buttons = c('csv', 'excel', 'pdf'),
+						text = 'Download'
+						),
+						I('colvis')
+						)
+						))
+```
+
+## Mapping statistics
+
+```{r mapping}
+data_table <- read.csv(file = mapping, sep = "\t", check.names=FALSE)
+datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
+		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
+		options = list(	
+					dom = 'BRrltpi',
+					autoWidth=FALSE,
+					scrollX = TRUE,
+					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
+					ColReorder = TRUE,
+					buttons =
+					list(
+						'copy',
+						'print',
+						list(
+						extend = 'collection',
+						buttons = c('csv', 'excel', 'pdf'),
+						text = 'Download'
+						),
+						I('colvis')
+						)
+						))
+```
+
+## Blast statistics
+
+Blast report located in: <a href=../blast/blast_search.tsv>`r run`/blast/blast_search.tsv</a>
+
+```{r blast}
+data_table <- read.csv(file = blast, sep = "\t", check.names=FALSE)
+datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
+		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
+		options = list(	
+					dom = 'BRrltpi',
+					autoWidth=FALSE,
+					scrollX = TRUE,
+					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
+					ColReorder = TRUE,
+					buttons =
+					list(
+						'copy',
+						'print',
+						list(
+						extend = 'collection',
+						buttons = c('csv', 'excel', 'pdf'),
+						text = 'Download'
+						),
+						I('colvis')
+						)
+						))
+```
+
+## Taxonomic assignment statistics
+
+```{r taxonomy}
+data_table <- read.csv(file = taxonomy, sep = "\t", check.names=FALSE)
+datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
+		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
+		options = list(	
+					dom = 'BRrltpi',
+					autoWidth=FALSE,
+					scrollX = TRUE,
+					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
+					ColReorder = TRUE,
+					buttons =
+					list(
+						'copy',
+						'print',
+						list(
+						extend = 'collection',
+						buttons = c('csv', 'excel', 'pdf'),
+						text = 'Download'
+						),
+						I('colvis')
+						)
+						))
+```
+
+## Metabarcoding results
+
+```{r results}
+data_table <- read.csv(file = result, sep = "\t", check.names=FALSE)
+datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
+		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
+		options = list(	
+					dom = 'BRrltpi',
+					autoWidth=FALSE,
+					scrollX = TRUE,
+					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
+					ColReorder = TRUE,
+					buttons =
+					list(
+						'copy',
+						'print',
+						list(
+						extend = 'collection',
+						buttons = c('csv', 'excel', 'pdf'),
+						text = 'Download'
+						),
+						I('colvis')
+						)
+						))
+```
+
+## Versions
+
+### Databases
+
+```{r db_versions}
+db_table <- read.csv(file = db, sep = "\t", check.names=FALSE)
+knitr::kable(db_table)
+```
+
+### Softwares
+
+```{r soft_versions}
+soft_table <- read.csv(file = soft, sep = "\t", check.names=FALSE)
+knitr::kable(soft_table)
+```
+
+## Help
+
+```{r help}
+keyword <- c(
+	"Q30 rate",
+	"Filtered reads",
+	"Mapped reads",
+	"OTU",
+	"Consensus",
+	"Duplication rate",
+	"Insert size peak",
+	"Merged Reads",
+	"Unique sequence",
+	"Reads kept",
+	"Centroid",
+	"Singleton centroid",
+	"Chimera",
+	"Count",
+	"Blast hit",
+	"Bit-score")
+	
+definition <- c(
+	"Fraction of bases with Q30 or higher.",
+	"Reads selected after quality filtering (merged reads).",
+	"Reads successfully mapped to an OTU (merged reads).",
+	"Cluster of highly similar sequences (Operational Taxonomic Unit).",
+	"Taxonomic agreement between Blast hits (last common ancestor).",
+	"Proportion of duplicated reads.",
+	"Read length value for the most reads.",
+	"Reassembled forward and reverse reads.",
+	"Unique nucleotide sequence in the dataset. Merged reads that are the exact copy of each others are pooled together.",
+	"Proportion of raw reads that were kept through the merging and quality filtering steps.",
+	"Representative sequence of a cluster.",
+	"Centroid containing a single read.",
+	"Chimeric reads generated through PCR or sequencing artifacts.",
+	"Number of reads.",
+	"Positive alignment match between the query sequence (OTU) and the database.",
+	"Unbiased measure of sequence similarity. Does not depend on the database size.")
+
+help_tab <- data.frame(Keyword=keyword, Definition=definition)
+
+knitr::kable(help_tab)
+```

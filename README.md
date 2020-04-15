@@ -3,9 +3,11 @@
 ## Description
 
 FooDMe is a pipeline for taxonomic assignement of targeted sequencing reads (DNA Metabarcoding). 
-It is meant for food authenticity analysis but would most likely work for other applications too.
+It is meant for food authenticity analysis but could also work for other applications.
 It works on raw paired-end Illumina reads, it will trim them, assemble read-pairs and perform a quality filtering, merge samples to filter out chimeras and find OTUs,
-map the assemble reads to the OTUs, and finally, perform taxonomic assignment using a nucleotide database.
+map the assemble reads to the OTUs, and finally, perform taxonomic assignment using a nucleotide database. 
+It will output a simple table showing the identified taxa and number of reads assigned to them for each sample in the analysis.
+In case an OTU could be assigned to several taxonomic nodes, the last common amcestor is reported. 
 
 FooDMe is built on Snakemeke and uses the following tools:
 
@@ -119,8 +121,10 @@ Here is a breakdown of the parameters:
 
 ## Reports
 
-FooDMe generates .tsv files with quality summaries of the different steps of the analysis. These files are located in the reports and sample subfolders of the working directory.
-The final result consists of a composition table summarizing the abundance of each taxa in the different samples. These can be found in the sample subfolders.
+An HTML report is generated for each run. It contains useful quality metrics as well as a composition table summarizing the abundance of each taxa in the different samples.
+Each table can be serached for specific samples, terms, or ranges of values and can be printed and exported in popular formats.
+FooDMe generates various .tsv files with quality summaries of the different steps of the analysis, which are searchable through command-line tools. 
+These files are located in the reports and sample subfolders of the working directory.
 
 ## Workflow details
 
@@ -132,6 +136,7 @@ Mate pairs are then merged and the assembled reads are filtered for the their le
 ### Clustering and chimera filtering
 
 Reads from all samples are pooled and dereplicated (exact match). Reads are then clustered in centroids using VSearch's cluster\_size option. 
+CLusters consisting of a single read are removed form the analysis.
 Chimeras are then detected and removed using *de novo* and database-based approaches.
 
 ### Taxonomic assignment
@@ -145,10 +150,10 @@ A taxonomic consensus is then determined as the lowest common node of all hits.
 
 This pipeline includes thrird-party source-code, available under BSD-3 license:
 
- * The create_sampleSheet.sh script as well as code snippets were written by Carlus Deneke <https://gitlab.com/bfr_bioinformatics/AQUAMIS>
+ * The create_sampleSheet.sh script as well as some code snippets were written by Carlus Deneke <https://gitlab.com/bfr_bioinformatics/AQUAMIS>
  * Taxonomic lineage extraction uses the ncbi\_taxdump\_utils.py module from Titus Brown, <https://github.com/dib-lab/2018-ncbi-lineages>
 
 ## Contact
 
-For questions about the pipeline or problems, feel free to contact:
+For questions about the pipeline, problems, suggestions or requests, feel free to contact:
 Grégoire Denay, Chemisches- und Veterinär-Untersuchungsamt Rhein-Ruhr-Wupper, <gregoire.denay@cvua-rrw.de>

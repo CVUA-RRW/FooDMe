@@ -61,5 +61,5 @@ def main(blast_report, output, names_dmp, nodes_dmp):
 		with open(output, 'a') as out:
 			out.write("{0}\t{1}\t{2}\n".format(queryID, name, level))
 	
-
-main(snakemake.input[0], snakemake.output[0], snakemake.params["names"], snakemake.params["nodes"])
+if __name__ == '__main__':
+	main(snakemake.input[0], snakemake.output[0], snakemake.params["names"], snakemake.params["nodes"])
