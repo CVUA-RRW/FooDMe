@@ -11,14 +11,16 @@ In case an OTU could be assigned to several taxonomic nodes, the last common amc
 
 FooDMe is built on Snakemeke and uses the following tools:
 
-* Fastp
-* VSearch 
-* BLAST+ 
+* [Fastp](https://github.com/OpenGene/fastp)
+* [VSearch](https://github.com/torognes/vsearch) 
+* [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) 
+
+Running FooDMe requires a UNIX environment (tested on Debian GNU/Linux 10 (buster)). An internet connection is required to setup the Databases and Conda environments but is not required to run the pipeline.
 
 ## Source
 
 FooDMe is not yet distributed through a centralized hub. It is however Git-versionned.
-For the latest version contact, see "Contact".
+For the latest version see "Contact".
 
 ## Installation
 
@@ -82,7 +84,7 @@ snakemake -s ${REPO}/FoodMe/Snakefile  --conda-prefix /path/to/conda/envs --conf
 FooDMe execution requires a sample sheet to be provided. This is a tab separated table referencing mate pair files for each samples.
 Such a table can be automatically generated with the script `create_sampleSheet.sh`, originally developped by the BfR Study Center for Genome Sequencing and Analysis :
 
-```
+```bash
 bash ${REPO}/scripts/create_sampleSheet.sh -f path/to/reads
 ```
 
@@ -135,13 +137,13 @@ Mate pairs are then merged and the assembled reads are filtered for the their le
 
 ### Clustering and chimera filtering
 
-Reads from all samples are pooled and dereplicated (exact match). Reads are then clustered in centroids using VSearch's cluster\_size option. 
-CLusters consisting of a single read are removed form the analysis.
+Reads from all samples are pooled and dereplicated (exact match). Reads are then clustered in centroids using VSearch's `cluster_size` option. 
+Clusters consisting of a single read are removed from the analysis.
 Chimeras are then detected and removed using *de novo* and database-based approaches.
 
 ### Taxonomic assignment
 
-Dereplicated reads are mapped to the OTUs using VSearch global alignment otpion usearch_global. 
+Dereplicated reads are mapped to the OTUs using VSearch global alignment option `usearch_global`. 
 Each OTU is blasted against a nucleotide reference database to determine the Taxa of origin. 
 Hits are filtered by bit-score difference to the bast hit to remove lower similarity hits. 
 A taxonomic consensus is then determined as the lowest common node of all hits.
@@ -150,10 +152,13 @@ A taxonomic consensus is then determined as the lowest common node of all hits.
 
 This pipeline includes thrird-party source-code, available under BSD-3 license:
 
- * The create_sampleSheet.sh script as well as some code snippets were written by Carlus Deneke <https://gitlab.com/bfr_bioinformatics/AQUAMIS>
- * Taxonomic lineage extraction uses the ncbi\_taxdump\_utils.py module from Titus Brown, <https://github.com/dib-lab/2018-ncbi-lineages>
+ * The `create_sampleSheet.sh` script as well as some code snippets were written by Carlus Deneke (Bundesinstitut für Risikobewertung). Source: [AQUAMIS](https://gitlab.com/bfr_bioinformatics/AQUAMIS).
+ * Taxonomic lineage extraction uses the `ncbi_taxdump_utils.py` module from Titus Brown (University of California). Source: [2018-ncbi-lineages](https://github.com/dib-lab/2018-ncbi-lineages>).
 
 ## Contact
 
 For questions about the pipeline, problems, suggestions or requests, feel free to contact:
-Grégoire Denay, Chemisches- und Veterinär-Untersuchungsamt Rhein-Ruhr-Wupper, <gregoire.denay@cvua-rrw.de>
+
+Grégoire Denay, Chemisches- und Veterinär-Untersuchungsamt Rhein-Ruhr-Wupper 
+
+<gregoire.denay@cvua-rrw.de>
