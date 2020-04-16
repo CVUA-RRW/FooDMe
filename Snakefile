@@ -64,7 +64,7 @@ rule all:
         "reports/db_versions.tsv",
         # Markdown
         "reports/summary.html"
-        
+     
 # Fastp rules----------------------------
  
 rule run_fastp:
@@ -519,14 +519,15 @@ rule blast_stats:
         """      
         # Get list of all OTUs
         OTUs=$(grep "^>" {input.otus} | cut -d";" -f1 | tr -d '>' | sort -u)
-        
+       
         for otu in $OTUs
         do
+            size=$(grep -E "^>${{otu}}\>" {input.otus}  | cut -d"=" -f2)
             bhits=$(grep -c -E "^${{otu}};" {input.blast} || true)
             if [ $bhits -eq 0 ]
             then
                 # When there is no blast hit
-                echo "$otu\t0\t0\t0\t0\t0\t-\t-" >> {output}
+                echo "$otu\t$size\t0\t0\t0\t0\t0\t-\t-" >> {output}
             else
                 # Otherwise collect and print stats to file
                 bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -rn | head -n1)
@@ -536,13 +537,12 @@ rule blast_stats:
                 cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2)
                 rank=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f3)
                 
-                echo "$otu\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t$rank" >> {output}
+                echo "$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t$rank" >> {output}
             fi
         done
-        
-        # Sort by number of blast hits and add header (just to get hits on top)
+        # Sort by size and add header (just to get hits on top)
         sort -k2,2nr -o {output} {output}
-        sed -i '1 i\Query\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank' {output}
+        sed -i '1 i\Query\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank' {output}
         """
 
 rule otutab2lca:
@@ -692,6 +692,7 @@ rule report_all:
         clustering = "reports/clustering_stats.tsv",
         mapping = "reports/mapping_stats.tsv",
         blast = "reports/blast_stats.tsv",
+        blast_rep = "blast/blast_search.tsv",
         taxonomy = "reports/taxonomy_stats.tsv",
         result = "reports/result_summary.tsv",
         db = "reports/db_versions.tsv",
