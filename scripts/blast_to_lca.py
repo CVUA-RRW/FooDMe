@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import argparse, os
 from collections import defaultdict
 import ncbi_taxdump_utils
 
@@ -23,15 +22,11 @@ def parse_blast(blast):
 				dict[l[0]] = [l[6]]
 	return dict
 
-def get_lineage(taxid, nodes_dmp, names_dmp):
+def get_lineage(taxid, taxfoo):
 	"""
-	Returns a lineage dictionnary.
+	Returns a lineage dictionnary (taxids).
 	Keys are taxonomic levels and values are taxonomic names.
 	"""
-	taxfoo = ncbi_taxdump_utils.NCBI_TaxonomyFoo()    
-	taxfoo.load_nodes_dmp(nodes_dmp)
-	taxfoo.load_names_dmp(names_dmp)
-	
 	return taxfoo.get_lineage_as_dict(taxid, want_taxonomy)
 
 def get_consensus(entry):
@@ -49,17 +44,25 @@ def get_consensus(entry):
 		if agree == True:	
 			return level, cons
 
+def init_tax(names_dmp, nodes_dmp):
+	taxfoo = ncbi_taxdump_utils.NCBI_TaxonomyFoo()  
+	taxfoo.load_nodes_dmp(nodes_dmp)
+	taxfoo.load_names_dmp(names_dmp)
+	return taxfoo
+	
 def main(blast_report, output, names_dmp, nodes_dmp):
+	taxfoo = init_tax(names_dmp, nodes_dmp)
 	otu_dict = parse_blast(blast_report)
 	with open(output, 'w') as out:
-		out.write("queryID\tConsensus\tRank\n")
+		out.write("queryID\tConsensus\tRank\tTaxid\n")
 	for queryID, taxid_list in otu_dict.items():
 		lineages = []
 		for taxid in taxid_list:
-			lineages.append( get_lineage(taxid, nodes_dmp, names_dmp) )
-		level, name = get_consensus(lineages)
+			lineages.append( get_lineage(taxid, taxfoo) )
+		level, taxid = get_consensus(lineages)
+		name = taxfoo.get_taxid_name(taxid)
 		with open(output, 'a') as out:
-			out.write("{0}\t{1}\t{2}\n".format(queryID, name, level))
+			out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, level, taxid))
 	
 if __name__ == '__main__':
 	main(snakemake.input[0], snakemake.output[0], snakemake.params["names"], snakemake.params["nodes"])

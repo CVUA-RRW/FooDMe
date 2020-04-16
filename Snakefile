@@ -527,22 +527,21 @@ rule blast_stats:
             if [ $bhits -eq 0 ]
             then
                 # When there is no blast hit
-                echo "$otu\t$size\t0\t0\t0\t0\t0\t-\t-" >> {output}
+                echo "$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-" >> {output}
             else
                 # Otherwise collect and print stats to file
                 bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -rn | head -n1)
                 bit_low=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -n | head -n1)
                 bit_thr=$(($bit_best-{params.bit_diff}))
                 shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
-                cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2)
-                rank=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f3)
+                cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-4)
                 
-                echo "$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t$rank" >> {output}
+                echo "$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons" >> {output}
             fi
         done
         # Sort by size and add header (just to get hits on top)
         sort -k2,2nr -o {output} {output}
-        sed -i '1 i\Query\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank' {output}
+        sed -i '1 i\Query\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid' {output}
         """
 
 rule otutab2lca:
@@ -555,15 +554,14 @@ rule otutab2lca:
         "Determining the composition of {wildcards.sample}"
     shell:
         """
-        echo "Query\tsize\tConsensus\tRank" > {output}
+        echo "Query\tCount\tConsensus\tRank\tTaxid" > {output}
         
         while IFS= read -r line
         do
             otu=$(echo $line | cut -d' ' -f1)
             size=$(echo $line | cut -d' ' -f2)
-            cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f7)
-            rank=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f8)
-            echo "$otu\t$size\t$cons\t$rank" >> {output}
+            cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f8-10)
+            echo "$otu\t$size\t$cons" >> {output}
         done < {input.otu} 
         """
         
@@ -622,10 +620,10 @@ rule summarize_results:
         "Summarizing results for {wildcards.sample}"
     run:
         df = pd.read_csv(input.compo, sep="\t", header=0)
-        groups = df.groupby(['Consensus', 'Rank'])['size'].sum().sort_values(ascending=False).to_frame().reset_index()
-        groups['perc']= round(groups['size']/groups['size'].sum() *100, 2)
+        groups = df.groupby(['Consensus', 'Rank', 'Taxid'])['Count'].sum().sort_values(ascending=False).to_frame().reset_index()
+        groups['perc']= round(groups['Count']/groups['Count'].sum() *100, 2)
         groups.insert(0, 'Sample', wildcards.sample)
-        groups.rename(columns={"size":"Number of reads", "perc":"Percent of total"}, index={"-": "No match"}, inplace = True)
+        groups.rename(columns={"perc":"Percent of total"}, index={"-": "No match"}, inplace = True)
         groups.to_csv(output.report, sep="\t", index = False)
         
 rule collect_results:

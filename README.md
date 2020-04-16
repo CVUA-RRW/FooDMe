@@ -153,7 +153,7 @@ A taxonomic consensus is then determined as the lowest common node of all hits.
 This pipeline includes thrird-party source-code, available under BSD-3 license:
 
  * The `create_sampleSheet.sh` script as well as some code snippets were written by Carlus Deneke (Bundesinstitut für Risikobewertung). Source: [AQUAMIS](https://gitlab.com/bfr_bioinformatics/AQUAMIS).
- * Taxonomic lineage extraction uses the `ncbi_taxdump_utils.py` module from Titus Brown (University of California). Source: [2018-ncbi-lineages](https://github.com/dib-lab/2018-ncbi-lineages>).
+ * Taxonomic lineage extraction uses the `ncbi_taxdump_utils.py` module (with minimal modifications) from Titus Brown (University of California). Source: [2018-ncbi-lineages](https://github.com/dib-lab/2018-ncbi-lineages>).
 
 ## Contact
 

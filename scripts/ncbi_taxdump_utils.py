@@ -204,6 +204,7 @@ class NCBI_TaxonomyFoo(object):
 
 
     def get_lineage_as_dict(self, taxid, want_taxonomy=None):
+		# Now returns Taxids instead of names
         """
         Extract the text taxonomic lineage in order (kingdom on down);
         return in dictionary.
@@ -222,7 +223,7 @@ class NCBI_TaxonomyFoo(object):
             if self.is_strain(taxid): # NCBI reports strain as 'no rank'...
                 rank = 'strain'
             if not want_taxonomy or rank in want_taxonomy:
-                lineage[rank] = name
+                lineage[rank] = taxid
             taxid = self.get_taxid_parent(taxid)
             if taxid == 1:
                 break
@@ -249,7 +250,7 @@ class NCBI_TaxonomyFoo(object):
         for rank in want_taxonomy:
             if ranks_found.get(rank):
                 last_taxid = ranks_found[rank]
-        print(last_taxid)
+
         assert len(last_taxid) == 1
         taxid = min(last_taxid)       # get only element in set
         return taxid
