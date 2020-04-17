@@ -731,11 +731,8 @@ rule report_all:
         result = "reports/result_summary.tsv",
         db = "reports/db_versions.tsv",
         soft = "reports/software_versions.tsv",
-        krona = "reports/graphical_results.html" if config["use_krona"] else "reports/summary.tsv" 
-        # Just need a file in else statement, won't be used by R script 
     params:
-        workdir = config["workdir"],
-        use_krona = config["use_krona"]
+        workdir = config["workdir"]
     output:
         "reports/summary.html"
     conda:

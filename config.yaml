@@ -9,9 +9,6 @@ threads: 3
 # Max number of threads to use:
 cores: 6
 
-# Produce HTML interactive graphical output? True/False
-use_krona: False 
-
 fastp:
     length_required: 50
     qualified_quality_phred: 15
