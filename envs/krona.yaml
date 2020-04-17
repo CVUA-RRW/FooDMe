@@ -1,0 +1,7 @@
+name: krona
+channels:
+  - defaults
+  - conda-forge
+  - bioconda
+dependencies:
+  - krona=2.7.1

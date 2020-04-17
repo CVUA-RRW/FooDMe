@@ -640,6 +640,42 @@ rule collect_results:
         done
         """
 
+# Krona rules----------------------------
+
+rule krona_table:
+    input:
+        "{sample}/{sample}_result_summary.tsv"
+    output:
+        "{sample}/{sample}_krona_table.txt"
+    message:
+        "Exporting {wildcards.sample} in Krona input format"
+    script:
+        "scripts/krona_table.py"
+        
+rule krona:
+    input:
+        "{sample}/{sample}_krona_table.txt"
+    output:
+        "{sample}/{sample}.html"
+    message:
+        "Producing graphical result for {wildcards.sample}"
+    conda:
+        "envs/krona.yaml"
+    shell:
+        "ktImportText ...."
+        
+rule korna_all:
+    input:
+        expand("{sample}/{sample}.html", sample = samples.index)
+    output:
+        "reports/graphical_results.html"
+    message:
+        "Merging graphical summaries"
+    conda:
+        "envs/krona.yaml"
+    shell:
+        "ktImportKrona ...."
+    
 # Report rules----------------------------
 
 rule summary_report:
@@ -694,9 +730,12 @@ rule report_all:
         taxonomy = "reports/taxonomy_stats.tsv",
         result = "reports/result_summary.tsv",
         db = "reports/db_versions.tsv",
-        soft = "reports/software_versions.tsv"
+        soft = "reports/software_versions.tsv",
+        krona = "reports/graphical_results.html" if config["use_krona"] else "reports/summary.tsv" 
+        # Just need a file in else statement, won't be used by R script 
     params:
-        workdir = config["workdir"]
+        workdir = config["workdir"],
+        use_krona = config["use_krona"]
     output:
         "reports/summary.html"
     conda:
