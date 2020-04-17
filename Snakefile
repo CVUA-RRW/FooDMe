@@ -694,9 +694,13 @@ rule report_all:
         taxonomy = "reports/taxonomy_stats.tsv",
         result = "reports/result_summary.tsv",
         db = "reports/db_versions.tsv",
-        soft = "reports/software_versions.tsv"
+        soft = "reports/software_versions.tsv",
+        merged_qc = expand("{sample}/sequence_quality.stats", sample = samples.index)
     params:
-        workdir = config["workdir"]
+        workdir = config["workdir"],
+        max_ee = config["read_filter"]["max_expected_errors"],
+        max_len = config["read_filter"]["max_length"],
+        min_len = config["read_filter"]["min_length"]
     output:
         "reports/summary.html"
     conda:
