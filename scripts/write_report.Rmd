@@ -20,7 +20,7 @@ options(markdown.HTML.header = system.file("misc", "datatables.html", package = 
 
 library(DT, quietly = T)
 library(tidyverse, quietly = T)
-library(plotly, quietly=T)
+#library(plotly, quietly=T)
 
 executor <- Sys.info()["user"]
 ```
@@ -323,7 +323,7 @@ for (file in merged_qc){
 	data <- read.csv(file = file, sep="\t", check.names=FALSE) %>%
 			mutate(count =  Recs - lead(Recs, default= 0)) %>%
 			add_column(sample = str_split(file, "/", n=2)[[1]][1], .before = 1)	%>%
-			select(sample, Pos, count, Min_EE, Low_EE, Med_EE, Hi_EE, Max_EE)
+			select(sample, Pos, count, Min_EE, Low_EE, Med_EE, Hi_EE, Max_EE, Mean_Q)
 	qc_table <- rbind(qc_table, data)
 	}
 
@@ -335,7 +335,7 @@ read_table <- read.csv(file = qc_filtering, sep = "\t", check.names=FALSE) %>%
 
 ```
 
-### Read number
+### Merged-read number
 
 ```{r qcplot_reads}
 
@@ -347,7 +347,7 @@ p
 
 ```
 
-### Read length distribution
+### Merged-read length distribution
 
 ```{r qcplot_length}
 
@@ -363,7 +363,19 @@ p
 
 ```
 
-### Read quality distribution
+### Merged-read quality distribution
+
+```{r qc_plot qual}
+
+p <- ggplot(qc_table, aes(x=Pos, y=Mean_Q, group = sample)) +
+		geom_line(aes(color=sample)) + 
+		labs(x="Position", y= "Mean Phred score") +
+		theme_minimal()
+p
+
+```
+
+### Merged-read expected error distribution
 
 ```{r qcplot_ee}
 
