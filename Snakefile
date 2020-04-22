@@ -677,7 +677,6 @@ rule krona:
             file_list[$i]="${{file}},$(echo ${{file}} | cut -d"/" -f1)"
             ((i+=1))
         done
-        echo ${{file_list[@]}}
         
         ktImportText -o {output} ${{file_list[@]}}
         """

@@ -125,7 +125,7 @@ Here is a breakdown of the parameters:
 ## Reports
 
 An HTML report is generated for each run. It contains useful quality metrics as well as a composition table summarizing the abundance of each taxa in the different samples.
-Each table can be serached for specific samples, terms, or ranges of values and can be printed and exported in popular formats.
+Each table can be searched for specific samples, terms, or ranges of values and can be printed and exported in popular formats.
 FooDMe generates various .tsv files with quality summaries of the different steps of the analysis, which are searchable through command-line tools. 
 These files are located in the reports and sample subfolders of the working directory.
 
