@@ -1,8 +1,9 @@
-#Working directory:
-workdir: "toy_data"
+#Working directory (full path):
+
+workdir: "/home/debian/NGS/FooDMe/toy_data"
 
 # Path to sample sheet:
-samples: "samples.tsv"
+samples: "/home/debian/NGS/FooDMe/toy_data/samples.tsv"
 
 # Number of threads per sample:
 threads: 3 

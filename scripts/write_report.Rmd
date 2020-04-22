@@ -390,6 +390,14 @@ p
 
 Red dotted lines represent the cutoff values for filtering.
 
+## Graphical results
+
+```{r iframe}
+htmltools::tags$iframe(title = "Krona chart", src = "Krona_chart.html", width ="100%", height="800px") 
+```
+
+Link to chart: <a href=Krona_chart.html>`r file.path(workdir, "reports/Krona_chart.html")`<a/>
+
 ## Versions
 
 ### Databases
