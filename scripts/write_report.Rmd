@@ -309,11 +309,11 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 
 ## Graphical results
 
-```{r krona}
+```{r iframe}
+htmltools::tags$iframe(title = "Krona chart", src = "Krona_chart.html", width ="100%", height="800px") 
+```
 
-print("Krona html5 hook here")
-
-``` 
+Link to chart: <a href=Krona_chart.html>`r file.path(workdir, "reports/Krona_chart.html")`<a/>
 
 ## Versions
 

@@ -4,7 +4,7 @@
 from collections import defaultdict
 import ncbi_taxdump_utils
 
-want_taxonomy = ['superkingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']	
+want_taxonomy = ['superkingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'species']	
 	
 def parse_blast(blast):
 	"""
@@ -63,6 +63,6 @@ def main(blast_report, output, names_dmp, nodes_dmp):
 		name = taxfoo.get_taxid_name(taxid)
 		with open(output, 'a') as out:
 			out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, level, taxid))
-	
+			
 if __name__ == '__main__':
 	main(snakemake.input[0], snakemake.output[0], snakemake.params["names"], snakemake.params["nodes"])

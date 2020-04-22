@@ -7,7 +7,7 @@
 # Compare OTU with ASV analyse
 
 import pandas as pd
-import os, json, csv
+import os, json, csv, subprocess
 
 shell.executable("bash")
     
@@ -42,6 +42,8 @@ rule all:
         # Taxonomy
         "blast/consensus_table.tsv",
         expand("{sample}/{sample}_composition.tsv", sample = samples.index),
+        # Krona
+        expand("{sample}/{sample}_krona_table.txt", sample = samples.index),
         # Sample reports
         expand("trimmed/reports/{sample}.tsv", sample = samples.index),
         expand("{sample}/{sample}_qc_filtering_report.tsv", sample = samples.index),
@@ -63,7 +65,8 @@ rule all:
         "reports/software_versions.tsv",
         "reports/db_versions.tsv",
         # Markdown
-        "reports/summary.html"
+        "reports/summary.html",
+        "reports/Krona_chart.html"
      
 # Fastp rules----------------------------
  
@@ -647,6 +650,9 @@ rule krona_table:
         "{sample}/{sample}_result_summary.tsv"
     output:
         "{sample}/{sample}_krona_table.txt"
+    params: 
+        names = config["taxonomy"]["names_dmp"],
+        nodes = config["taxonomy"]["nodes_dmp"]
     message:
         "Exporting {wildcards.sample} in Krona input format"
     script:
@@ -654,27 +660,27 @@ rule krona_table:
         
 rule krona:
     input:
-        "{sample}/{sample}_krona_table.txt"
+        expand("{sample}/{sample}_krona_table.txt", sample = samples.index)
     output:
-        "{sample}/{sample}.html"
+        "reports/Krona_chart.html"
+    params:
+        samples.index
     message:
-        "Producing graphical result for {wildcards.sample}"
+        "Producing graphical summary result"
     conda:
         "envs/krona.yaml"
     shell:
-        "ktImportText ...."
+        """
+        i=0
+        for file in {input}
+        do
+            file_list[$i]="${{file}},$(echo ${{file}} | cut -d"/" -f1)"
+            ((i+=1))
+        done
+        echo ${{file_list[@]}}
         
-rule korna_all:
-    input:
-        expand("{sample}/{sample}.html", sample = samples.index)
-    output:
-        "reports/graphical_results.html"
-    message:
-        "Merging graphical summaries"
-    conda:
-        "envs/krona.yaml"
-    shell:
-        "ktImportKrona ...."
+        ktImportText -o {output} ${{file_list[@]}}
+        """
     
 # Report rules----------------------------
 
@@ -730,7 +736,7 @@ rule report_all:
         taxonomy = "reports/taxonomy_stats.tsv",
         result = "reports/result_summary.tsv",
         db = "reports/db_versions.tsv",
-        soft = "reports/software_versions.tsv",
+        soft = "reports/software_versions.tsv"
     params:
         workdir = config["workdir"]
     output:

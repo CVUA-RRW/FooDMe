@@ -14,7 +14,7 @@ def init_tax(names_dmp, nodes_dmp):
 	
 def get_lineage(taxid, taxfoo):
 	if taxid == "-":
-		return [""]*len(want_taxonomy)
+		return ["Unassigned"]
 	else:
 		return taxfoo.get_lineage(taxid, want_taxonomy)
 

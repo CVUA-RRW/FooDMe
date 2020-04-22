@@ -9,11 +9,12 @@ map the assemble reads to the OTUs, and finally, perform taxonomic assignment us
 It will output a simple table showing the identified taxa and number of reads assigned to them for each sample in the analysis.
 In case an OTU could be assigned to several taxonomic nodes, the last common amcestor is reported. 
 
-FooDMe is built on Snakemeke and uses the following tools:
+FooDMe is built on Snakemake and uses the following tools:
 
 * [Fastp](https://github.com/OpenGene/fastp)
 * [VSearch](https://github.com/torognes/vsearch) 
 * [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) 
+* [Krona] (https://github.com/marbl/Krona)
 
 Running FooDMe requires a UNIX environment (tested on Debian GNU/Linux 10 (buster)). An internet connection is required to setup the Databases and Conda environments but is not required to run the pipeline.
 
@@ -147,6 +148,15 @@ Dereplicated reads are mapped to the OTUs using VSearch global alignment option 
 Each OTU is blasted against a nucleotide reference database to determine the Taxa of origin. 
 Hits are filtered by bit-score difference to the bast hit to remove lower similarity hits. 
 A taxonomic consensus is then determined as the lowest common node of all hits.
+Taxonomy granularity is as follow: 
+
+* Species
+* Genus
+* Family
+* Order
+* Class
+* Phylum
+* Superkingdom
 
 ## Credits
 
