@@ -23,6 +23,11 @@ Running FooDMe requires a UNIX environment (tested on Debian GNU/Linux 10 (buste
 FooDMe is not yet distributed through a centralized hub. It is however Git-versionned.
 For the latest version see "Contact".
 
+## Known issues
+
+* It seems in the current version create_samplesheet creates relative paths. It may be fixed in the new versions but I couldn't check so far. In the meantimes one needs to manually enter the absolute path.
+
+
 ## Installation
 
 Get the latest version and upack it in the Repo directory:
@@ -77,7 +82,7 @@ To run FooDMe, first activate the conda environment and call the snakemake file:
 
 ```bash
 conda activate foodme
-snakemake -s ${REPO}/FoodMe/Snakefile  --conda-prefix /path/to/conda/envs --configfile /path/to/config.yaml --use-conda
+snakemake -s ${REPO}/Snakefile  --conda-prefix /path/to/conda/envs --configfile /path/to/config.yaml --use-conda
 ```
 
 ### Sample sheet 
@@ -93,17 +98,19 @@ This script includes a range of options for dealing with no-Illumina file name f
 
 ### Configuration
 
-Pipeline parameters can be modified in the provided `config.yaml` file.
+Pipeline parameters can be modified in the provided `config.yaml` file. You can force the creation of a config file by executing the python yrapper with the `--dryrun` option (see below).
 Here is a breakdown of the parameters:
 
 * `workdir`: Path to the folder where the files and reports will be generated
 * `samples`: path to the sample list 
 * Ressource allocation:
-	- `threads`: Number of threads to allocate per sample
-	- `cores`: Number of cores to allocate for the jobs involving pooled samples (Pipeline bottleneck)
+	- `threads_sample`: Number of threads to allocate per sample
+	- `threads`: Maximum number of threads allocated
 * fastp:
 	- `length_required`: Minimal read length
 	- `qualified_quality_phred`: Minimal quality score
+	- `window_size`: Size of the sliding window for tail trimming
+	- `mean_quality`: Trimming threshold for the mean Phred score in the sliding window
 * Read filtering:
 	- `min_length`: Minimal length of assembled reads
 	- `max_length`: Maximal length of assembled reads
@@ -121,6 +128,32 @@ Here is a breakdown of the parameters:
 * Taxonomic assignement:
 	- `names_dmp`: Path to the names.dmp taxonomy file
 	- `nodes_dmp`: Path to the nodes.dmp taxonomy file 
+
+### Python wrapper
+
+One can also use the convenience wrapper by executing:
+
+```bash
+conda activate foodme
+python ${REPO}/foodme.py -l /path/to/sample/list -d /working/directory/ 
+```
+
+The config file will be automatically generated in the working directory with default values. These can be overridden by using the following arguments (use `-h` to display help):
+
+```
+usage: foodme.py [-h] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
+                 [-t THREADS] [--threads_sample THREADS_SAMPLE]
+                 [-c CONDAPREFIX] [-s SNAKEFILE] [--fastp_length FASTP_LENGTH]
+                 [--fastp_min_phred FASTP_MIN_PHRED]
+                 [--fastp_window FASTP_WINDOW] [--fastp_meanq FASTP_MEANQ]
+                 [--merge_minlength MERGE_MINLENGTH]
+                 [--merge_maxlength MERGE_MAXLENGTH]
+                 [--merge_maxee MERGE_MAXEE] [--cluster_id CLUSTER_ID]
+                 [--chimera_db CHIMERA_DB] [--blastdb BLASTDB] [--taxdb TAXDB]
+                 [--e_val E_VAL] [--blast_id BLAST_ID] [--blast_cov BLAST_COV]
+                 [--bitscore BITSCORE] [--nodes_dmp NODES_DMP]
+                 [--names_dmp NAMES_DMP]
+```
 
 ## Reports
 

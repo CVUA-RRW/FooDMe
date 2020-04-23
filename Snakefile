@@ -1,11 +1,3 @@
-# TODO:
-# =====
-# Check and optimize parameters
-# Make fancy mardown report
-# Make unnescessary files temporary
-# Compare database, evtl. curate by merging databases
-# Compare OTU with ASV analyse
-
 import pandas as pd
 import os, json, csv, subprocess
 
@@ -13,10 +5,9 @@ shell.executable("bash")
     
 # Settings ---------------------------
  
-configfile: "config.yaml"
 workdir: config["workdir"]
  
-samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t")
+samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
 samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
 
 # Functions ------------------------------------------
@@ -81,15 +72,17 @@ rule run_fastp:
         html = "trimmed/reports/{sample}.html"
     params:
         length_required = config["fastp"]["length_required"],
-        qualified_quality_phred = config["fastp"]["qualified_quality_phred"]
-    threads: config["threads"]
+        qualified_quality_phred = config["fastp"]["qualified_quality_phred"],
+        window_size = config["fastp"]["window_size"],
+        mean_qual = config["fastp"]["mean_quality"]
+    threads: config["threads_sample"]
     message: "Running fastp on {wildcards.sample}"
     conda: "envs/fastp.yaml"
     log: 
         "logs/{sample}_fastp.log"
     shell:
         "fastp -i {input.r1} -I {input.r2} -o {output.r1} -O {output.r2} -h {output.html} -j {output.json}\
-        --length_required {params.length_required} --qualified_quality_phred {params.qualified_quality_phred} --detect_adapter_for_pe --thread {threads} --report_title 'Sample {wildcards.sample}' |\
+        --length_required {params.length_required} --qualified_quality_phred {params.qualified_quality_phred} -3 -W {params.window_size} -M {params.mean_qual} --detect_adapter_for_pe --thread {threads} --report_title 'Sample {wildcards.sample}' |\
         tee {log} 2>&1"
 
 rule parse_fastp:
@@ -135,7 +128,7 @@ rule merge_reads:
         merged = "{sample}/{sample}.merged.fastq",
         notmerged_fwd = "{sample}/{sample}.notmerged.fwd.fasta",
         notmerged_rev = "{sample}/{sample}.notmerged.rev.fasta"
-    threads: config["threads"]
+    threads: config["threads_sample"]
     message: "Merging reads on {wildcards.sample}"
     conda: "envs/vsearch.yaml"
     log:
@@ -266,7 +259,7 @@ rule cluster:
     params:
         clusterID = config["cluster"]["cluster_identity"]
     conda: "envs/vsearch.yaml"
-    threads: config["cores"]
+    threads: config["threads"]
     message: "Clustering sequences"
     log:
         "logs/clustering.log"
@@ -281,7 +274,7 @@ rule sort_all:
     output:
         "VSEARCH/sorted.fasta"
     conda: "envs/vsearch.yaml"
-    threads: config["cores"]
+    threads: config["threads"]
     message: "Sorting centroids and removing singleton"
     log:
         "logs/sort_all.log"
@@ -311,7 +304,7 @@ rule chimera_db:
         "VSEARCH/nonchimeras.fasta"
     params:
         DB = config["cluster"]["chimera_DB"]
-    threads: config["cores"]
+    threads: config["threads"]
     conda: "envs/vsearch.yaml"
     message: "Reference chimera detection"
     log:
@@ -390,7 +383,7 @@ rule map_sample:
         otu = "{sample}/{sample}_otutab.tsv",
     params:
         clusterID = config["cluster"]["cluster_identity"]
-    threads: config["threads"]
+    threads: config["threads_sample"]
     conda: "envs/vsearch.yaml"
     message: "Mapping {wildcards.sample} to OTUs"
     log:
@@ -454,7 +447,7 @@ rule blast_otus:
         e_value = config["blast"]["e_value"],
         perc_identity = config["blast"]["perc_identity"],
         qcov = config["blast"]["qcov"] 
-    threads: config["cores"]
+    threads: config["threads"]
     message: "BLASTing OTUs against local database"
     conda: "envs/blast.yaml"
     log:

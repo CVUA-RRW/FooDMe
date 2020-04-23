@@ -6,17 +6,20 @@ workdir: "/home/debian/NGS/FooDMe/toy_data"
 samples: "/home/debian/NGS/FooDMe/toy_data/samples.tsv"
 
 # Number of threads per sample:
-threads: 3 
+threads_sample: 3 
 # Max number of threads to use:
-cores: 6
+threads: 6
 
 fastp:
-    length_required: 50
-    qualified_quality_phred: 15
+    length_required: 100
+    qualified_quality_phred: 30
+    # Options for --cut_tail:
+    window_size: 4
+    mean_quality: 20 
 
 read_filter:
     min_length: 200
-    max_length: 500
+    max_length: 600
     max_expected_errors: 1
     
 cluster:
