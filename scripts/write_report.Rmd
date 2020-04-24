@@ -68,6 +68,8 @@ nsamples <- nrow(read.csv(file = overview, sep = "\t", check.names=FALSE))
 
 * snakemake logs in folder: `r file.path(workdir,".snakemake")`
 
+* FooDMe version: `r snakemake@params[["version"]]`
+
 ## Quality summary
 
 ```{r summary}

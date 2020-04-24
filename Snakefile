@@ -6,7 +6,12 @@ shell.executable("bash")
 # Settings ---------------------------
  
 workdir: config["workdir"]
- 
+
+try:
+    __version__ = subprocess.check_output(["git", "describe"], cwd= workflow.basedir).strip().decode("utf-8")
+except subprocess.CalledProcessError:
+    __version__ = "version not available (did you 'git clone'?)"
+
 samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
 samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
 
@@ -752,7 +757,8 @@ rule report_all:
         max_ee = config["read_filter"]["max_expected_errors"],
         max_len = config["read_filter"]["max_length"],
         min_len = config["read_filter"]["min_length"],
-        min_cluster_size = config["cluster"]["cluster_minsize"]
+        min_cluster_size = config["cluster"]["cluster_minsize"],
+        version = __version__
     output:
         "reports/summary.html"
     conda:
@@ -792,3 +798,14 @@ rule database_version:
         paste <(echo "taxdb") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.chimera}/taxdb[.bti/.btd]) >> {output}
         paste <(echo "taxdump") <(date +%F -r {params.taxdump}) <(echo $(dirname {params.taxdump})/[names.dmp/nodes.dmp]) >> {output}
         """
+        
+# Workflow----------------------------
+
+onstart:
+    print("\nYou are using FooDMe version: {}".format(__version__))
+
+onsuccess:
+    print("\nWorkflow finished, no error")
+    
+onerror:
+    print("\nAn error occured, please consult the latest log file in {}".format(os.path.join(config["workdir"], ".snakemake", "log")))
