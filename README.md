@@ -118,6 +118,7 @@ Here is a breakdown of the parameters:
 * Clustering:
 	- `cluster_identity`: Minimal identity value for OTU clustering (0 to 1)
 	- `chimera_DB`: Path to database for chimera filtering. Ideally a high-quality collection of parent sequences.
+	- `cluster_minsize`: Minimal size of clusters to keep
 * BLAST:
 	- `blast_DB`: Path to the Blast database. See **Installation**.
 	- `taxdb`: Path to the *folder* containing the ncbi taxonomy database files (blastdb.btd and blastdb.bti)
@@ -140,7 +141,7 @@ python ${REPO}/foodme.py -l /path/to/sample/list -d /working/directory/
 
 The config file will be automatically generated in the working directory with default values. These can be overridden by using the following arguments (use `-h` to display help):
 
-```
+```bash
 usage: foodme.py [-h] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
                  [-t THREADS] [--threads_sample THREADS_SAMPLE]
                  [-c CONDAPREFIX] [-s SNAKEFILE] [--fastp_length FASTP_LENGTH]
@@ -149,8 +150,9 @@ usage: foodme.py [-h] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
                  [--merge_minlength MERGE_MINLENGTH]
                  [--merge_maxlength MERGE_MAXLENGTH]
                  [--merge_maxee MERGE_MAXEE] [--cluster_id CLUSTER_ID]
-                 [--chimera_db CHIMERA_DB] [--blastdb BLASTDB] [--taxdb TAXDB]
-                 [--e_val E_VAL] [--blast_id BLAST_ID] [--blast_cov BLAST_COV]
+                 [--chimera_db CHIMERA_DB] [--cluster_minsize CLUSTER_MINSIZE]
+                 [--blastdb BLASTDB] [--taxdb TAXDB] [--e_val E_VAL]
+                 [--blast_id BLAST_ID] [--blast_cov BLAST_COV]
                  [--bitscore BITSCORE] [--nodes_dmp NODES_DMP]
                  [--names_dmp NAMES_DMP]
 ```

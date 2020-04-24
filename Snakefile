@@ -55,6 +55,7 @@ rule all:
         "reports/result_summary.tsv",
         "reports/software_versions.tsv",
         "reports/db_versions.tsv",
+        "reports/centroid_size.tsv",
         # Markdown
         "reports/summary.html",
         "reports/Krona_chart.html"
@@ -179,7 +180,7 @@ rule dereplicate:
     log:
         "logs/{sample}_derep.log"
     shell:
-        "vsearch --derep_fulllength {input.filtered} --strand plus --output {output.derep} --sizeout --relabel {wildcards.sample} --fasta_width 0 | tee {log} 2>&1"
+        "vsearch --derep_fulllength {input.filtered} --strand plus --output {output.derep} --sizeout --relabel {wildcards.sample}_seq --fasta_width 0 | tee {log} 2>&1"
 
 rule qc_stats:
     input:
@@ -273,6 +274,8 @@ rule sort_all:
         "VSEARCH/centroids.fasta"
     output:
         "VSEARCH/sorted.fasta"
+    params:
+        min_size= config["cluster"]["cluster_minsize"]
     conda: "envs/vsearch.yaml"
     threads: config["threads"]
     message: "Sorting centroids and removing singleton"
@@ -280,7 +283,7 @@ rule sort_all:
         "logs/sort_all.log"
     shell:
         """
-        vsearch --sortbysize {input} --threads {threads} --sizein --sizeout --fasta_width 0 --minsize 2 --output {output} | tee {log} 2>&1
+        vsearch --sortbysize {input} --threads {threads} --sizein --sizeout --fasta_width 0 --minsize {params.min_size} --output {output} | tee {log} 2>&1
         """
         
 rule chimera_denovo:
@@ -328,6 +331,19 @@ rule relabel_otu:
         vsearch --fastx_filter {input} --sizein --sizeout --fasta_width 0 --relabel OTU_ --fastaout {output} | tee {log} 2>&1
         """
         
+rule centroid_histogram:
+    input:
+        "VSEARCH/centroids.fasta"
+    output:
+        "reports/centroid_size.tsv"
+    message:
+        "Collecting centroid size distribution"
+    shell:
+        """
+        echo "sample\tseq_id\tsize" > {output} 
+        grep "^>" {input} | sed -e "s/_seq/\t/" -e "s/;size=/\t/" | tr -d ">"  >> {output}   
+        """
+
 rule clustering_stats:
     input:
         samples = expand("{sample}/{sample}.derep.fasta", sample = samples.index),
@@ -722,6 +738,7 @@ rule report_all:
         fastp = "reports/fastp_stats.tsv",
         qc_filtering = "reports/qc_filtering_stats.tsv",
         clustering = "reports/clustering_stats.tsv",
+        centroids = "reports/centroid_size.tsv",
         mapping = "reports/mapping_stats.tsv",
         blast = "reports/blast_stats.tsv",
         blast_rep = "blast/blast_search.tsv",
@@ -734,7 +751,8 @@ rule report_all:
         workdir = config["workdir"],
         max_ee = config["read_filter"]["max_expected_errors"],
         max_len = config["read_filter"]["max_length"],
-        min_len = config["read_filter"]["min_length"]
+        min_len = config["read_filter"]["min_length"],
+        min_cluster_size = config["cluster"]["cluster_minsize"]
     output:
         "reports/summary.html"
     conda:

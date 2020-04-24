@@ -20,7 +20,7 @@ options(markdown.HTML.header = system.file("misc", "datatables.html", package = 
 
 library(DT, quietly = T)
 library(tidyverse, quietly = T)
-#library(plotly, quietly=T)
+library(plotly, quietly=T)
 
 executor <- Sys.info()["user"]
 ```
@@ -43,6 +43,7 @@ result <- snakemake@input[["result"]]
 db <- snakemake@input[["db"]]
 soft <- snakemake@input[["soft"]]
 merged_qc <- snakemake@input[["merged_qc"]]
+centroid_size <- snakemake@input[["centroids"]]
 
 # infer run name from workdir
 run <- head(tail(strsplit(workdir,"/")[[1]],2),1)
@@ -55,7 +56,7 @@ nsamples <- nrow(read.csv(file = overview, sep = "\t", check.names=FALSE))
 
 ## Overview
 
-* Run name: `r head(tail(strsplit(workdir,"/",fixed = T)[[1]],3),1)`
+* Run name: `r run`
 	
 * Number of samples: `r nsamples`
 
@@ -315,6 +316,8 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 
 ## Quality plots
 
+Red dotted lines represent the cutoff values for filtering.
+
 ```{r qcplots_import}
 
 # import for QC
@@ -333,6 +336,9 @@ ee_table <- qc_table %>% group_by(sample) %>% top_n(1, Pos)
 read_table <- read.csv(file = qc_filtering, sep = "\t", check.names=FALSE) %>%
 			select(Sample, `Quality filtered reads`)
 
+# Import centroid sizes
+centroid_table <- read.csv(file = centroid_size, sep = "\t", check.names=FALSE)
+centroid_table$sample <- as.factor(centroid_table$sample)
 ```
 
 ### Merged-read number
@@ -367,12 +373,11 @@ p
 
 ```{r qc_plot qual}
 
-p <- ggplot(qc_table, aes(x=Pos, y=Mean_Q, group = sample)) +
+p <- ggplot(qc_table, aes(x=Pos, y=Mean_Q)) +
 		geom_line(aes(color=sample)) + 
 		labs(x="Position", y= "Mean Phred score") +
 		theme_minimal()
 p
-
 ```
 
 ### Merged-read expected error distribution
@@ -382,13 +387,26 @@ p
 p <- ggplot(ee_table, aes(x=sample, ymin= Min_EE, lower = Low_EE, middle= Med_EE, upper= Hi_EE, ymax= Max_EE)) +	
 		geom_boxplot(stat= "identity", fill = "gray") +
 		labs(x="Sample", y= "Expected errors per read") +
-		geom_hline(yintercept=snakemake@params[["max_ee"]], linetype="dashed", color = "red") +
+		geom_hline(yintercept = snakemake@params[["max_ee"]], linetype="dashed", color = "red") +
 		theme_minimal()
 p
 
 ```
 
-Red dotted lines represent the cutoff values for filtering.
+### Centroid size distribution
+
+Interactive graph: draw a box to zoom in.
+
+```{r centroid}
+p <- ggplot(centroid_table, aes(x=size, fill= sample, color=sample)) +
+		geom_histogram(binwidth=1, boundary= 0, closed="left") +
+		geom_vline(xintercept = snakemake@params[["min_cluster_size"]], linetype="dashed", color = "red") +
+		labs(x="Centroid size", y= "Count") + 
+		theme_minimal()	
+ggplotly(p)
+```
+
+
 
 ## Graphical results
 
