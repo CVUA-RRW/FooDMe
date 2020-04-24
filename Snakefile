@@ -62,7 +62,7 @@ rule all:
         "reports/db_versions.tsv",
         "reports/centroid_size.tsv",
         # Markdown
-        "reports/summary.html",
+        "reports/report.html",
         "reports/Krona_chart.html"
      
 # Fastp rules----------------------------
@@ -145,7 +145,6 @@ rule merge_reads:
         tee {log} 2>&1"       
 
 rule qual_stat:
-# Remove?
     input: 
         merged = "{sample}/{sample}.merged.fastq"
     output:
@@ -760,7 +759,7 @@ rule report_all:
         min_cluster_size = config["cluster"]["cluster_minsize"],
         version = __version__
     output:
-        "reports/summary.html"
+        "reports/report.html"
     conda:
         "envs/rmarkdown.yaml"
     log:

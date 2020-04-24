@@ -399,6 +399,8 @@ p
 
 Interactive graph: draw a box to zoom in.
 
+Note that the Sample variable only refers to the origin of the centroid read. A centroid may contain reads from several samples.
+
 ```{r centroid}
 p <- ggplot(centroid_table, aes(x=size, fill= sample, color=sample)) +
 		geom_histogram(binwidth=1, boundary= 0, closed="left") +

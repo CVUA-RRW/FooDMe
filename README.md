@@ -25,7 +25,7 @@ For the latest version see "Contact".
 
 ## Known issues
 
-* It seems in the current version create_samplesheet creates relative paths. It may be fixed in the new versions but I couldn't check so far. In the meantimes one needs to manually enter the absolute path.
+* It seems in the current version create_sampleSheet creates inconsistent paths to read files. It may be fixed in the new versions but I couldn't check so far. In the meantimes one needs to manually enter the absolute path.
 
 
 ## Installation
@@ -159,10 +159,20 @@ usage: foodme.py [-h] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
 
 ## Reports
 
-An HTML report is generated for each run. It contains useful quality metrics as well as a composition table summarizing the abundance of each taxa in the different samples.
-Each table can be searched for specific samples, terms, or ranges of values and can be printed and exported in popular formats.
-FooDMe generates various .tsv files with quality summaries of the different steps of the analysis, which are searchable through command-line tools. 
-These files are located in the reports and sample subfolders of the working directory.
+FooDMe will generate statistics files (tab-separated text), an html summary report, and many other files that are produced during the analysis.
+A typical result folder looks like this: 
+
+```
+my_fancy_analysis/
+	.snakemake/ 		Contains the snakemake products, including snakemake log file for troobleshooting
+	blast/				Contains files with Blast report, filtering of blast results and taxonomy determination
+	logs/				Contains the log files for troobleshooting specific steps
+	reports/			Contains aggregated quality statistics of the different steps of the analysis and the html report
+	Sample_1/			Sample-level quality statistics and merged-reads and quality filtered fasta files
+	trimmed/			Contains the trimmed fastq files and trimming reports
+	VSEARCH/			Contains aggregated fasta files and cluster files
+	config.yaml			Will be generated here by the python wrapper
+```
 
 ## Workflow details
 
