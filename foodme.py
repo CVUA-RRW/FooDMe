@@ -80,12 +80,14 @@ def run_snakemake(config_file, args):
 	forceall = ("--forceall" if args.forceall else "")
 	dryrun = ("-n" if args.dryrun else "")
 	conda_prefix= ("--conda-prefix {}".format(args.condaprefix) if args.condaprefix else "")
-	call = "snakemake -s {snakefile} --configfile {config_file} --use-conda --cores {cores} {conda_prefix} {forceall} {dryrun}".format(snakefile= args.snakefile,
+	notemp = ("" if args.clean_temp else "--notemp")
+	call = "snakemake -s {snakefile} --configfile {config_file} --use-conda --cores {cores} {conda_prefix} {notemp} {forceall} {dryrun}".format(snakefile= args.snakefile,
 																																	config_file= config_file,
 																																	conda_prefix= conda_prefix,
 																																	forceall= forceall,
 																																	dryrun = dryrun,
-																																	cores=args.threads)
+																																	cores=args.threads,
+																																	notemp=notemp)
 	print(call)
 	subprocess.call(call, shell=True)
 	
@@ -110,6 +112,8 @@ def main():
 						help="Location of stored conda environment. Allows snakemake to reuse environments.")
 	parser.add_argument('-s', '--snakefile', required=False, type=os.path.abspath, default=os.path.join(os.path.dirname(__file__), "Snakefile"), 
 						help="Path to the Snkefile in the FOodMe repo")
+	parser.add_argument('--clean_temp', required=False, default= False, action='store_true',
+						help="Remove large fasta and fastq files to save storage space")
 						
 	# Fastp
 	parser.add_argument('--fastp_length', required=False, default=50, type=int,

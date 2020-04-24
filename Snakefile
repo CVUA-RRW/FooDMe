@@ -24,12 +24,8 @@ def _get_fastq(wildcards,read_pair='fq1'):
  
 rule all:
     input: 
-        # fastp
-        expand("trimmed/{sample}_R1.fastq.gz", sample = samples.index),
-        expand("trimmed/{sample}_R2.fastq.gz", sample = samples.index),
         # VSEARCH
         expand("{sample}/{sample}.derep.fasta", sample = samples.index),
-        "VSEARCH/all.derep.fasta",
         "VSEARCH/otus.fasta",
         expand("{sample}/{sample}_otutab.tsv", sample = samples.index),
         # BLAST
@@ -72,8 +68,8 @@ rule run_fastp:
         r1 = lambda wildcards: _get_fastq(wildcards, 'fq1'),
         r2 = lambda wildcards: _get_fastq(wildcards, 'fq2')
     output:
-        r1 = "trimmed/{sample}_R1.fastq.gz",
-        r2 = "trimmed/{sample}_R2.fastq.gz",
+        r1 = temp("trimmed/{sample}_R1.fastq.gz"),
+        r2 = temp("trimmed/{sample}_R2.fastq.gz"),
         json = "trimmed/reports/{sample}.json",
         html = "trimmed/reports/{sample}.html"
     params:
@@ -131,9 +127,9 @@ rule merge_reads:
         r1 = "trimmed/{sample}_R1.fastq.gz",
         r2 = "trimmed/{sample}_R2.fastq.gz"
     output:
-        merged = "{sample}/{sample}.merged.fastq",
-        notmerged_fwd = "{sample}/{sample}.notmerged.fwd.fasta",
-        notmerged_rev = "{sample}/{sample}.notmerged.rev.fasta"
+        merged = temp("{sample}/{sample}.merged.fastq"),
+        notmerged_fwd = temp("{sample}/{sample}.notmerged.fwd.fasta"),
+        notmerged_rev = temp("{sample}/{sample}.notmerged.rev.fasta")
     threads: config["threads_sample"]
     message: "Merging reads on {wildcards.sample}"
     conda: "envs/vsearch.yaml"
@@ -158,8 +154,8 @@ rule quality_filter:
     input: 
         merged = "{sample}/{sample}.merged.fastq"
     output:
-        filtered = "{sample}/{sample}_filtered.fasta",
-        discarded = "{sample}/{sample}_discarded.fasta"
+        filtered = temp("{sample}/{sample}_filtered.fasta"),
+        discarded = temp("{sample}/{sample}_discarded.fasta")
     params:
         minlen= config["read_filter"]["min_length"],
         maxlen = config["read_filter"]["max_length"],
@@ -235,7 +231,7 @@ rule merge_samples:
     input:
         expand("{sample}/{sample}.derep.fasta", sample = samples.index)
     output:
-        "VSEARCH/all.fasta"
+        temp("VSEARCH/all.fasta")
     message: "Merging samples"
     shell:
         """
@@ -246,7 +242,7 @@ rule derep_all:
     input:
         "VSEARCH/all.fasta"
     output:
-        "VSEARCH/all.derep.fasta"
+        temp("VSEARCH/all.derep.fasta")
     conda: "envs/vsearch.yaml"
     message: "Dereplicating"
     log: 
