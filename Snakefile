@@ -60,7 +60,7 @@ rule all:
         # Markdown
         "reports/report.html",
         "reports/Krona_chart.html"
-     
+
 # Fastp rules----------------------------
  
 rule run_fastp:
@@ -285,52 +285,7 @@ rule sort_all:
         """
         vsearch --sortbysize {input} --threads {threads} --sizein --sizeout --fasta_width 0 --minsize {params.min_size} --output {output} | tee {log} 2>&1
         """
-        
-rule chimera_denovo:
-    input:
-        "VSEARCH/sorted.fasta"
-    output:
-        "VSEARCH/denovo.nonchimeras.fasta"
-    conda: "envs/vsearch.yaml"
-    message: "De novo chimera detection"
-    log:
-        "logs/denovo_chimera.log"
-    shell:
-        """
-        vsearch --uchime_denovo {input} --sizein --sizeout --fasta_width 0 --qmask none --nonchimeras {output}| tee {log} 2>&1
-        """
-        
-rule chimera_db:
-    input:
-        "VSEARCH/denovo.nonchimeras.fasta"
-    output:
-        "VSEARCH/nonchimeras.fasta"
-    params:
-        DB = config["cluster"]["chimera_DB"]
-    threads: config["threads"]
-    conda: "envs/vsearch.yaml"
-    message: "Reference chimera detection"
-    log:
-        "logs/ref_chimera.log"
-    shell:
-        """
-        vsearch --uchime_ref {input} --db {params.DB} --threads {threads} --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --nonchimeras {output}| tee {log} 2>&1
-        """
-
-rule relabel_otu:
-    input:
-        "VSEARCH/nonchimeras.fasta"
-    output:
-        "VSEARCH/otus.fasta"
-    conda: "envs/vsearch.yaml"
-    message: "Relabelling OTUs"
-    log:
-        "logs/relabel_otus.log"
-    shell:
-        """
-        vsearch --fastx_filter {input} --sizein --sizeout --fasta_width 0 --relabel OTU_ --fastaout {output} | tee {log} 2>&1
-        """
-        
+  
 rule centroid_histogram:
     input:
         "VSEARCH/centroids.fasta"
@@ -342,53 +297,19 @@ rule centroid_histogram:
         """
         echo "sample\tseq_id\tsize" > {output} 
         grep "^>" {input} | sed -e "s/_seq/\t/" -e "s/;size=/\t/" | tr -d ">"  >> {output}   
-        """
-
-rule clustering_stats:
-    input:
-        samples = expand("{sample}/{sample}.derep.fasta", sample = samples.index),
-        all = "VSEARCH/all.fasta",
-        derep = "VSEARCH/all.derep.fasta",
-        centroids = "VSEARCH/centroids.fasta",
-        nonsinglet = "VSEARCH/sorted.fasta",
-        non_chimera_denovo = "VSEARCH/denovo.nonchimeras.fasta",
-        non_chimera_db = "VSEARCH/nonchimeras.fasta"
-    output:
-        "reports/clustering_stats.tsv"
-    message: "Collecting clustering stats"
-    shell:
-        """
-        # Collecting counts
-        samples=({input.samples})
-        n_samples=${{#samples[@]}}
-        all=$(grep "^>" {input.all} | awk -F '=' '{{s+=$2}}END{{print s}}')
-        uniques=$(grep "^>" {input.derep} | awk -F '=' '{{s+=$2}}END{{print s}}')
-        centroids=$(grep -c "^>" {input.centroids})
-        nonsinglet=$(grep -c "^>" {input.nonsinglet})
-        nonsinglet_read=$(grep "^>" {input.nonsinglet} | awk -F '=' '{{s+=$2}}END{{print s}}')
-        non_chimera_denovo=$(grep -c "^>" {input.non_chimera_denovo})
-        non_chimera_db=$(grep -c "^>" {input.non_chimera_db})
-        non_chimera_denovo_read=$(grep "^>" {input.non_chimera_denovo} | awk -F '=' '{{s+=$2}}END{{print s}}')
-        non_chimera_db_read=$(grep "^>" {input.non_chimera_db} | awk -F '=' '{{s+=$2}}END{{print s}}')
+        """  
         
-        # Calculating fractions
-        nonsinglet_perc=$(echo "scale=2;(100* $nonsinglet / $centroids)" | bc)
-        nonsinglet_perc_read=$(echo "scale=2;(100* $nonsinglet_read / $all)" | bc)
-        chim_denovo=$(($nonsinglet - $non_chimera_denovo))
-        chim_denovo_perc=$(echo "scale=2;(100* $chim_denovo / $nonsinglet)" | bc)
-        chim_denovo_read=$(($nonsinglet_read - $non_chimera_denovo_read))
-        chim_denovo_perc_read=$(echo "scale=2;(100* $chim_denovo_read / $nonsinglet_read)" | bc)
-        chim_db=$(($non_chimera_denovo - $non_chimera_db))
-        chim_db_perc=$(echo "scale=2;(100* $chim_db / $nonsinglet)" | bc)
-        chim_db_read=$(($non_chimera_denovo_read - $non_chimera_db_read))
-        chim_db_perc_read=$(echo "scale=2;(100* $chim_db_read / $nonsinglet_read)" | bc)
-        non_chimera_perc=$(echo "scale=2;(100* $non_chimera_db_read / $all)" | bc)
-        
-        # Writting report
-        echo "Number of samples\tNumber of Reads (total)\tNumber of reads (unique)\tCentroid number\tNon-singleton centroids\tNon-singleton centroids [%]\tNon-singleton centroids [read number]\tNon-singleton centroids [% of reads]\tChimera (de novo)\tChimera (de novo) [%]\tChimera (database)\tChimera (database) [%]\tChimera (de novo) [reads]\tChimera (de novo) [% of reads]\tChimera (database) [reads]\tChimera (database) [% of reads]\tOTU number\tReads in OTU\tReads in OTU [%]" > {output}
-        echo "$n_samples\t$all\t$uniques\t$centroids\t$nonsinglet\t$nonsinglet_perc\t$nonsinglet_read\t$nonsinglet_perc_read\t$chim_denovo\t$chim_denovo_perc\t$chim_db\t$chim_db_perc\t$chim_denovo_read\t$chim_denovo_perc_read\t$chim_db_read\t$chim_db_perc_read\t$non_chimera_db\t$non_chimera_db_read\t$non_chimera_perc" >> {output}
-        """
+# Chimera detection-------------
 
+if config["chimera"]["method"] == "denovo_reference":
+    include: "rules/chimera_denovo_and_ref.rule" 
+elif config["chimera"]["method"] == "denovo":
+    include: "rules/chimera_denovo_only.rule" 
+elif config["chimera"]["method"] == "reference":
+    include: "rules/chimera_ref_only.rule"
+elif config["chimera"]["method"] == "None":
+    include: "rules/no_chimera.rule"
+    
 # Reads mapping rules----------------------------
 
 rule map_sample:
@@ -781,7 +702,7 @@ rule database_version:
         "reports/db_versions.tsv"
     message: "Collecting databases versions"
     params:
-        chimera = config["cluster"]["chimera_DB"],
+        chimera = config["chimera"]["chimera_DB"],
         blast = config["blast"]["blast_DB"],
         taxdb = config["blast"]["taxdb"],
         taxdump = config["taxonomy"]["nodes_dmp"]
