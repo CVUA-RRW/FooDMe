@@ -10,7 +10,10 @@ DB = os.path.join(os.path.dirname(__file__), 'db/')
 
 def get_version():
 	try:
-		version = subprocess.check_output(["git", "describe"], cwd= os.path.dirname(__file__)).strip().decode("utf-8")
+		if os.path.dirname(__file__) == True:
+			version = subprocess.check_output(["git", "describe"], cwd= os.path.dirname(__file__)).strip().decode("utf-8")
+		else:
+			version = subprocess.check_output(["git", "describe"]).strip().decode("utf-8")
 	except subprocess.CalledProcessError:
 		version = "version not available (did you 'git clone'?)"
 	return(version)
@@ -115,9 +118,10 @@ def run_snakemake(config_file, args):
 	
 def main(): 
 	parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, prog = "FooDMe", description= "Another Pipeline for (Food) DNA metabarcoding")
+	parser.add_argument('-v', '--version', action='version', version="FooDMe version: "+ get_version(), help="Print Pipeline version and exit")
 	
 	# Path arguments
-	ioargs = parser.add_argument_group('In- Out-path arguments')
+	ioargs = parser.add_argument_group('I/O path arguments')
 	ioargs.add_argument('-l', '--sample_list', required=True, type=os.path.abspath, 
 						help="Tab-delimited list of samples and paths to read files. Must contain one line of header, each further line contains sample_name, read1_path, read2_path")
 	ioargs.add_argument('-d', '--working_directory', required=True, type=os.path.abspath,
