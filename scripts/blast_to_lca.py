@@ -4,7 +4,7 @@
 from collections import defaultdict
 import ncbi_taxdump_utils
 
-want_taxonomy = ['superkingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'species']	
+want_taxonomy = ['superkingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']	
 	
 def parse_blast(blast):
 	"""
