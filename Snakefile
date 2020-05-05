@@ -10,7 +10,7 @@ workdir: config["workdir"]
 try:
     __version__ = subprocess.check_output(["git", "describe"], cwd= workflow.basedir).strip().decode("utf-8")
 except subprocess.CalledProcessError:
-    __version__ = "version not available (did you 'git clone'?)"
+    __version__ = "Unknown"
 
 samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
 samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str

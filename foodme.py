@@ -4,20 +4,15 @@ import argparse
 import os
 import datetime
 import subprocess
+import sys
 
 DB = os.path.join(os.path.dirname(__file__), 'db/')
 
-def get_version():
-	print("BEGIN")
-	print(os.path.join(os.path.dirname(__file__),""))
+def get_version():	
 	try:
-		# if os.path.dirname(__file__) == True:
-			# version = subprocess.check_output(["git", "describe"], cwd= os.path.join(os.path.dirname(__file__),"")).strip().decode("utf-8")
-		# else:
-		version = subprocess.check_output(["git", "describe"]).strip().decode("utf-8")
+		version = subprocess.check_output(["git", "describe"], cwd= os.path.join(sys.path[0],"")).strip().decode("utf-8")
 	except subprocess.CalledProcessError:
-		version = "version not available (did you 'git clone'?)"
-	print("END")
+		version = "Unknown"
 	return(version)
 
 def create_config(config_file, args):
