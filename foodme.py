@@ -5,17 +5,19 @@ import os
 import datetime
 import subprocess
 
-
 DB = os.path.join(os.path.dirname(__file__), 'db/')
 
 def get_version():
+	print("BEGIN")
+	print(os.path.join(os.path.dirname(__file__),""))
 	try:
-		if os.path.dirname(__file__) == True:
-			version = subprocess.check_output(["git", "describe"], cwd= os.path.dirname(__file__)).strip().decode("utf-8")
-		else:
-			version = subprocess.check_output(["git", "describe"]).strip().decode("utf-8")
+		# if os.path.dirname(__file__) == True:
+			# version = subprocess.check_output(["git", "describe"], cwd= os.path.join(os.path.dirname(__file__),"")).strip().decode("utf-8")
+		# else:
+		version = subprocess.check_output(["git", "describe"]).strip().decode("utf-8")
 	except subprocess.CalledProcessError:
 		version = "version not available (did you 'git clone'?)"
+	print("END")
 	return(version)
 
 def create_config(config_file, args):
@@ -45,6 +47,10 @@ samples: "{sample_list}"
 threads_sample: {threads_sample} 
 threads: {threads}
 
+workflow:
+    clustering: {clustering}
+    taxonomy: {taxonomy}
+
 fastp:
     length_required: {fastp_length}
     qualified_quality_phred: {fastp_min_phred}
@@ -63,6 +69,10 @@ chimera:
 cluster:
     cluster_identity: {cluster_id}
     cluster_minsize: {cluster_minsize}
+    
+sintax:
+    sintax_db: {sintax_db}
+    sintax_cutoff: {sintax_cutoff}
 
 blast:
     blast_DB: {blastdb}
@@ -71,16 +81,17 @@ blast:
     perc_identity: {blast_id}
     qcov: {blast_qcov}
     bit_score_diff: {bitscore}
-
-taxonomy:
     names_dmp: {names_dmp}
     nodes_dmp: {nodes_dmp}
+
 """.format(date=datetime.datetime.now(),
 		ver=get_version(),
 		workdir=args.working_directory,
 		sample_list=args.sample_list,
 		threads_sample=args.threads_sample,
 		threads=args.threads,
+		clustering=args.clustering,
+		taxonomy=args.taxonomy,
 		fastp_length=args.fastp_length,
 		fastp_min_phred=args.fastp_min_phred,
 		fastp_window=args.fastp_window,
@@ -99,7 +110,9 @@ taxonomy:
 		bitscore=args.bitscore,
 		names_dmp=args.names_dmp,
 		nodes_dmp=args.nodes_dmp,
-		cluster_minsize=args.cluster_minsize))
+		cluster_minsize=args.cluster_minsize,
+		sintax_db=args.sintaxdb,
+		sintax_cutoff=args.sintax_cutoff))
 	
 def run_snakemake(config_file, args):
 	forceall = ("--forceall" if args.forceall else "")
@@ -144,6 +157,13 @@ def main():
 	smkargs.add_argument('--clean_temp', required=False, default= False, action='store_true',
 						help="Remove large fasta and fastq files to save storage space")
 						
+	# Workflow
+	flow = parser.add_argument_group('Method choices')
+	flow.add_argument('--clustering', required = False, choices = ['vsearch'], type = str, default= 'vsearch',
+						help='Clustering method. Only VSearch possible')
+	flow.add_argument('--taxonomy', required=False, choices = ['blast', 'sintax'], type = str, default= 'blast',
+						help='Taxonomic assignment method')
+						
 	# Fastp
 	fastpargs = parser.add_argument_group('Fastp options')
 	fastpargs.add_argument('--fastp_length', required=False, default=50, type=int,
@@ -177,12 +197,20 @@ def main():
 						help="Perform de novo chimera detection and filtering")
 	chimargs.add_argument('--chim_ref', required=False, type=os.path.abspath, default=False,
 						help="Path to the database for chimera detection. If omitted, reference-based chimera filtering will be skipped.")
-						
+
+	# Sintax
+	sintax = parser.add_argument_group('Options for SINTAX search and taxonomy consensus determination')
+	sintax.add_argument('--sintaxdb', required = False, type= os.path.abspath,
+						default=os.path.join(DB, "sintax/mitochondrion.LSU.sintax.faa"),
+						help="Path to the SINTAX database (FASTA)")
+	sintax.add_argument('--sintax_cutoff', required=False, type= float, default= 0.9,
+						help="Bootstrap cutoff value for taxonomic support")
+	
 	# Blast
-	blastargs = parser.add_argument_group('BLAST options')
+	blastargs = parser.add_argument_group('Options for BLAST search and taxonomy consensus determination')
 	blastargs.add_argument('--blastdb', required=False, type=os.path.abspath,
 						default=os.path.join(DB, "blast/mitochondrion.LSU.faa"),
-						help="Path to the BLAST database (folder)")
+						help="Path to the BLAST database (FASTA)")
 	blastargs.add_argument('--taxdb', required=False, type=os.path.abspath,
 						default=os.path.join(DB, "blast/"),
 						help="Path to the BLAST taxonomy database (folder)")
@@ -192,15 +220,12 @@ def main():
 						help="Minimal identity between the hit and query for blast results (in percent)")
 	blastargs.add_argument('--blast_cov', required=False, default=97, type=float,
 						help="Minimal proportion of the query covered by a hit for blast results. A mismatch is still counting as covering (in percent)")
-	
-	# Taxonomy
-	taxargs = parser.add_argument_group('Taxonomy determination options')
-	taxargs.add_argument('--bitscore', required=False, default=128, type=int,
+	blastargs.add_argument('--bitscore', required=False, default=128, type=int,
 						help="Maximum bit-score difference with the best hit for a blast result to be included in the taxonomy consensus detemination")
-	taxargs.add_argument('--nodes_dmp', required=False, type=os.path.abspath,
+	blastargs.add_argument('--nodes_dmp', required=False, type=os.path.abspath,
 						default=os.path.join(DB, "taxdump/nodes.dmp"),
 						help="Path to the nodes.dmp file")
-	taxargs.add_argument('--names_dmp', required=False, type=os.path.abspath,
+	blastargs.add_argument('--names_dmp', required=False, type=os.path.abspath,
 						default=os.path.join(DB, "taxdump/names.dmp"),
 						help="Path to the names.dmp file")	
 	
@@ -213,6 +238,8 @@ def main():
 		parser.error("'--blast_id' value must be between 0 and 100")
 	if args.blast_cov > 100 or args.blast_cov < 0:
 		parser.error("'--blast_cov' value must be between 0 and 100")
+	if args.sintax_cutoff > 1 or args.sintax_cutoff < 0:
+		parser.error("'--sintax_cutoff' value must be between 0 and 1")
 		
 	# check files
 	for path in [args.blastdb, args.taxdb]:

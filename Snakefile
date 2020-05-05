@@ -28,14 +28,12 @@ rule all:
         expand("{sample}/{sample}.derep.fasta", sample = samples.index),
         "VSEARCH/otus.fasta",
         expand("{sample}/{sample}_otutab.tsv", sample = samples.index),
-        # BLAST
-        "blast/blast_search.tsv",    
-        "blast/blast_filtered.tsv",
         # Taxonomy
-        "blast/consensus_table.tsv",
+        "taxonomy/assignment_report.tsv",
         expand("{sample}/{sample}_composition.tsv", sample = samples.index),
         # Krona
         expand("{sample}/{sample}_krona_table.txt", sample = samples.index),
+        "reports/Krona_chart.html",
         # Sample reports
         expand("trimmed/reports/{sample}.tsv", sample = samples.index),
         expand("{sample}/{sample}_qc_filtering_report.tsv", sample = samples.index),
@@ -50,7 +48,7 @@ rule all:
         "reports/qc_filtering_stats.tsv",
         "reports/clustering_stats.tsv",
         "reports/mapping_stats.tsv",
-        "reports/blast_stats.tsv",
+        "reports/assignment_stats.tsv",
         "reports/taxonomy_stats.tsv",
         "reports/summary.tsv",
         "reports/result_summary.tsv",
@@ -59,7 +57,6 @@ rule all:
         "reports/centroid_size.tsv",
         # Markdown
         "reports/report.html",
-        "reports/Krona_chart.html"
 
 # Fastp rules----------------------------
  
@@ -137,8 +134,7 @@ rule merge_reads:
         "logs/{sample}_merge.log"
     shell:
         "vsearch --fastq_mergepairs {input.r1} --reverse {input.r2} --threads {threads} --fastqout {output.merged} \
-        --fastq_eeout --fastaout_notmerged_fwd {output.notmerged_fwd} --fastaout_notmerged_rev {output.notmerged_rev} | \
-        tee {log} 2>&1"       
+        --fastq_eeout --fastaout_notmerged_fwd {output.notmerged_fwd} --fastaout_notmerged_rev {output.notmerged_rev} --log {log}"    
 
 rule qual_stat:
     input: 
@@ -166,8 +162,7 @@ rule quality_filter:
         "logs/{sample}_filter.log"
     shell:
         "vsearch --fastq_filter {input.merged} --fastq_maxee {params.maxee} --fastq_minlen {params.minlen} --fastq_maxlen {params.maxlen}\
-        --fastq_maxns 0 --fastaout {output.filtered} --fasta_width 0 --fastaout_discarded {output.discarded} |\
-        tee {log} 2>&1"
+        --fastq_maxns 0 --fastaout {output.filtered} --fasta_width 0 --fastaout_discarded {output.discarded} --log {log}"
 
 
 rule dereplicate:
@@ -180,7 +175,7 @@ rule dereplicate:
     log:
         "logs/{sample}_derep.log"
     shell:
-        "vsearch --derep_fulllength {input.filtered} --strand plus --output {output.derep} --sizeout --relabel {wildcards.sample}_seq --fasta_width 0 | tee {log} 2>&1"
+        "vsearch --derep_fulllength {input.filtered} --strand plus --output {output.derep} --sizeout --relabel {wildcards.sample}_seq --fasta_width 0 --log {log}"
 
 rule qc_stats:
     input:
@@ -248,9 +243,7 @@ rule derep_all:
     log: 
         "logs/derep_all.log"
     shell:
-        """
-        vsearch --derep_fulllength {input} --sizein --sizeout --fasta_width 0 --output {output} | tee {log} 2>&1
-        """
+        "vsearch --derep_fulllength {input} --sizein --sizeout --fasta_width 0 --output {output} --log {log}"
         
 rule cluster:
     input: 
@@ -265,9 +258,7 @@ rule cluster:
     log:
         "logs/clustering.log"
     shell:
-        """
-        vsearch --cluster_size {input} --threads {threads} --id {params.clusterID} --strand plus --sizein --sizeout --fasta_width 0 --centroids {output} | tee {log} 2>&1
-        """
+        "vsearch --cluster_size {input} --threads {threads} --id {params.clusterID} --strand plus --sizein --sizeout --fasta_width 0 --centroids {output} --log {log}"
         
 rule sort_all:
     input: 
@@ -282,9 +273,7 @@ rule sort_all:
     log:
         "logs/sort_all.log"
     shell:
-        """
-        vsearch --sortbysize {input} --threads {threads} --sizein --sizeout --fasta_width 0 --minsize {params.min_size} --output {output} | tee {log} 2>&1
-        """
+        "vsearch --sortbysize {input} --threads {threads} --sizein --sizeout --fasta_width 0 --minsize {params.min_size} --output {output} --log {log}"
   
 rule centroid_histogram:
     input:
@@ -328,7 +317,7 @@ rule map_sample:
     shell:
         """
         vsearch --usearch_global {input.fasta} --threads {threads} --db {input.db} --id {params.clusterID}\
-        --strand plus --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --otutabout {output.otu} | tee {log} 2>&1     
+        --strand plus --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --otutabout {output.otu} --log {log}    
 
         tail -n +2 {output.otu} | sort -k 2,2nr -o {output.otu} 
         """
@@ -371,132 +360,12 @@ rule collect_mapping_stats:
         done
         """
         
-# OTU BLAST rules----------------------------
+# Taxonomic assignement rules----------------------------
 
-rule blast_otus:
-    input: 
-        "VSEARCH/otus.fasta"
-    output:
-        "blast/blast_search.tsv"
-    params:
-        blast_DB = config["blast"]["blast_DB"],
-        taxdb = config["blast"]["taxdb"],
-        e_value = config["blast"]["e_value"],
-        perc_identity = config["blast"]["perc_identity"],
-        qcov = config["blast"]["qcov"] 
-    threads: config["threads"]
-    message: "BLASTing OTUs against local database"
-    conda: "envs/blast.yaml"
-    log:
-        "logs/blast.log"
-    shell:
-        """
-        export BLASTDB={params.taxdb}
-        
-        blastn -db {params.blast_DB} -query {input} -out {output} -task 'megablast' -evalue {params.e_value} -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} \
-        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxids sscinames scomnames stitle' -num_threads {threads} |\
-        tee {log} 2>&1
-        """
-
-rule filter_blast:
-    input:
-        "blast/blast_search.tsv"
-    output:
-        "blast/blast_filtered.tsv"
-    params:
-        bit_diff= config["blast"]["bit_score_diff"]
-    message: "Filtering BLAST results"
-    shell:
-        """
-        OTUs=$(cat {input} | cut -d";" -f1 | sort -u)
-        for otu in $OTUs
-        do
-            max=$(grep -E "^${{otu}};" {input} | cut -f5 | sort -rn | head -n1)
-            for hit in $(grep "^${{otu}};" {input} | tr '\t' '#' | tr ' ' '@')
-            do
-                val=$(echo $hit | cut -d'#' -f5)
-                if [ $[$max - val] -le {params.bit_diff} ]
-                then
-                    echo $hit | tr '@' ' ' | tr '#' '\t' | tr ';' '\t' | cut -d'\t' --complement -f2  >> {output}
-                fi
-            done
-        done
-        """
-
-# Taxonomy determination rules----------------------------
-
-rule blast2lca:
-    input:
-        "blast/blast_filtered.tsv"
-    output:
-        "blast/consensus_table.tsv" 
-    params:
-        names = config["taxonomy"]["names_dmp"],
-        nodes = config["taxonomy"]["nodes_dmp"]
-    message: "Lowest common ancestor determination"
-    script:
-        "scripts/blast_to_lca.py"
-        
-rule blast_stats:
-    input:
-        otus = "VSEARCH/otus.fasta",
-        blast = "blast/blast_search.tsv",
-        filtered = "blast/blast_filtered.tsv",
-        lca = "blast/consensus_table.tsv" 
-    output:
-        "reports/blast_stats.tsv"
-    params:
-        bit_diff= config["blast"]["bit_score_diff"]
-    message: "Collecting BLAST stats"
-    shell:
-        """      
-        # Get list of all OTUs
-        OTUs=$(grep "^>" {input.otus} | cut -d";" -f1 | tr -d '>' | sort -u)
-       
-        for otu in $OTUs
-        do
-            size=$(grep -E "^>${{otu}}\>" {input.otus}  | cut -d"=" -f2)
-            bhits=$(grep -c -E "^${{otu}};" {input.blast} || true)
-            if [ $bhits -eq 0 ]
-            then
-                # When there is no blast hit
-                echo "$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-" >> {output}
-            else
-                # Otherwise collect and print stats to file
-                bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -rn | head -n1)
-                bit_low=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -n | head -n1)
-                bit_thr=$(($bit_best-{params.bit_diff}))
-                shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
-                cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-4)
-                
-                echo "$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons" >> {output}
-            fi
-        done
-        # Sort by size and add header (just to get hits on top)
-        sort -k2,2nr -o {output} {output}
-        sed -i '1 i\Query\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid' {output}
-        """
-
-rule otutab2lca:
-    input:
-        otu = "{sample}/{sample}_otutab.tsv",
-        lca = "reports/blast_stats.tsv"
-    output:
-        "{sample}/{sample}_composition.tsv"
-    message:
-        "Determining the composition of {wildcards.sample}"
-    shell:
-        """
-        echo "Query\tCount\tConsensus\tRank\tTaxid" > {output}
-        
-        while IFS= read -r line
-        do
-            otu=$(echo $line | cut -d' ' -f1)
-            size=$(echo $line | cut -d' ' -f2)
-            cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f8-10)
-            echo "$otu\t$size\t$cons" >> {output}
-        done < {input.otu} 
-        """
+if config["workflow"]["taxonomy"] == "blast":
+    include: "rules/blast.rule"
+elif config["workflow"]["taxonomy"] == "sintax":
+    include: "rules/sintax.rule"
         
 rule tax_stats:
     input:
@@ -520,7 +389,7 @@ rule tax_stats:
 rule collect_tax_stats:
     input:
         samples = expand("{sample}/{sample}_taxonomy_stats.tsv", sample = samples.index),
-        all = "reports/blast_stats.tsv"
+        all = "reports/assignment_stats.tsv"
     output:
         "reports/taxonomy_stats.tsv"
     message: "Collecting blast statistics"
@@ -581,8 +450,8 @@ rule krona_table:
     output:
         "{sample}/{sample}_krona_table.txt"
     params: 
-        names = config["taxonomy"]["names_dmp"],
-        nodes = config["taxonomy"]["nodes_dmp"]
+        names = config["blast"]["names_dmp"],
+        nodes = config["blast"]["nodes_dmp"]
     message:
         "Exporting {wildcards.sample} in Krona input format"
     script:
@@ -661,19 +530,21 @@ rule report_all:
         clustering = "reports/clustering_stats.tsv",
         centroids = "reports/centroid_size.tsv",
         mapping = "reports/mapping_stats.tsv",
-        blast = "reports/blast_stats.tsv",
-        blast_rep = "blast/blast_search.tsv",
+        blast = "reports/assignment_stats.tsv",
+        blast_rep = "taxonomy/assignment_report.tsv",
         taxonomy = "reports/taxonomy_stats.tsv",
         result = "reports/result_summary.tsv",
         db = "reports/db_versions.tsv",
         soft = "reports/software_versions.tsv",
-        merged_qc = expand("{sample}/sequence_quality.stats", sample = samples.index)
+        merged_qc = expand("{sample}/sequence_quality.stats", sample = samples.index),
+        krona = "reports/Krona_chart.html"
     params:
         workdir = config["workdir"],
         max_ee = config["read_filter"]["max_expected_errors"],
         max_len = config["read_filter"]["max_length"],
         min_len = config["read_filter"]["min_length"],
         min_cluster_size = config["cluster"]["cluster_minsize"],
+        taxonomy = config["workflow"]["taxonomy"],
         version = __version__
     output:
         "reports/report.html"
@@ -705,7 +576,7 @@ rule database_version:
         chimera = config["chimera"]["chimera_DB"],
         blast = config["blast"]["blast_DB"],
         taxdb = config["blast"]["taxdb"],
-        taxdump = config["taxonomy"]["nodes_dmp"]
+        taxdump = config["blast"]["nodes_dmp"]
     shell:
         """
         echo "Database\tLast modified\tFull path" > {output}      
