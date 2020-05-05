@@ -54,8 +54,8 @@ rule blast2lca:
     output:
         "taxonomy/consensus_table.tsv" 
     params:
-        names = config["blast"]["names_dmp"],
-        nodes = config["blast"]["nodes_dmp"]
+        names = config["taxonomy"]["names_dmp"],
+        nodes = config["taxonomy"]["nodes_dmp"]
     message: "Lowest common ancestor determination"
     script:
         "../scripts/blast_to_lca.py"

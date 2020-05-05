@@ -20,8 +20,8 @@ rule sintax_stats:
     output:
         "reports/assignment_stats.tsv"
     params:
-        names = config["blast"]["names_dmp"],
-        nodes = config["blast"]["nodes_dmp"]
+        names = config["taxonomy"]["names_dmp"],
+        nodes = config["taxonomy"]["nodes_dmp"]
     message: "Collecting SINTAX stats"
     script:
         "../scripts/sintax_stats.py"

@@ -290,13 +290,13 @@ rule centroid_histogram:
         
 # Chimera detection-------------
 
-if config["chimera"]["method"] == "denovo_reference":
+if config["chimera"]["denovo"] and config["chimera"]["chimera_DB"]:
     include: "rules/chimera_denovo_and_ref.rule" 
-elif config["chimera"]["method"] == "denovo":
+elif config["chimera"]["denovo"]:
     include: "rules/chimera_denovo_only.rule" 
-elif config["chimera"]["method"] == "reference":
+elif config["chimera"]["chimera_DB"]:
     include: "rules/chimera_ref_only.rule"
-elif config["chimera"]["method"] == "None":
+else:
     include: "rules/no_chimera.rule"
     
 # Reads mapping rules----------------------------
@@ -362,9 +362,9 @@ rule collect_mapping_stats:
         
 # Taxonomic assignement rules----------------------------
 
-if config["workflow"]["taxonomy"] == "blast":
+if config["taxonomy"]["method"] == "blast":
     include: "rules/blast.rule"
-elif config["workflow"]["taxonomy"] == "sintax":
+elif config["taxonomy"]["method"] == "sintax":
     include: "rules/sintax.rule"
         
 rule tax_stats:
@@ -450,8 +450,8 @@ rule krona_table:
     output:
         "{sample}/{sample}_krona_table.txt"
     params: 
-        names = config["blast"]["names_dmp"],
-        nodes = config["blast"]["nodes_dmp"]
+        names = config["taxonomy"]["names_dmp"],
+        nodes = config["taxonomy"]["nodes_dmp"]
     message:
         "Exporting {wildcards.sample} in Krona input format"
     script:
@@ -544,7 +544,7 @@ rule report_all:
         max_len = config["read_filter"]["max_length"],
         min_len = config["read_filter"]["min_length"],
         min_cluster_size = config["cluster"]["cluster_minsize"],
-        taxonomy = config["workflow"]["taxonomy"],
+        taxonomy = config["taxonomy"]["method"],
         version = __version__
     output:
         "reports/report.html"
@@ -576,7 +576,7 @@ rule database_version:
         chimera = config["chimera"]["chimera_DB"],
         blast = config["blast"]["blast_DB"],
         taxdb = config["blast"]["taxdb"],
-        taxdump = config["blast"]["nodes_dmp"]
+        taxdump = config["taxonomy"]["nodes_dmp"]
     shell:
         """
         echo "Database\tLast modified\tFull path" > {output}      
