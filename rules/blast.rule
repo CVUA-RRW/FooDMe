@@ -1,0 +1,122 @@
+rule blast_otus:
+    input: 
+        "VSEARCH/otus.fasta"
+    output:
+        "taxonomy/assignment_report.tsv"
+    params:
+        blast_DB = config["blast"]["blast_DB"],
+        taxdb = config["blast"]["taxdb"],
+        e_value = config["blast"]["e_value"],
+        perc_identity = config["blast"]["perc_identity"],
+        qcov = config["blast"]["qcov"] 
+    threads: config["threads"]
+    message: "BLASTing OTUs against local database"
+    conda: "../envs/blast.yaml"
+    log:
+        "logs/blast.log"
+    shell:
+        """
+        export BLASTDB={params.taxdb}
+        
+        blastn -db {params.blast_DB} -query {input} -out {output} -task 'megablast' -evalue {params.e_value} -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} \
+        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxids sscinames scomnames stitle' -num_threads {threads} |\
+        tee {log} 2>&1
+        """
+
+rule filter_blast:
+    input:
+        "taxonomy/assignment_report.tsv"
+    output:
+        "taxonomy/assignment_report_filtered.tsv"
+    params:
+        bit_diff= config["blast"]["bit_score_diff"]
+    message: "Filtering BLAST results"
+    shell:
+        """
+        OTUs=$(cat {input} | cut -d";" -f1 | sort -u)
+        for otu in $OTUs
+        do
+            max=$(grep -E "^${{otu}};" {input} | cut -f5 | sort -rn | head -n1)
+            for hit in $(grep "^${{otu}};" {input} | tr '\t' '#' | tr ' ' '@')
+            do
+                val=$(echo $hit | cut -d'#' -f5)
+                if [ $[$max - val] -le {params.bit_diff} ]
+                then
+                    echo $hit | tr '@' ' ' | tr '#' '\t' | tr ';' '\t' | cut -d'\t' --complement -f2  >> {output}
+                fi
+            done
+        done
+        """
+        
+rule blast2lca:
+    input:
+        "taxonomy/assignment_report_filtered.tsv"
+    output:
+        "taxonomy/consensus_table.tsv" 
+    params:
+        names = config["blast"]["names_dmp"],
+        nodes = config["blast"]["nodes_dmp"]
+    message: "Lowest common ancestor determination"
+    script:
+        "../scripts/blast_to_lca.py"
+        
+rule blast_stats:
+    input:
+        otus = "VSEARCH/otus.fasta",
+        blast = "taxonomy/assignment_report.tsv",
+        filtered = "taxonomy/assignment_report_filtered.tsv",
+        lca = "taxonomy/consensus_table.tsv" 
+    output:
+        "reports/assignment_stats.tsv"
+    params:
+        bit_diff= config["blast"]["bit_score_diff"]
+    message: "Collecting BLAST stats"
+    shell:
+        """      
+        # Get list of all OTUs
+        OTUs=$(grep "^>" {input.otus} | cut -d";" -f1 | tr -d '>' | sort -u)
+       
+        for otu in $OTUs
+        do
+            size=$(grep -E "^>${{otu}}\>" {input.otus}  | cut -d"=" -f2)
+            bhits=$(grep -c -E "^${{otu}};" {input.blast} || true)
+            if [ $bhits -eq 0 ]
+            then
+                # When there is no blast hit
+                echo "$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-" >> {output}
+            else
+                # Otherwise collect and print stats to file
+                bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -rn | head -n1)
+                bit_low=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -n | head -n1)
+                bit_thr=$(($bit_best-{params.bit_diff}))
+                shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
+                cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-4)
+                
+                echo "$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons" >> {output}
+            fi
+        done
+        # Sort by size and add header (just to get hits on top)
+        sort -k2,2nr -o {output} {output}
+        sed -i '1 i\Query\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid' {output}
+        """
+
+rule otutab2lca:
+    input:
+        otu = "{sample}/{sample}_otutab.tsv",
+        lca = "reports/assignment_stats.tsv"
+    output:
+        "{sample}/{sample}_composition.tsv"
+    message:
+        "Determining the composition of {wildcards.sample}"
+    shell:
+        """
+        echo "Query\tCount\tConsensus\tRank\tTaxid" > {output}
+        
+        while IFS= read -r line
+        do
+            otu=$(echo $line | cut -d' ' -f1)
+            size=$(echo $line | cut -d' ' -f2)
+            cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f8-10)
+            echo "$otu\t$size\t$cons" >> {output}
+        done < {input.otu} 
+        """
