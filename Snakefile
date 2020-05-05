@@ -7,15 +7,18 @@ shell.executable("bash")
  
 workdir: config["workdir"]
 
-try:
-    __version__ = subprocess.check_output(["git", "describe"], cwd= workflow.basedir).strip().decode("utf-8")
-except subprocess.CalledProcessError:
-    __version__ = "Unknown"
-
 samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
 samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
 
 # Functions ------------------------------------------
+
+def git_version():
+    try:
+        __version__ = subprocess.check_output(["git", "describe"], cwd= workflow.basedir).strip().decode("utf-8")
+    except subprocess.CalledProcessError:
+        __version__ = "Unknown"
+    finally:
+        return(__version__)
 
 def _get_fastq(wildcards,read_pair='fq1'):
     return samples.loc[(wildcards.sample), [read_pair]].dropna()[0]
@@ -560,12 +563,22 @@ rule software_versions:
     output:
         "reports/software_versions.tsv"
     message: "Collecting software versions"
+    params:
+        tax = config["taxonomy"]["method"]
     shell:
         """
         echo "Software\tVersion" > {output}
+        
         paste <(echo "fastp") <(grep fastp= {workflow.basedir}/envs/fastp.yaml | cut -d "=" -f2) >> {output}
-        paste <(echo "blast") <(grep blast= {workflow.basedir}/envs/blast.yaml | cut -d "=" -f2) >> {output}
         paste <(echo "vsearch") <(grep vsearch= {workflow.basedir}/envs/vsearch.yaml | cut -d "=" -f2) >> {output}
+        
+        if [ {params.tax} = 'sintax' ]
+        then
+            paste <(echo "sintax") <(grep blast= {workflow.basedir}/envs/sintax.yaml | cut -d "=" -f2) >> {output}
+        elif [ {params.tax} = 'blast' ]
+        then
+            paste <(echo "blast") <(grep blast= {workflow.basedir}/envs/blast.yaml | cut -d "=" -f2) >> {output}
+        fi
         """
 
 rule database_version:
@@ -574,14 +587,27 @@ rule database_version:
     message: "Collecting databases versions"
     params:
         chimera = config["chimera"]["chimera_DB"],
+        tax = config["taxonomy"]["method"],
         blast = config["blast"]["blast_DB"],
+        sintax = config["sintax"]["sintax_db"],
         taxdb = config["blast"]["taxdb"],
         taxdump = config["taxonomy"]["nodes_dmp"]
     shell:
         """
         echo "Database\tLast modified\tFull path" > {output}      
-        paste <(echo "Chimera") <(date +%F -r {params.chimera}) <(echo {params.chimera}) >> {output}
-        paste <(echo "BLAST") <(date +%F -r {params.blast}) <(echo {params.blast}) >> {output}
+        
+        if [ {params.chimera} != 'False' ]
+        then
+            paste <(echo "Chimera") <(date +%F -r {params.chimera}) <(echo {params.chimera}) >> {output}
+        fi
+        
+        if [ {params.tax} = 'blast' ]
+        then
+            paste <(echo "BLAST") <(date +%F -r {params.blast}) <(echo {params.blast}) >> {output}
+        elif [ {params.tax} = 'sintax' ]
+            paste <(echo "SINTAX") <(date +%F -r {params.sintax}) <(echo {params.sintax}) >> {output}
+        fi
+        
         paste <(echo "taxdb") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.chimera}/taxdb[.bti/.btd]) >> {output}
         paste <(echo "taxdump") <(date +%F -r {params.taxdump}) <(echo $(dirname {params.taxdump})/[names.dmp/nodes.dmp]) >> {output}
         """
@@ -589,7 +615,7 @@ rule database_version:
 # Workflow----------------------------
 
 onstart:
-    print("\nYou are using FooDMe version: {}".format(__version__))
+    print("\nYou are using FooDMe version: {}".format(git_version()))
 
 onsuccess:
     print("\nWorkflow finished, no error")
