@@ -48,6 +48,7 @@ def create_config(config_file, args):
 		conf.write("{}min_length: {}\n".format(indent1, args.merge_minlength))
 		conf.write("{}max_length: {}\n".format(indent1, args.merge_maxlength))
 		conf.write("{}max_expected_errors: {}\n".format(indent1, args.merge_maxee))
+		conf.write("{}max_ns: {}\n".format(indent1, args.merge_maxns))
 		
 		# Cluster
 		conf.write("cluster:\n")
@@ -113,6 +114,7 @@ def main():
 		def __call__(self, parser, namespace, values, option_string=None):
 			if values and not os.path.exists(values):
 				parser.error("'" + self.dest + "' not found: '" + values + "' does not exist.")
+			setattr(namespace, self.dest, values)
 	
 	parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, prog = "FooDMe", description= "Another pipeline for (Food) DNA metabarcoding")
 	parser.add_argument('-v', '--version', action='version', version="FooDMe version: "+ git_version(), help="Print pipeline version and exit")
@@ -160,6 +162,8 @@ def main():
 						help="Maximum length merged reads to keep")
 	readargs.add_argument('--merge_maxee', required=False, default=1, type=int,
 						help="Maximum expected errors in merged reads to keep")
+	readargs.add_argument('--merge_maxns', required=False, default = 0, type=int,
+						help="Maximum number of 'N' base in merged reads")
 	
 	# Cluster
 	clsargs = parser.add_argument_group('Clustering options')

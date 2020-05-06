@@ -158,14 +158,15 @@ rule quality_filter:
     params:
         minlen= config["read_filter"]["min_length"],
         maxlen = config["read_filter"]["max_length"],
-        maxee = config["read_filter"]["max_expected_errors"]
+        maxee = config["read_filter"]["max_expected_errors"],
+        maxns = config["read_filter"]["max_ns"]
     message: "Quality filtering {wildcards.sample}"
     conda: "envs/vsearch.yaml"
     log:
         "logs/{sample}_filter.log"
     shell:
         "vsearch --fastq_filter {input.merged} --fastq_maxee {params.maxee} --fastq_minlen {params.minlen} --fastq_maxlen {params.maxlen}\
-        --fastq_maxns 0 --fastaout {output.filtered} --fasta_width 0 --fastaout_discarded {output.discarded} --log {log}"
+        --fastq_maxns {params.maxns} --fastaout {output.filtered} --fasta_width 0 --fastaout_discarded {output.discarded} --log {log}"
 
 
 rule dereplicate:
@@ -293,11 +294,11 @@ rule centroid_histogram:
         
 # Chimera detection-------------
 
-if config["chimera"]["denovo"] and config["chimera"]["chimera_DB"]:
-    include: "rules/chimera_denovo_and_ref.rule" 
-elif config["chimera"]["denovo"]:
+if config["chimera"]["denovo"] != False and config["chimera"]["chimera_DB"] != False:
+    include: "rules/chimera_denovo_and_ref.rule"
+elif config["chimera"]["denovo"] != False:
     include: "rules/chimera_denovo_only.rule" 
-elif config["chimera"]["chimera_DB"]:
+elif config["chimera"]["chimera_DB"]!= False:
     include: "rules/chimera_ref_only.rule"
 else:
     include: "rules/no_chimera.rule"
@@ -548,7 +549,7 @@ rule report_all:
         min_len = config["read_filter"]["min_length"],
         min_cluster_size = config["cluster"]["cluster_minsize"],
         taxonomy = config["taxonomy"]["method"],
-        version = __version__
+        version = git_version()
     output:
         "reports/report.html"
     conda:
@@ -572,10 +573,7 @@ rule software_versions:
         paste <(echo "fastp") <(grep fastp= {workflow.basedir}/envs/fastp.yaml | cut -d "=" -f2) >> {output}
         paste <(echo "vsearch") <(grep vsearch= {workflow.basedir}/envs/vsearch.yaml | cut -d "=" -f2) >> {output}
         
-        if [ {params.tax} = 'sintax' ]
-        then
-            paste <(echo "sintax") <(grep blast= {workflow.basedir}/envs/sintax.yaml | cut -d "=" -f2) >> {output}
-        elif [ {params.tax} = 'blast' ]
+        if [ {params.tax} = 'blast' ]
         then
             paste <(echo "blast") <(grep blast= {workflow.basedir}/envs/blast.yaml | cut -d "=" -f2) >> {output}
         fi
@@ -596,7 +594,7 @@ rule database_version:
         """
         echo "Database\tLast modified\tFull path" > {output}      
         
-        if [ {params.chimera} != 'False' ]
+        if [ {params.chimera} != False ]
         then
             paste <(echo "Chimera") <(date +%F -r {params.chimera}) <(echo {params.chimera}) >> {output}
         fi
@@ -604,11 +602,12 @@ rule database_version:
         if [ {params.tax} = 'blast' ]
         then
             paste <(echo "BLAST") <(date +%F -r {params.blast}) <(echo {params.blast}) >> {output}
+            paste <(echo "taxdb") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.chimera}/taxdb[.bti/.btd]) >> {output}
         elif [ {params.tax} = 'sintax' ]
+        then
             paste <(echo "SINTAX") <(date +%F -r {params.sintax}) <(echo {params.sintax}) >> {output}
         fi
         
-        paste <(echo "taxdb") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.chimera}/taxdb[.bti/.btd]) >> {output}
         paste <(echo "taxdump") <(date +%F -r {params.taxdump}) <(echo $(dirname {params.taxdump})/[names.dmp/nodes.dmp]) >> {output}
         """
         
