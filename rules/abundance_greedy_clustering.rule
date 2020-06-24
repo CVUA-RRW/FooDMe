@@ -13,4 +13,4 @@ rule cluster:
     log:
         "logs/clustering.log"
     shell:
-        "vsearch --cluster_size {input} --threads {threads} --id {params.clusterID} --sizeorder --maxaccepts 5 --strand plus --sizein --sizeout --fasta_width 0 --centroids {output} --log {log}"
+        "vsearch --cluster_size {input} --threads {threads} --id {params.clusterID} --sizeorder --maxaccepts 16 --strand plus --sizein --sizeout --fasta_width 0 --centroids {output} --log {log}"
