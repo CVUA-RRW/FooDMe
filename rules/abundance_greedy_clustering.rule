@@ -1,0 +1,16 @@
+shell.executable("bash")
+
+rule cluster:
+    input: 
+        "VSEARCH/all.derep.fasta"
+    output:
+        "VSEARCH/centroids.fasta"
+    params:
+        clusterID = config["cluster"]["cluster_identity"]
+    conda: "../envs/vsearch.yaml"
+    threads: config["threads"]
+    message: "Abundance greedy clustering sequences"
+    log:
+        "logs/clustering.log"
+    shell:
+        "vsearch --cluster_size {input} --threads {threads} --id {params.clusterID} --sizeorder --maxaccepts 5 --strand plus --sizein --sizeout --fasta_width 0 --centroids {output} --log {log}"
