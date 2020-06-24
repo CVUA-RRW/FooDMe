@@ -248,22 +248,13 @@ rule derep_all:
         "logs/derep_all.log"
     shell:
         "vsearch --derep_fulllength {input} --sizein --sizeout --fasta_width 0 --output {output} --log {log}"
-        
-rule cluster:
-    input: 
-        "VSEARCH/all.derep.fasta"
-    output:
-        "VSEARCH/centroids.fasta"
-    params:
-        clusterID = config["cluster"]["cluster_identity"]
-    conda: "envs/vsearch.yaml"
-    threads: config["threads"]
-    message: "Clustering sequences"
-    log:
-        "logs/clustering.log"
-    shell:
-        "vsearch --cluster_size {input} --threads {threads} --id {params.clusterID} --strand plus --sizein --sizeout --fasta_width 0 --centroids {output} --log {log}"
-        
+
+# Choosing from clustering methods
+if config["cluster"]["method"] == "distance":
+        include: "rules/distance_greedy_clustering.rule"
+elif config["cluster"]["method"] == "abundance":
+        include: "rules/abundance_greedy_clustering.rule"
+
 rule sort_all:
     input: 
         "VSEARCH/centroids.fasta"
@@ -366,6 +357,7 @@ rule collect_mapping_stats:
         
 # Taxonomic assignement rules----------------------------
 
+# Choosing from assignement methods
 if config["taxonomy"]["method"] == "blast":
     include: "rules/blast.rule"
 elif config["taxonomy"]["method"] == "sintax":
