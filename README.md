@@ -46,30 +46,9 @@ conda create -n foodme snakemake biopython
 
 Additional environments should be installed during the first execution of the pipeline.
 
-### BLAST database
+### Reference sequences database
 
-Taxonomic assignment of reads requires sequence alignment against a nucleotide database. Such a database can be directly downloaded from the [NCBI server](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
-or built using the provided helper script. This will require both `blast` and `biopython` to be present in the environment.  
-
-```bash
-bash ${REPO}/FooDMe/scripts/create_blast_db.sh 
-```
-
-By default the script will download the mitochondria RefSeq files from the NCBI server and create a database with the Vertebrata large ribosomal subunit (16S) sequences in the `db/blast` subfolder.
-
-The database location can be modified by providing it as an argument to the script:
-
-```bash
-bash ${REPO}/FooDMe/scripts/create_blast_db.sh path/to/database
-```
-
-The content of the database can be tweaked by modifying the python call to the `GenBank_to_FASTA_parser.py` script:
-
-```bash
-python GenBank_to_FASTA_Parser.py -i [input gbff file] -o [output fasta name] -t [taxa filter] -f [feature 1] -f [feature 2]
-```
-
-The `taxa filter` and `feature` arguments must be provided as strings matching the gbff nomenclature. An arbitrary number of features can be provided. 
+A Database of reference sequences should be provided, either in a BLAST or SINTAX compatible format.
 
 ## Usage
 
