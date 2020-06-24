@@ -20,7 +20,7 @@ rule sintax_stats:
     output:
         "reports/assignment_stats.tsv"
     params:
-        names = config["taxonomy"]["names_dmp"],
+        lineage = config["taxonomy"]["rankedlineage_dmp"],
         nodes = config["taxonomy"]["nodes_dmp"]
     message: "Collecting SINTAX stats"
     script:
