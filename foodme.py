@@ -52,6 +52,7 @@ def create_config(config_file, args):
 		
 		# Cluster
 		conf.write("cluster:\n")
+		conf.write("{}method: {}\n".format(indent1, args.clustering))
 		conf.write("{}cluster_identity: {}\n".format(indent1, args.cluster_id))
 		conf.write("{}cluster_minsize: {}\n".format(indent1, args.cluster_minsize))
 		
@@ -86,12 +87,12 @@ def run_snakemake(config_file, args):
 	conda_prefix= ("--conda-prefix {}".format(args.condaprefix) if args.condaprefix else "")
 	notemp = ("" if args.clean_temp else "--notemp")
 	call = "snakemake -s {snakefile} --configfile {config_file} --use-conda --cores {cores} {conda_prefix} {notemp} {forceall} {dryrun}".format(snakefile= args.snakefile,
-																																	config_file= config_file,
-																																	conda_prefix= conda_prefix,
-																																	forceall= forceall,
-																																	dryrun = dryrun,
-																																	cores=args.threads,
-																																	notemp=notemp)
+																																				config_file= config_file,
+																																				conda_prefix= conda_prefix,
+																																				forceall= forceall,
+																																				dryrun = dryrun,
+																																				cores=args.threads,
+																																				notemp=notemp)
 	print(call)
 	subprocess.call(call, shell=True)
 	
@@ -167,6 +168,8 @@ def main():
 	
 	# Cluster
 	clsargs = parser.add_argument_group('Clustering options')
+	clsargs.add_argument('--clustering', required = False, default='distance', choices= ['distance', 'abundance'],
+						help="Clustering method: Abundance- or Distance- Greedy Clutering")
 	clsargs.add_argument('--cluster_id', required=False, default=0.97, type=float, action= FractionType,
 						help="Minimum identity for clustering sequences in OTUs (between 0 and 1)")
 	clsargs.add_argument('--cluster_minsize', required=False, default=2, type=int,
