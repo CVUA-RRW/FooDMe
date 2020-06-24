@@ -1,3 +1,4 @@
+shell.executable("bash")
         
 rule chimera_db:
     input:

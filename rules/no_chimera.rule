@@ -1,3 +1,4 @@
+shell.executable("bash")
 
 rule relabel_otu:
     input:

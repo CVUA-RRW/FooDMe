@@ -1,3 +1,5 @@
+shell.executable("bash")
+
 rule blast_otus:
     input: 
         "VSEARCH/otus.fasta"
