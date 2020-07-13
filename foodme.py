@@ -156,9 +156,9 @@ def main():
 						
 	# Read filter
 	readargs = parser.add_argument_group('Merged reads filtering options')
-	readargs.add_argument('--merge_minlength', required=False, default=200, type=int,
+	readargs.add_argument('--merge_minlength', required=False, default=80, type=int,
 						help="Minimum length merged reads to keep")
-	readargs.add_argument('--merge_maxlength', required=False, default=600, type=int,
+	readargs.add_argument('--merge_maxlength', required=False, default=200, type=int,
 						help="Maximum length merged reads to keep")
 	readargs.add_argument('--merge_maxee', required=False, default=1, type=int,
 						help="Maximum expected errors in merged reads to keep")
@@ -195,7 +195,7 @@ def main():
 	sintax.add_argument('--sintaxdb', required = False, type= os.path.abspath, action = DatabaseType,
 						default=os.path.join(DB, "sintax/mitochondrion.LSU.sintax.faa"),
 						help="Path to the SINTAX database (FASTA)")
-	sintax.add_argument('--sintax_cutoff', required=False, type= float, default= 0.9, action= FractionType,
+	sintax.add_argument('--sintax_cutoff', required=False, type= float, default= 0.8, action= FractionType,
 						help="Bootstrap cutoff value for taxonomic support")
 	
 	# Blast
@@ -212,7 +212,7 @@ def main():
 						help="Minimal identity between the hit and query for blast results (in percent)")
 	blastargs.add_argument('--blast_cov', required=False, default=97, type=float, action= PercentType,
 						help="Minimal proportion of the query covered by a hit for blast results. A mismatch is still counting as covering (in percent)")
-	blastargs.add_argument('--bitscore', required=False, default=128, type=int,
+	blastargs.add_argument('--bitscore', required=False, default=256, type=int,
 						help="Maximum bit-score difference with the best hit for a blast result to be included in the taxonomy consensus detemination")
 	
 	args = parser.parse_args()
