@@ -64,7 +64,7 @@ def create_config(config_file, args):
 		# Taxonomy
 		conf.write("taxonomy:\n")
 		conf.write("{}method: {}\n".format(indent1, args.tax))
-		conf.write("{}names_dmp: {}\n".format(indent1, args.names_dmp))
+		conf.write("{}rankedlineage_dmp: {}\n".format(indent1, args.rankedlineage_dmp))
 		conf.write("{}nodes_dmp: {}\n".format(indent1, args.nodes_dmp))
 		
 		# Sintax
@@ -189,8 +189,8 @@ def main():
 	taxo.add_argument('--nodes_dmp', required=False, type=os.path.abspath, action = DatabaseType,
 						default=os.path.join(DB, "taxdump/nodes.dmp"),
 						help="Path to the nodes.dmp file")
-	taxo.add_argument('--names_dmp', required=False, type=os.path.abspath, action = DatabaseType,
-						default=os.path.join(DB, "taxdump/names.dmp"),
+	taxo.add_argument('--rankedlineage_dmp', required=False, type=os.path.abspath, action = DatabaseType,
+						default=os.path.join(DB, "taxdump/rankedlineage.dmp"),
 						help="Path to the names.dmp file")		
 	
 	# Sintax

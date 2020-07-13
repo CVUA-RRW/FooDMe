@@ -50,6 +50,11 @@ Additional environments should be installed during the first execution of the pi
 
 A Database of reference sequences should be provided, either in a BLAST or SINTAX compatible format.
 
+### Taxonomy definitions 
+
+The taxdump files nodes.dmp and rankedlineage.dmp are nescessary for various taxonomy operations.
+These can be downloaded from the NCBI repository: <https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz>
+
 ## Usage
 
 ### Python wrapper
@@ -75,7 +80,7 @@ usage: FooDMe [-h] [-v] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
               [--merge_maxns MERGE_MAXNS] [--clustering {distance,abundance}]
               [--cluster_id CLUSTER_ID] [--cluster_minsize CLUSTER_MINSIZE]
               [--chim_denovo] [--chim_ref CHIM_REF] [--tax {blast,sintax}]
-              [--nodes_dmp NODES_DMP] [--names_dmp NAMES_DMP]
+              [--nodes_dmp NODES_DMP] [--rankedlineage_dmp NAMES_DMP]
               [--sintaxdb SINTAXDB] [--sintax_cutoff SINTAX_CUTOFF]
               [--blastdb BLASTDB] [--taxdb TAXDB] [--blast_eval BLAST_EVAL]
               [--blast_id BLAST_ID] [--blast_cov BLAST_COV]
@@ -152,7 +157,7 @@ Taxonomy granularity is as follow:
 * Order
 * Class
 * Phylum
-* Superkingdom
+* Kingdom
 
 #### BLAST
 

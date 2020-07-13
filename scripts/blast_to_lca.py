@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-import ncbi_taxdump_utils
+from taxidTools import Taxdump
 
-want_taxonomy = ['superkingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']	
+want_taxonomy = ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']	
 	
 def parse_blast(blast):
 	"""
@@ -22,47 +22,16 @@ def parse_blast(blast):
 				dict[l[0]] = [l[6]]
 	return dict
 
-def get_lineage(taxid, taxfoo):
-	"""
-	Returns a lineage dictionnary (taxids).
-	Keys are taxonomic levels and values are taxonomic names.
-	"""
-	return taxfoo.get_lineage_as_dict(taxid, want_taxonomy)
-
-def get_consensus(entry):
-	"""
-	Takes a list of lineage dictionnary and returns the taxnomic consensus level and name.
-	"""
-	for level in want_taxonomy[::-1]:
-		cons = False
-		agree = True
-		for e in entry:
-			if not cons:
-				cons = e[level]
-			elif e[level] != cons:
-				agree = False
-		if agree == True:	
-			return level, cons
-
-def init_tax(names_dmp, nodes_dmp):
-	taxfoo = ncbi_taxdump_utils.NCBI_TaxonomyFoo()  
-	taxfoo.load_nodes_dmp(nodes_dmp)
-	taxfoo.load_names_dmp(names_dmp)
-	return taxfoo
-	
-def main(blast_report, output, names_dmp, nodes_dmp):
-	taxfoo = init_tax(names_dmp, nodes_dmp)
+def main(blast_report, output, rankedlineage_dmp, nodes_dmp):
+	txd = Taxdump(rankedlineage_dmp, nodes_dmp, want_taxonomy)
 	otu_dict = parse_blast(blast_report)
 	with open(output, 'w') as out:
 		out.write("queryID\tConsensus\tRank\tTaxid\n")
-	for queryID, taxid_list in otu_dict.items():
-		lineages = []
-		for taxid in taxid_list:
-			lineages.append( get_lineage(taxid, taxfoo) )
-		level, taxid = get_consensus(lineages)
-		name = taxfoo.get_taxid_name(taxid)
-		with open(output, 'a') as out:
+		for queryID, taxid_list in otu_dict.items():
+			lca = txd.lowestCommonNode(taxid_list)
+			rank = txd.getRank(lca)
+			name = txd.getName(lca)
 			out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, level, taxid))
 			
 if __name__ == '__main__':
-	main(snakemake.input[0], snakemake.output[0], snakemake.params["names"], snakemake.params["nodes"])
+	main(snakemake.input[0], snakemake.output[0], snakemake.params["lineage"], snakemake.params["nodes"])

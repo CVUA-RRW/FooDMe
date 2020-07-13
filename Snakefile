@@ -446,7 +446,7 @@ rule krona_table:
     output:
         "{sample}/{sample}_krona_table.txt"
     params: 
-        names = config["taxonomy"]["names_dmp"],
+        lineage = config["taxonomy"]["rankedlineage_dmp"],
         nodes = config["taxonomy"]["nodes_dmp"]
     message:
         "Exporting {wildcards.sample} in Krona input format"
@@ -600,7 +600,7 @@ rule database_version:
             paste <(echo "SINTAX") <(date +%F -r {params.sintax}) <(echo {params.sintax}) >> {output}
         fi
         
-        paste <(echo "taxdump") <(date +%F -r {params.taxdump}) <(echo $(dirname {params.taxdump})/[names.dmp/nodes.dmp]) >> {output}
+        paste <(echo "taxdump") <(date +%F -r {params.taxdump}) <(echo $(dirname {params.taxdump})/[rankedlineage.dmp/nodes.dmp]) >> {output}
         """
         
 # Workflow----------------------------
