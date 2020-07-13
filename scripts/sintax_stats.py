@@ -5,7 +5,7 @@
 from taxidTools import Taxdump
 import re
 
-want_taxonomy = ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']	
+want_taxonomy = ['species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom']
 	
 def main(sintax_report, output, rankedlineage_dmp, nodes_dmp):
 	txd = Taxdump(rankedlineage_dmp, nodes_dmp, want_taxonomy)

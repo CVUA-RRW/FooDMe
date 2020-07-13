@@ -373,13 +373,14 @@ rule tax_stats:
         """
         echo "Sample\tNo Blast hit\tSpecy consensus\tGenus consensus\tFamily consensus\tHigher rank consensus" > {output}
         
-        nohits=$(grep -c "-" {input} || true)
+        all=$(grep -c "OTU_" <(tail -n +2 {input}) || true)
+        nohits=$(grep -c "[[:blank:]]-[[:blank:]]" {input} || true)
         spec=$(grep -c "species" {input} || true)
         gen=$(grep -c "genus" {input} || true)
         fam=$(grep -c "family" {input} || true)
-        other=$(( $(grep -c "OTU_" {input} || true) - $nohits - $spec - $gen - $fam ))
+        other=$(( $all - $nohits - $spec - $gen - $fam ))
         
-        echo "{wildcards.sample}\t$nohits\t$spec\t$gen\t$fam\t$other" >> {output}
+        echo "{wildcards.sample}\t$all\t$nohits\t$spec\t$gen\t$fam\t$other" >> {output}
         """
         
 rule collect_tax_stats:
@@ -392,13 +393,14 @@ rule collect_tax_stats:
     shell:
         """              
         # Summary
-        nohits=$(grep -c "-" <(tail -n +2 {input.all}) || true)
+        all=$(grep -c "OTU_" <(tail -n +2 {input.all}) || true)
+        nohits=$(grep -c "[[:blank:]]-[[:blank:]]" <(tail -n +2 {input.all}) || true)
         spec=$(grep -c "species" <(tail -n +2 {input.all}) || true)
         gen=$(grep -c "genus" <(tail -n +2 {input.all}) || true)
         fam=$(grep -c "family" <(tail -n +2 {input.all}) || true)
-        other=$(( $(grep -c "OTU_" <(tail -n +2 {input.all}) || true) - $nohits - $spec - $gen - $fam ))
+        other=$(( $all - $nohits - $spec - $gen - $fam ))
         
-        echo "All\t$nohits\t$spec\t$gen\t$fam\t$other" >> {output}
+        echo "All\t$all\t$nohits\t$spec\t$gen\t$fam\t$other" >> {output}
         
         # Per sample
         for i in {input.samples}; do 
@@ -406,7 +408,7 @@ rule collect_tax_stats:
         done
         
         # Insert Header 
-        sed -i "1 i\Sample\tNo Blast hit\tSpecy consensus\tGenus consensus\tFamily consensus\tHigher rank consensus" {output}
+        sed -i "1 i\Sample\tOTU number\tNo Blast hit\tSpecy consensus\tGenus consensus\tFamily consensus\tHigher rank consensus" {output}
         """
 
 rule summarize_results:

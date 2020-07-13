@@ -4,7 +4,7 @@
 from collections import defaultdict
 from taxidTools import Taxdump
 
-want_taxonomy = ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']	
+want_taxonomy = ['species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom']	
 	
 def parse_blast(blast):
 	"""
@@ -31,7 +31,7 @@ def main(blast_report, output, rankedlineage_dmp, nodes_dmp):
 			lca = txd.lowestCommonNode(taxid_list)
 			rank = txd.getRank(lca)
 			name = txd.getName(lca)
-			out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, level, taxid))
+			out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, rank, lca))
 			
 if __name__ == '__main__':
 	main(snakemake.input[0], snakemake.output[0], snakemake.params["lineage"], snakemake.params["nodes"])

@@ -4,13 +4,13 @@
 from taxidTools import Taxdump
 import pandas as pd
 
-want_taxonomy = ['phylum', 'class', 'order', 'family', 'genus', 'species']	
+want_taxonomy = ['species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom']	
 
 def get_lineage(taxid, txd):
 	if taxid == "-":
 		return ["Unassigned"]
 	else:
-		return txd.getLineageAsList(taxid, asNames=True)
+		return txd.getLineageAsList(str(taxid), asNames=True)[::-1] # inverting list to have the lineage descending for Krona
 
 def main(input, output, rankedlineage_dmp, nodes_dmp):
 	txd = Taxdump(rankedlineage_dmp, nodes_dmp, want_taxonomy)

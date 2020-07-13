@@ -4,7 +4,7 @@ Provides the Taxdump class to load ncbi taxonomy dumpfiles and work with taxids 
 """
 
 
-__version__ = "1.2.1"
+__version__ = "1.2.2"
 __author__ = "Gregoire Denay"
 __email__ = "gregoire.denay@cvua-rrw.de"
 
@@ -226,7 +226,10 @@ class Taxdump(object):
 		
 		if asNames:
 			for key, val in d.items():
-				d[key]=self.getName(val)
+				if val == '':
+					d[key] = ''
+				else: 
+					d[key]=self.getName(val)
 				
 		return d
 		
@@ -299,14 +302,16 @@ class Taxdump(object):
 		ranks = []
 		for taxid in taxid_list:
 			rank = self.getRank(taxid)
+			
 			if rank in want_ranks:
 				ranks.append(rank)
+			
 			# If the rank is not in the want rank list, find all the ranks in the lineage and take the lowest one
 			else:
 				# Getting the list of all ranks in the lineage
 				rank_lineage = self.getFullLineage(taxid).keys()
 				indices = []
-				# finding rank index in want taxonomy
+				# finding rank index in want taxonomy ## BUG
 				for r in rank_lineage:
 					try:
 						indices.append(want_ranks.index(r))
