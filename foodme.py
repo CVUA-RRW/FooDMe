@@ -220,6 +220,10 @@ def main():
 	
 	args = parser.parse_args()
 	
+	# SINTAX Warning
+	if args.tax == 'sintax':
+		input("WARNING! THe SINTAX algorithm returns only the first best hit in the database. This may lead to spurious assignement of ambiguous reads. Use at your own risk.\n Press Enter to continue or Ctrl-C to quit")
+	
 	# Create workdir
 	if not os.path.exists(args.working_directory):
 		os.makedirs(args.working_directory)
