@@ -46,7 +46,8 @@ merged_qc <- snakemake@input[["merged_qc"]]
 centroid_size <- snakemake@input[["centroids"]]
 
 # infer run name from workdir
-run <- head(tail(strsplit(workdir,"/")[[1]],2),1)
+run <- basename(workdir)
+#head(tail(strsplit(workdir,"/")[[1]],2),1)
 
 # Number of samples
 nsamples <- nrow(read.csv(file = overview, sep = "\t", check.names=FALSE))
@@ -219,7 +220,7 @@ if (snakemake@params[["taxonomy"]] == "sintax"){
 	data_table$drop <- NULL
 } else if (snakemake@params[["taxonomy"]] == "blast"){
 	data_table <- read.csv(file = blast_rep, sep = "\t", header= FALSE, check.names=FALSE,
-						col.names = c("OTU", "Target sequence ID", "e-value", "Percent identity", "Bit-score", "Accession number", "Taxid", "Scientific name", "Common name", "Sequence description")
+						col.names = c("OTU", "Target sequence ID", "e-value", "Percent identity", "Bit-score", "Accession number", "Taxid", "Sequence description")
 						) %>% separate("OTU", c("Query", "Count"), sep=";size=")
 }
 						
@@ -402,6 +403,7 @@ p
 
 ```
 
+<!---
 ### Centroid size distribution
 
 Interactive graph: draw a box to zoom in.
@@ -414,7 +416,7 @@ p <- ggplot(centroid_table, aes(x=size)) +
 		theme_minimal()	
 ggplotly(p)
 ```
-
+-->
 
 
 ## Graphical results

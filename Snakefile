@@ -596,7 +596,7 @@ rule database_version:
         if [ {params.tax} = 'blast' ]
         then
             paste <(echo "BLAST") <(date +%F -r {params.blast}) <(echo {params.blast}) >> {output}
-            paste <(echo "taxdb") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.chimera}/taxdb[.bti/.btd]) >> {output}
+            paste <(echo "taxdb") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.taxdb}/taxdb[.bti/.btd]) >> {output}
         elif [ {params.tax} = 'sintax' ]
         then
             paste <(echo "SINTAX") <(date +%F -r {params.sintax}) <(echo {params.sintax}) >> {output}
