@@ -1,10 +1,25 @@
+import pandas as pd
+
 shell.executable("bash")
 
+# workdir: config["workdir"]
+
+samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
+samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
+
+# rule all:
+    # input:
+        # expand("{sample}/taxonomy/{sample}_blast_report.tsv", sample = samples.index),
+        # expand("{sample}/taxonomy/{sample}_consensus_table.tsv", sample = samples.index),
+        # "reports/blast_stats.tsv",
+        # "reports/taxonomy_assignement_stats.tsv",
+        # "reports/composition_summary.tsv"
+        
 rule blast_otus:
     input: 
-        "VSEARCH/otus.fasta"
+        "{sample}/clustering/{sample}_OTUs.fasta" if config["cluster"]["method"] == "otu" else "{sample}/denoising/{sample}_ASVs.fasta"
     output:
-        "taxonomy/assignment_report.tsv"
+        "{sample}/taxonomy/{sample}_blast_report.tsv"
     params:
         blast_DB = config["blast"]["blast_DB"],
         taxdb = config["blast"]["taxdb"],
@@ -12,27 +27,27 @@ rule blast_otus:
         perc_identity = config["blast"]["perc_identity"],
         qcov = config["blast"]["qcov"] 
     threads: config["threads"]
-    message: "BLASTing OTUs against local database"
+    message: "BLASTing {wildcards.sample} OTUs against local database"
     conda: "../envs/blast.yaml"
     log:
-        "logs/blast.log"
+        "logs/{sample}_blast.log"
     shell:
         """
         export BLASTDB={params.taxdb}
         
         blastn -db {params.blast_DB} -query {input} -out {output} -task 'megablast' -evalue {params.e_value} -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} \
-        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxids stitle' -num_threads {threads} |\
-        tee {log} 2>&1
+        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxids stitle' -num_threads {threads} \
+        > logs/blast.log 2>&1
         """
 
 rule filter_blast:
     input:
-        "taxonomy/assignment_report.tsv"
+        "{sample}/taxonomy/{sample}_blast_report.tsv"
     output:
-        "taxonomy/assignment_report_filtered.tsv"
+        "{sample}/taxonomy/{sample}_blast_report_filtered.tsv"
     params:
         bit_diff= config["blast"]["bit_score_diff"]
-    message: "Filtering BLAST results"
+    message: "Filtering BLAST results for {wildcards.sample}"
     shell:
         """
         OTUs=$(cat {input} | cut -d";" -f1 | sort -u)
@@ -44,7 +59,7 @@ rule filter_blast:
                 val=$(echo $hit | cut -d'#' -f5)
                 if [ $[$max - val] -le {params.bit_diff} ]
                 then
-                    echo $hit | tr '@' ' ' | tr '#' '\t' | tr ';' '\t' | cut -d'\t' --complement -f2  >> {output}
+                    echo $hit | tr '@' ' ' | tr '#' '\t' | tr ';' '\t' | cut --complement -f2  >> {output}
                 fi
             done
         done
@@ -52,9 +67,9 @@ rule filter_blast:
         
 rule blast2lca:
     input:
-        "taxonomy/assignment_report_filtered.tsv"
+        "{sample}/taxonomy/{sample}_blast_report_filtered.tsv"
     output:
-        "taxonomy/consensus_table.tsv" 
+        "{sample}/taxonomy/{sample}_consensus_table.tsv" 
     params:
         lineage = config["taxonomy"]["rankedlineage_dmp"],
         nodes = config["taxonomy"]["nodes_dmp"]
@@ -64,15 +79,15 @@ rule blast2lca:
         
 rule blast_stats:
     input:
-        otus = "VSEARCH/otus.fasta",
-        blast = "taxonomy/assignment_report.tsv",
-        filtered = "taxonomy/assignment_report_filtered.tsv",
-        lca = "taxonomy/consensus_table.tsv" 
+        otus = "{sample}/clustering/{sample}_OTUs.fasta" if config["cluster"]["method"] == "otu" else "{sample}/denoising/{sample}_ASVs.fasta",
+        blast = "{sample}/taxonomy/{sample}_blast_report.tsv",
+        filtered = "{sample}/taxonomy/{sample}_blast_report_filtered.tsv",
+        lca = "{sample}/taxonomy/{sample}_consensus_table.tsv"
     output:
-        "reports/assignment_stats.tsv"
+        "{sample}/reports/{sample}_blast_stats.tsv"
     params:
         bit_diff= config["blast"]["bit_score_diff"]
-    message: "Collecting BLAST stats"
+    message: "Collecting BLAST stats for {wildcards.sample}"
     shell:
         """      
         # Get list of all OTUs
@@ -85,7 +100,7 @@ rule blast_stats:
             if [ $bhits -eq 0 ]
             then
                 # When there is no blast hit
-                echo "$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-" >> {output}
+                echo "{wildcards.sample}\t$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-" >> {output}
             else
                 # Otherwise collect and print stats to file
                 bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -rn | head -n1)
@@ -94,31 +109,95 @@ rule blast_stats:
                 shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
                 cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-4)
                 
-                echo "$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons" >> {output}
+                echo "{wildcards.sample}\t$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons" >> {output}
             fi
         done
         # Sort by size and add header (just to get hits on top)
-        sort -k2,2nr -o {output} {output}
-        sed -i '1 i\Query\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid' {output}
+        sort -k3,3nr -o {output} {output}
+        sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid' {output}
         """
 
-rule otutab2lca:
+rule collect_blast_stats:
     input:
-        otu = "{sample}/{sample}_otutab.tsv",
-        lca = "reports/assignment_stats.tsv"
+        expand("{sample}/reports/{sample}_blast_stats.tsv", sample = samples.index)
     output:
-        "{sample}/{sample}_composition.tsv"
-    message:
-        "Determining the composition of {wildcards.sample}"
+        "reports/blast_stats.tsv"
+    message: "Collecting BLAST stats"
     shell:
         """
-        echo "Query\tCount\tConsensus\tRank\tTaxid" > {output}
+        cat {input[0]} | head -n 1 > {output}
+        for i in {input}; do 
+            cat ${{i}} | tail -n +2 >> {output}
+        done
+        """
+
+rule tax_stats:
+    input:
+        "{sample}/reports/{sample}_blast_stats.tsv" 
+    output:
+        "{sample}/reports/{sample}_taxonomy_assignement_stats.tsv"
+    message: "Collecting taxonomy assignement stats for {wildcards.sample}"
+    shell:
+        """
+        echo "Sample\tQuery\tUnknown sequences\tUnknown sequences [%]\tSpecies consensus\tSpecies consensus [%]\tGenus consensus\tGenus consensus [%]\tFamily consensus\tFamily consensus [%]\tHigher rank consensus\tHigher rank consensus [%]" > {output}
         
-        while IFS= read -r line
-        do
-            otu=$(echo $line | cut -d' ' -f1)
-            size=$(echo $line | cut -d' ' -f2)
-            cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f8-10)
-            echo "$otu\t$size\t$cons" >> {output}
-        done < {input.otu} 
+        all=$(grep -c -E "OTU_|ASV_" <(tail -n +2 {input}) || true)
+        nohits=$(grep -c "[[:blank:]]-[[:blank:]]" {input} || true)
+        spec=$(grep -c "species" {input} || true)
+        gen=$(grep -c "genus" {input} || true)
+        fam=$(grep -c "family" {input} || true)
+        other=$(( $all - $nohits - $spec - $gen - $fam ))
+        
+        nohits_perc=$(echo "scale=2;(100* $nohits / $all)" | bc)
+        spec_perc=$(echo "scale=2;(100* $spec / $all)" | bc)
+        gen_perc=$(echo "scale=2;(100* $gen / $all)" | bc)
+        fam_perc=$(echo "scale=2;(100* $fam / $all)" | bc)
+        other_perc=$(echo "scale=2;(100* $other / $all)" | bc)
+        
+        echo "{wildcards.sample}\t$all\t$nohits\t$nohits_perc\t$spec\t$spec_perc\t$gen\t$gen_perc\t$fam\t$fam_perc\t$other\t$other_perc" >> {output}
+        """
+
+rule collect_tax_stats:
+    input:
+       expand("{sample}/reports/{sample}_taxonomy_assignement_stats.tsv", sample = samples.index),
+    output:
+        "reports/taxonomy_assignement_stats.tsv"
+    message: "Collecting taxonomy assignement stats"
+    shell:
+        """
+        cat {input[0]} | head -n 1 > {output}
+        for i in {input}; do 
+            cat ${{i}} | tail -n +2 >> {output}
+        done
+        """
+        
+rule summarize_results:
+    input:
+        compo = "{sample}/reports/{sample}_blast_stats.tsv"
+    output:
+        report = "{sample}/{sample}_composition.tsv"
+    message:
+        "Summarizing results for {wildcards.sample}"
+    run:
+        df = pd.read_csv(input.compo, sep="\t", header=0).fillna(0)
+        groups = df.groupby(['Consensus', 'Rank', 'Taxid'])['Count'].sum().sort_values(ascending=False).to_frame().reset_index()
+        groups['perc']= round(groups['Count']/groups['Count'].sum() *100, 2)
+        groups.insert(0, 'Sample', wildcards.sample)
+        groups.rename(columns={"perc":"Percent of total"},inplace = True)
+        groups["Consensus"].replace({"-": "No match"}, inplace = True)
+        groups["Taxid"].replace({0: "-"}, inplace = True)
+        groups.to_csv(output.report, sep="\t", index = False)
+        
+rule collect_results:
+    input:
+        expand("{sample}/{sample}_composition.tsv", sample = samples.index)
+    output:
+        "reports/composition_summary.tsv"
+    message: "Collecting results"
+    shell:
+        """
+        cat {input[0]} | head -n 1 > {output}
+        for i in {input}; do 
+            cat ${{i}} | tail -n +2 >> {output}
+        done
         """

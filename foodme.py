@@ -198,11 +198,7 @@ def main():
 	sintax.add_argument('--sintaxdb', required = False, type= os.path.abspath, action = DatabaseType,
 						default=os.path.join(DB, "sintax/mitochondrion.LSU.sintax.faa"),
 						help="Path to the SINTAX database (FASTA)")
-<<<<<<< HEAD
-	sintax.add_argument('--sintax_cutoff', required=False, type= float, default= 0.95, action= FractionType,
-=======
 	sintax.add_argument('--sintax_cutoff', required=False, type= float, default= 0.8, action= FractionType,
->>>>>>> master
 						help="Bootstrap cutoff value for taxonomic support")
 	
 	# Blast
@@ -219,11 +215,7 @@ def main():
 						help="Minimal identity between the hit and query for blast results (in percent)")
 	blastargs.add_argument('--blast_cov', required=False, default=97, type=float, action= PercentType,
 						help="Minimal proportion of the query covered by a hit for blast results. A mismatch is still counting as covering (in percent)")
-<<<<<<< HEAD
 	blastargs.add_argument('--bitscore', required=False, default=4, type=int,
-=======
-	blastargs.add_argument('--bitscore', required=False, default=256, type=int,
->>>>>>> master
 						help="Maximum bit-score difference with the best hit for a blast result to be included in the taxonomy consensus detemination")
 	
 	args = parser.parse_args()

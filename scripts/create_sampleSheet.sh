@@ -5,40 +5,7 @@
 
 #Goal: Create sample sheet for all fastq files in a folder
 #Author: Carlus Deneke, Carlus.Deneke@bfr.bund.de
-version=0.4
-
-#################################################################################
-# BSD 3-Clause License                                                          #
-#                                                                               #
-# Copyright (c) 2019, Carlus Denecke and Simon H. Tausch                        #
-# All rights reserved.                                                          #
-#                                                                               #
-# Redistribution and use in source and binary forms, with or without            #
-# modification, are permitted provided that the following conditions are met:   #
-#                                                                               #
-# * Redistributions of source code must retain the above copyright notice, this #
-#  # list of conditions and the following disclaimer.                           # 
-#                                                                               #
-# * Redistributions in binary form must reproduce the above copyright notice,   # 
-#  # this list of conditions and the following disclaimer in the documentation  #
-#  # and/or other materials provided with the distribution.                     #
-#                                                                               #
-# * Neither the name of the copyright holder nor the names of its               #
-#  # contributors may be used to endorse or promote products derived from       #
-#  # this software without specific prior written permission.                   #
-#                                                                               #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"   #
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE     #
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE#
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE  #
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL    #
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR    #
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER    #
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, #
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE #
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.          #
-#################################################################################
-
+version=0.4.1
 
 # Read in parameters --------------------------------
 
@@ -49,11 +16,14 @@ if [[ $? -ne 4 ]]; then
 fi
 
 
-OPTIONS=hdcm:f:o:iF
-LONGOPTIONS=help,dryrun,check,mode:,fastqDir:,outDir:,interactive,force
+OPTIONS=hdm:f:o:iF
+LONGOPTIONS=help,dryrun,nocheck,mode:,fastxDir:,outDir:,interactive,force
+#,keep-undetermined
 
-#TODO remove header --noheader
-#TODO make this optional: keep-undetermined
+# DEFAULT
+check=true
+#keep-undetermined=false
+
 
 ## Helpfile and escape
 if [ $# -eq 0 ]; then
@@ -82,16 +52,20 @@ while true; do
             dryrun=true
             shift
             ;;
-        -c|--check)
-            check=true
+        --nocheck)
+            check=false
             shift
             ;;
+        #--keep-undetermined)
+            #keep-undetermined=true
+            #shift
+            #;;
         -m|--mode)
             mode=${2,,} #convert to lower case
             shift 2
             ;;
-        -f|--fastqDir)
-            fastqDir="$2"
+        -f|--fastxDir)
+            fastxDir="$2"
             shift 2
             ;;
         -o|--outDir)
@@ -126,17 +100,26 @@ then
     echo "You called the script create_sampleSheet.sh (version $version). Purpose: Create sample sheet for all fastq files in a specified folder"
     echo
     echo "============================="
-    echo "Call: create_sampleSheet.sh --mode {illumina, trimmed, ncbi, flex, assembly} --fastqDir path/fastq/dir --outDir path/out/dir [Options]"
-    echo "--mode: Choose mode from illumina, trimmed, ncbi, flex, assembly  (default: illumina)"
-    echo "--fastqDir: Path to existing directory containing the fastq files (default: `pwd`)"
-    echo "--outDir: Path to existing outDir (default: fastqDir)"
+    echo "Call: create_sampleSheet.sh --mode {illumina, trimmed, ncbi, flex, assembly} --fastxDir path/fastq/dir --outDir path/out/dir [Options]"
+    echo "--mode: Choose mode from illumina, ncbi, flex, assembly  (default: illumina)"
+    echo "--fastxDir: Path to existing directory containing the fastq or fasta files (default: `pwd`)"
+    echo "--outDir: Path to existing outDir (default: fastxDir)"
     echo 
     echo "Options:"
-    echo "--check: Check consistency of sample sheet"
+    echo "--nocheck: Do not check consistency of sample sheet"
+    #echo "--keep-undetermined: Also keep undetermined fastq files"
     echo "--interactive: Ask before starting the program"
     echo "--force: Overwrite existing samples.tsv files in OutDir"
     echo "--help: Display this help message"
     echo "--dryrun: Perform a dry-run"
+    echo 
+    echo "Details about --mode parameters"
+    echo "illumina: samples are in illumina format: {samplename}_S*_R{1,2}_001.fastq*"
+    echo "ncbi: samples are in ncbi format: {samplename}_{1,2}.fastq.gz"
+    echo "flex: samples are in the following format: {samplename}*_R{1,2}*.fastq*. The sample name is cut after the first \"_\". If your sample name contains \"_\" the sample name will be cropped!"
+    echo "assembly: samples are in format {samplename}.fasta Note that currently only the extension \".fasta\" is supported"
+    echo
+
 
     echo "============================="
     exit 1
@@ -152,15 +135,15 @@ then
 fi
 
 # check if empty
-if [[ ${fastqDir} == "" ]]
+if [[ ${fastxDir} == "" ]]
 then
-  fastqDir=`pwd`
+  fastxDir=`pwd`
 fi
 
 # check if emtpy
 if [[ ${outDir} == "" ]]
 then
-  outDir=${fastqDir}
+  outDir=${fastxDir}
 fi
 
 # check if outdir exists
@@ -170,10 +153,10 @@ then
   [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 fi
 
-# check if fastqDir exists
-if [[ ! -d ${fastqDir} ]]
+# check if fastxDir exists
+if [[ ! -d ${fastxDir} ]]
 then
-  echo "The fastq Dir $fastqDir does NOT exist"
+  echo "The fastq Dir $fastxDir does NOT exist"
   [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 fi
 
@@ -197,9 +180,6 @@ fi
 if [[ ${mode} =~ "illu" ]]
 then
   mode="illumina"
-elif [[ ${mode} =~ "trim" ]]
-then
-  mode="trimmed"
 elif [[ ${mode} =~ "fle" ]]
 then
   mode="flex"
@@ -220,11 +200,9 @@ fi
 echo "You chose mode $mode"
 
 
-# always check results
-check=true
 
 
-echo "interactive: $interactive, check: $check, force: $force, mode: $mode, out: $outDir, fastqDir: $fastqDir"
+echo "interactive: $interactive, check: $check, force: $force, mode: $mode, out: $outDir, fastxDir: $fastxDir"
 
 
 # ask if in interactive mode
@@ -250,11 +228,9 @@ then
 elif [ ${mode} = "illumina" ]
 then
 	# using find for illumina names data
-	#echo -e "sample\tfq1\tfq2" > $outfile
-	#paste <(find $fastqDir -name "*_R1*.fastq.gz" -exec basename {} \; | cut -d '_' -f 1 | sort | uniq) <(find $fastqDir -name "*_R1*.fastq.gz" | sort) <(find $fastqDir -name "*_R2*.fastq.gz" | sort) --delimiters '\t'  >> $outfile
     echo -e "sample\tfq1\tfq2" > ${outfile}
-    for file in ${fastqDir}/*_S*_R1_001.fastq*; do
-        sample=`basename ${file} | awk -F '_S' '{print $1}'`
+    for file in ${fastxDir}/*_S*_R1_001.fastq*; do
+        sample=`basename ${file} | awk -F '_S[0-9]' '{print $1}'` # more flexible with wildcard in separator
         R2=`echo ${file} | sed 's/_R1_001.fastq/_R2_001.fastq/'`
         if [[ ! -f ${R2} ]]; then
             echo "Reverse read $R2 does NOT exist"
@@ -265,7 +241,7 @@ then
     
 elif [ ${mode} = "flex" ]; then
     echo -e "sample\tfq1\tfq2" > ${outfile}
-    for file in ${fastqDir}/*_R1*.fastq*; do
+    for file in ${fastxDir}/*_R1*.fastq*; do
         sample=`basename ${file} | cut -f 1 -d '_'`
         R2=`echo ${file} | sed 's/_R1/_R2/'`
         if [[ ! -f ${R2} ]]; then
@@ -274,38 +250,11 @@ elif [ ${mode} = "flex" ]; then
         fi
         echo -e "$sample\t$file\t$R2" >> ${outfile}
     done
-elif [ ${mode} = "trimmed" ]
-then
-	# for trimmed data
-	echo -e "sample\tfq1\tfq2\tfq1U\tfq2U" > ${outfile}
-    for file in ${fastqDir}/*1P.fastq*; do
-        sample=`basename ${file} | cut -f 1 -d '_'`
-        R2=`echo ${file} | sed 's/1P.fastq/2P.fastq/'`
-        if [[ ! -f ${R2} ]]; then
-            echo "Reverse read $R2 does NOT exist"
-            [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
-        fi
-        U1=`echo ${file} | sed 's/1P.fastq/1U.fastq/'`
-        if [[ ! -f ${U1} ]]; then
-            echo "Reverse read $U1 does NOT exist"
-            [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
-        fi
-        U2=`echo ${file} | sed 's/1P.fastq/2U.fastq/'`
-        if [[ ! -f ${U2} ]]; then
-            echo "Reverse read $U2 does NOT exist"
-            [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
-        fi
-
-        echo -e "$sample\t$file\t$R2\t$U1\t$U2" >> ${outfile}
-    done
-  #paste <(find $fastqDir -name "*1P.fastq.gz" -exec basename {} \; | cut -d '.' -f 1 | cut -d '_' -f 1 | sort | uniq) <(find $fastqDir -name "*1P.fastq.gz" | sort) <(find $fastqDir -name "*2P.fastq.gz" | sort) <(find $fastqDir -name "*1U.fastq.gz" -o -name "*r1_UP_*.fastq" | sort) <(find $fastqDir -name "*2U.fastq.gz" | sort) --delimiters '\t'  >> $outfile
 elif [ ${mode} = "ncbi" ]
 then
 	# using find for ncbi names "_1", "_2"
-#	echo -e "sample\tfq1\tfq2" > $outfile
-#	paste <(find $fastqDir -name "*_1.fastq.gz" -exec basename {} \; | cut -d '_' -f 1 | sort | uniq) <(find $fastqDir -name "*_1.fastq.gz" -o -name "*_1.fastq" | sort) <(find $fastqDir -name "*_2.fastq.gz" -o -name "*_2.fastq" | sort) --delimiters '\t'  >> $outfile
     echo -e "sample\tfq1\tfq2" > ${outfile}
-    for file in ${fastqDir}/*_1.fastq*; do
+    for file in ${fastxDir}/*_1.fastq*; do
         sample=`basename ${file} | cut -f 1 -d '_'`
         R2=`echo ${file} | sed 's/_1.fastq/_2.fastq/'`
         if [[ ! -f ${R2} ]]; then
@@ -317,12 +266,12 @@ then
 elif [ ${mode} = "assembly" ]
 then
 	echo -e "sample\tassembly" > ${outfile}
-	for file in ${fastqDir}/*.fasta; do sample=`basename -s .fasta ${file}`; echo -e "$sample\t$file" >> ${outfile}; done
-	#for file in $fastqDir/*.fna; do sample=`basename -s .fna $file`; echo -e "$sample\t$file" >> $outfile; done
+	for file in ${fastxDir}/*.fasta; do sample=`basename -s .fasta ${file}`; echo -e "$sample\t$file" >> ${outfile}; done
+	#for file in $fastxDir/*.fna; do sample=`basename -s .fna $file`; echo -e "$sample\t$file" >> $outfile; done
+    #for file in $fastxDir/*.{fasta,fna}; do sample=$(basename -s .fasta $(basename -s .fna $file) ); echo -e "$sample\t$file" >> $outfile; done
 else
 	echo "mode not specified or recognized.Please specify mode in command line."
-	echo "Choose from samples, illumina, trimmed, ncbi"
-#	break
+	echo "Choose from illumina, ncbi, flex, assembly"
 	exit 1
 
 fi
@@ -331,7 +280,7 @@ fi
 
 # --------------
 # remove undetermined 
-# if [[ ! keep-undetermined = true && $dryrun != true ]]
+# if [[ ! $keep-undetermined = true && $dryrun != true ]]
 if [[ ${dryrun} != true ]]
 then
 	sed -i '/Undetermined_/d' ${outfile}
@@ -340,20 +289,38 @@ fi
 
 # check ---------------
 if [[ ${check} == true ]]; then
-    tail -n +2 ${outfile} | while read sample read1 read2; do
-        if ! [[ ${read1} =~ "${sample}_" ]]; then
+    status="PASS"
+    while read sample read1 read2; do
+        #if ! [[ ${read1} =~ "${sample}_" ]]; then # only for fastq files
+        if ! [[ ${read1} =~ "${sample}_" || ${read1} =~ "${sample}.fasta"  || ${read1} =~ "${sample}.fna" ]]; then
             echo "Error: $sample not contained in $read1"
-            [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+            status="FAIL"
+            #[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
         fi
-    done
-    echo "Check successful"
+    done < <(tail -n +2 ${outfile})
+    
+    #check if empty or same sample name more than once
+    dups=`tail -n +2 ${outfile} | cut -f 1 | sort | uniq -c | sed -E 's/^[ ]+//' | cut -f 1 -d ' ' | awk '$1 != 1' | wc -l`
+    if [[ $dups > 0 ]]; then 
+        echo "Error: Duplicated sample names. Check if your samples are formated according to the selected mode"; 
+        status="FAIL"
+    fi
+
+    if [[ $status == "PASS" ]]; then
+        echo "Check successful"
+    else
+        echo "Check NOT successful"
+        rm ${outfile}
+    fi
+
+
 fi
 
 
 # ---------------
 
 
-if [[ ${dryrun} != true ]]
+if [[ ${dryrun} != true && $status != "FAIL" ]]
 then
 	samplesfound=`tail -n +2 ${outfile} | wc -l `
 	echo "Found $samplesfound samples"
