@@ -1,18 +1,20 @@
+#!/usr/bin/env Rscript
+
 library(ggplot2)
 library(dada2)
 
 # Debug ---------------------------------------------------------------------------------------------------------------
 # fnFs <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/trimmed/DNA-M1-1_R1.fastq"
 # fnRs <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/trimmed/DNA-M1-1_R2.fastq"
-# filtFs <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/sequence_variants/DNA-M1-1_R1_filtered.fastq"
-# filtRs <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/sequence_variants/DNA-M1-1_R2_filtered.fastq"
-# asv_table <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/sequence_variants/DNA-M1-1_ASV.fasta"
-# errplotF <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/sequence_variants/R1_error_plot.tiff"
-# errplotR <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/sequence_variants/R2_error_plot.tiff"
-# denoising_R1 <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/sequence_variants/R1_denoise.txt"
-# denoising_R2 <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/sequence_variants/R2_denoise.txt"
-# report <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/reports/denoising.tsv"
-# merged <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/sequence_variants/merging.txt"
+# filtFs <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R1_filtered.fastq"
+# filtRs <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R2_filtered.fastq"
+# asv_table <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_ASV.fasta"
+# errplotF <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R1_R1_error_plot.tiff"
+# errplotR <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R1_R2_error_plot.tiff"
+# denoising_R1 <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R1_R1_denoise.txt"
+# denoising_R2 <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R1_R2_denoise.txt"
+# report <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/reports/DNA-M1-1_denoising.tsv"
+# merged <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_merging.txt"
 # threads <- 6
 # sample.names <- "DNA-M1-1"
 # max_EE <- 1

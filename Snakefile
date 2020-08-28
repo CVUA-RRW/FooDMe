@@ -14,7 +14,7 @@ samples.index = samples.index.astype('str', copy=False) # in case samples are in
 
 def git_version():
     try:
-        __version__ = subprocess.check_output(["git", "describe"], cwd= workflow.basedir).strip().decode("utf-8")
+        __version__ = subprocess.check_output(["git", "describe", "--always"], cwd= workflow.basedir).strip().decode("utf-8")
     except subprocess.CalledProcessError:
         __version__ = "Unknown"
     finally:
@@ -24,14 +24,18 @@ def git_version():
  
 rule all:
     input: 
-        # Krona
-        "reports/Krona_chart.html",
-
         # Summaries
         "reports/summary.tsv",
         "reports/db_versions.tsv",
-        "reports/software_versions.tsv"
+        "reports/software_versions.tsv",
         
+        # krona
+        expand("{sample}/reports/{sample}_krona_chart.html", sample = samples.index),
+        "reports/Krona_chart.html"
+        
+        # Markdown reports
+        # expand("{sample}/reports/{sample}_report.html", sample = samples.index)
+        # "reports/report.html"
 
 # Includes ------------------------------------------------------------------------------------------------------------------
  
@@ -43,7 +47,7 @@ include: "rules/blast.rule"
 
 rule krona_table:
     input:
-        "{sample}/{sample}_composition.tsv"
+        "{sample}/reports/{sample}_composition.tsv"
     output:
         "{sample}/krona/{sample}_krona_table.txt"
     params: 
@@ -53,8 +57,19 @@ rule krona_table:
         "Exporting {wildcards.sample} in Krona input format"
     script:
         "scripts/krona_table.py"
-        
+    
 rule krona:
+    input:
+        "{sample}/krona/{sample}_krona_table.txt"
+    output:
+        "{sample}/reports/{sample}_krona_chart.html"
+    message: "producing graphical summary for {wildcards.sample}"
+    conda:
+        "envs/krona.yaml"
+    shell:
+        "ktImportText -o {output} {input}"
+        
+rule krona_all:
     input:
         expand("{sample}/krona/{sample}_krona_table.txt", sample = samples.index)
     output:
@@ -77,36 +92,55 @@ rule krona:
         ktImportText -o {output} ${{file_list[@]}}
         """
     
-# Report rules --------------------------------------------------------------------------------------------------------------
+# Summary report rules ------------------------------------------------------------------------------------------------------
 
 rule summary_report:
     input:
         fastp = "{sample}/reports/{sample}_trimmed.tsv",
-        merging = "{sample}/reports/{sample}_merging.tsv",
-        clustering = "{sample}/reports/{sample}_clustering.tsv",
+        merging = "{sample}/reports/{sample}_merging.tsv" if config["cluster"]["method"] == "otu" else "{sample}/reports/{sample}_denoising.tsv",
+        clustering = "{sample}/reports/{sample}_clustering.tsv" if config["cluster"]["method"] == "otu" else "{sample}/reports/{sample}_denoising.tsv",
         tax = "{sample}/reports/{sample}_taxonomy_assignement_stats.tsv"
     output:
         "{sample}/reports/{sample}_summary.tsv"
-    params:
-        cluster = "OTU" if config["cluster"]["method"] == "otu" else "ASV"
     message: "Summarizing statistics for {wildcards.sample}"
+    params:
+        method = config["cluster"]["method"]
     shell:
         """
-        echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in {params.cluster}\t{params.cluster} number\tSpecies consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
+        if [[ {params.method} == "otu" ]] 
+        then
+            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in OTU\tOTU number\tSpecies consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
+            
+            Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f7)
+            size=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
+            reads=$(tail -n +2 {input.merging} | cut -d'\t' -f2)
+            pseudo=$(tail -n +2 {input.merging} | cut -d'\t' -f5)
+            clustered=$(tail -n +2 {input.clustering} | cut -d'\t' -f10)
+            otu=$(tail -n +2 {input.tax} | cut -d'\t' -f2)
+            spec=$(tail -n +2 {input.tax} | cut -d'\t' -f5)
+            gen=$(tail -n +2 {input.tax} | cut -d'\t' -f7)
+            high=$(($(tail -n +2 {input.tax} | cut -d'\t' -f9) + $(tail -n +2 {input.tax} | cut -d'\t' -f11)))
+            none=$(tail -n +2 {input.tax} | cut -d'\t' -f3)
+
+            echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$spec\t$gen\t$high\t$none" >> {output}
+        else
+            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in ASV\tASV number\tSpecies consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
         
-        Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f7)
-        size=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
-        reads=$(tail -n +2 {input.merging} | cut -d'\t' -f2)
-        pseudo=$(tail -n +2 {input.merging} | cut -d'\t' -f5)
-        clustered=$(tail -n +2 {input.clustering} | cut -d'\t' -f10)
-        otu=$(tail -n +2 {input.tax} | cut -d'\t' -f2)
-        spec=$(tail -n +2 {input.tax} | cut -d'\t' -f5)
-        gen=$(tail -n +2 {input.tax} | cut -d'\t' -f7)
-        high=$(($(tail -n +2 {input.tax} | cut -d'\t' -f9) + $(tail -n +2 {input.tax} | cut -d'\t' -f11)))
-        none=$(tail -n +2 {input.tax} | cut -d'\t' -f3)
-        echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$spec\t$gen\t$high\t$none" >> {output}
+            Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f7)
+            size=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
+            reads=$(tail -n +2 {input.clustering} | cut -d'\t' -f2)
+            pseudo=$(tail -n +2 {input.clustering} | cut -d'\t' -f6)
+            clustered=$(tail -n +2 {input.clustering} | cut -d'\t' -f16)
+            otu=$(tail -n +2 {input.tax} | cut -d'\t' -f2)
+            spec=$(tail -n +2 {input.tax} | cut -d'\t' -f5)
+            gen=$(tail -n +2 {input.tax} | cut -d'\t' -f7)
+            high=$(($(tail -n +2 {input.tax} | cut -d'\t' -f9) + $(tail -n +2 {input.tax} | cut -d'\t' -f11)))
+            none=$(tail -n +2 {input.tax} | cut -d'\t' -f3)
+            
+            echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$spec\t$gen\t$high\t$none" >> {output}
+        fi
         """
-        
+
 rule collect_summaries:
     input:
         expand("{sample}/reports/{sample}_summary.tsv", sample= samples.index)
@@ -120,7 +154,8 @@ rule collect_summaries:
             cat ${{i}} | tail -n +2 >> {output}
         done
         """
-
+        
+# Rmarkdown reports rules ---------------------------------------------------------------------------------------------------
 ######################################################
 # FIXME: report all + generate single sample reports #
 ######################################################
@@ -165,12 +200,21 @@ rule software_versions:
     output:
         "reports/software_versions.tsv"
     message: "Collecting software versions"
+    params:
+        method = config["cluster"]["method"]
     shell:
         """
         echo "Software\tVersion" > {output}
         
         paste <(echo "fastp") <(grep fastp= {workflow.basedir}/envs/fastp.yaml | cut -d "=" -f2) >> {output}
-        paste <(echo "vsearch") <(grep vsearch= {workflow.basedir}/envs/vsearch.yaml | cut -d "=" -f2) >> {output}
+        
+        if [[ {params.method} == "otu" ]] 
+        then
+            paste <(echo "vsearch") <(grep vsearch= {workflow.basedir}/envs/vsearch.yaml | cut -d "=" -f2) >> {output}
+        else
+            paste <(echo "dada2") <(grep bioconductor-dada2= {workflow.basedir}/envs/dada2.yaml | cut -d "=" -f2) >> {output}
+        fi
+        
         paste <(echo "blast") <(grep blast= {workflow.basedir}/envs/blast.yaml | cut -d "=" -f2) >> {output}
         """
 
@@ -181,15 +225,19 @@ rule database_version:
     params:
         blast = config["blast"]["blast_DB"],
         taxdb = config["blast"]["taxdb"],
-        taxdump = config["taxonomy"]["nodes_dmp"]
+        taxdump_nodes = config["taxonomy"]["nodes_dmp"],
+        taxdump_lin = config["taxonomy"]["rankedlineage_dmp"]
     shell:
         """
         echo "Database\tLast modified\tFull path" > {output}      
         
         paste <(echo "BLAST") <(date +%F -r {params.blast}) <(echo {params.blast}) >> {output}
-        paste <(echo "taxdb") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.taxdb}/taxdb[.bti/.btd]) >> {output}
-               
-        paste <(echo "taxdump") <(date +%F -r {params.taxdump}) <(echo $(dirname {params.taxdump})/[rankedlineage.dmp/nodes.dmp]) >> {output}
+        
+        paste <(echo "taxdb.bti") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.taxdb}/taxdb.bti) >> {output}
+        paste <(echo "taxdb.btd") <(date +%F -r {params.taxdb}/taxdb.btd) <(echo {params.taxdb}/taxdb.btd) >> {output}
+        
+        paste <(echo "taxdump lineages") <(date +%F -r {params.taxdump_lin}) <(echo {params.taxdump_lin}) >> {output}
+        paste <(echo "taxdump nodes") <(date +%F -r {params.taxdump_nodes}) <(echo {params.taxdump_nodes}) >> {output}
         """
         
 # Workflow ------------------------------------------------------------------------------------------------------------------

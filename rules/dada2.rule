@@ -2,17 +2,17 @@ import pandas as pd
 
 shell.executable("bash")
 
-workdir: config["workdir"]
+# workdir: config["workdir"]
 
 samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
 samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
 
 # Rules
 
-rule all:
-    input:
-        expand("{sample}/denoising/{sample}_ASVs.fasta", sample = samples.index),
-        "reports/denoising.tsv"
+# rule all:
+    # input:
+        # expand("{sample}/denoising/{sample}_ASVs.fasta", sample = samples.index),
+        # "reports/denoising.tsv"
 
 rule unpack_fastq:
     input: 
@@ -37,9 +37,9 @@ rule denoise:
         r2_filt = temp("{sample}/denoising/{sample}_R2_filtered.fasta"),
         errplotF = "{sample}/denoising/{sample}_R1_errorRates.pdf",
         errplotR = "{sample}/denoising/{sample}_R2_errorRates.pdf",
-        denoiseR1 = {sample}/denoising/{samples}_R1_denoising.txt",
-        denoiseR2 = {sample}/denoising/{samples}_R2_denoising.txt",
-        merged = {sample}/denoising/{samples}_merging.txt",
+        denoiseR1 = "{sample}/denoising/{sample}_R1_denoising.txt",
+        denoiseR2 = "{sample}/denoising/{sample}_R2_denoising.txt",
+        merged = "{sample}/denoising/{sample}_merging.txt",
         asv = "{sample}/denoising/{sample}_ASVs.fasta",
         report = "{sample}/reports/{sample}_denoising.tsv"
     message: "Denoising and filtering {wildcards.sample}"

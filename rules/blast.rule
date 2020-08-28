@@ -175,7 +175,7 @@ rule summarize_results:
     input:
         compo = "{sample}/reports/{sample}_blast_stats.tsv"
     output:
-        report = "{sample}/{sample}_composition.tsv"
+        report = "{sample}/reports/{sample}_composition.tsv"
     message:
         "Summarizing results for {wildcards.sample}"
     run:
@@ -190,7 +190,7 @@ rule summarize_results:
         
 rule collect_results:
     input:
-        expand("{sample}/{sample}_composition.tsv", sample = samples.index)
+        expand("{sample}/reports/{sample}_composition.tsv", sample = samples.index)
     output:
         "reports/composition_summary.tsv"
     message: "Collecting results"
