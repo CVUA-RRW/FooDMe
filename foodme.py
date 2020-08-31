@@ -9,7 +9,7 @@ DB = os.path.join(os.path.dirname(__file__), 'db/')
 
 def git_version():	
 	try:
-		version = subprocess.check_output(["git", "describe"], cwd= os.path.join(sys.path[0],"")).strip().decode("utf-8")
+		version = subprocess.check_output(["git", "describe", "--always"], cwd= os.path.join(sys.path[0],"")).strip().decode("utf-8")
 	except subprocess.CalledProcessError:
 		version = "Unknown"
 	finally:

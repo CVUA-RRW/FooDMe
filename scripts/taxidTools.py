@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Provides the Taxdump class to load ncbi taxonomy dumpfiles and work with taxids and lineages. 
+Provides the Taxdump class to load ncbi taxonomy dumpfiles and work with taxids and lineages.
+Supports conversion of taxid numbers to Rank or names, finding lowest common ancestor from a list of taxids, recovering full lineages.
 """
 
 
-__version__ = "1.2.2"
+__version__ = "1.2.3"
 __author__ = "Gregoire Denay"
 __email__ = "gregoire.denay@cvua-rrw.de"
 
@@ -79,7 +80,7 @@ class ReadOnlyDict(UserDict):
 	def __readonly__(self, *args, **kwargs):
 		"raise NotImplementedError"
 		raise NotImplementedError("This object is read-only")
-		
+	
 	__setitem__ = __readonly__
 	__delitem__ = __readonly__
 	pop = __readonly__

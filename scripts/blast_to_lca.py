@@ -28,10 +28,13 @@ def main(blast_report, output, rankedlineage_dmp, nodes_dmp):
 	with open(output, 'w') as out:
 		out.write("queryID\tConsensus\tRank\tTaxid\n")
 		for queryID, taxid_list in otu_dict.items():
-			lca = txd.lowestCommonNode(taxid_list)
-			rank = txd.getRank(lca)
-			name = txd.getName(lca)
-			out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, rank, lca))
+			try:
+				lca = txd.lowestCommonNode(taxid_list)
+				rank = txd.getRank(lca)
+				name = txd.getName(lca)
+				out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, rank, lca))
+			except KeyError:
+				out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, "NA", "NA", "NA"))
 			
 if __name__ == '__main__':
 	main(snakemake.input[0], snakemake.output[0], snakemake.params["lineage"], snakemake.params["nodes"])

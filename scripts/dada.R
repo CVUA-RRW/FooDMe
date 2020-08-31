@@ -32,9 +32,9 @@ filtFs <- snakemake@output[["r1_filt"]]
 filtRs <- snakemake@output[["r2_filt"]]
 errplotF <- snakemake@output[["errplotF"]]
 errplotR <- snakemake@output[["errplotR"]]
-denoising_R1 <- snakemake@outpur[["denoiseR1"]]
-denoising_R2 <- snakemake@outpur[["denoiseR2"]]
-merged <- snakemake@outpur[["merged"]]
+denoising_R1 <- snakemake@output[["denoiseR1"]]
+denoising_R2 <- snakemake@output[["denoiseR2"]]
+merged <- snakemake@output[["merged"]]
 asv_table <- snakemake@output[["asv"]]
 report <- snakemake@output[["report"]]
 
@@ -43,10 +43,9 @@ threads <- snakemake@threads[[1]]
 
 # Parameters
 sample.names <- snakemake@params[["sample"]]
-max_EE <- snakemake@params[["maxEE"]
-minsize <- snakemake@params[["minsize"]]
-minlength <- snakemake@params[["minlength"]]
-minlength <- snakemake@params[["maxlength"]]
+max_EE <- snakemake@params[["max_EE"]]
+minlength <- snakemake@params[["min_length"]]
+maxlength <- snakemake@params[["max_length"]]
 
 
 # DADA Workflow -------------------------------------------------------------------------------------------------------------
@@ -55,7 +54,7 @@ minlength <- snakemake@params[["maxlength"]]
 names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, 
-              maxN=0, maxEE=c(max_EE,max_EE), rm.phix=TRUE,
+              maxN=0, maxEE=max_EE, rm.phix=TRUE,
               compress=TRUE, multithread=threads)
 
 # Learn Error rate
@@ -89,9 +88,9 @@ asfasta <- apply(asv, MARGIN=1, fn)
 writeLines(asfasta, asv_table)
 
 # Error plots
-errFplot <- plotErrors(errF, nominalQ=TRUE) + theme(text=element_text(family="Arial"))
+errFplot <- plotErrors(errF, nominalQ=TRUE) #+ theme(text=element_text(family="Arial"))
 ggsave(errplotF, width = 10, height = 10)
-errRplot <- plotErrors(errF, nominalQ=TRUE) + theme(text=element_text(family="Arial"))
+errRplot <- plotErrors(errF, nominalQ=TRUE) #+ theme(text=element_text(family="Arial"))
 ggsave(errplotR, width = 10, height = 10)
 
 # Denoising reports

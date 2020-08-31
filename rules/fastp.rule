@@ -3,21 +3,12 @@ import os, json, csv, subprocess
 
 shell.executable("bash")
 
-# workdir: config["workdir"]
-
 # Sample getter -------------------
-
-samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
-samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
 
 def _get_fastq(wildcards,read_pair='fq1'):
     return samples.loc[(wildcards.sample), [read_pair]].dropna()[0]
 
 # Rules ---------------------------
-
-# rule all:
-    # input:
-        # "reports/fastp_stats.tsv"
 
 rule run_fastp:
     input:

@@ -1,19 +1,6 @@
 import pandas as pd
 
 shell.executable("bash")
-
-# workdir: config["workdir"]
-
-samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
-samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
-
-# rule all:
-    # input:
-        # expand("{sample}/taxonomy/{sample}_blast_report.tsv", sample = samples.index),
-        # expand("{sample}/taxonomy/{sample}_consensus_table.tsv", sample = samples.index),
-        # "reports/blast_stats.tsv",
-        # "reports/taxonomy_assignement_stats.tsv",
-        # "reports/composition_summary.tsv"
         
 rule blast_otus:
     input: 

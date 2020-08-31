@@ -2,19 +2,7 @@ import pandas as pd
 
 shell.executable("bash")
 
-# workdir: config["workdir"]
-
-samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
-samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
-
 # Rules
-
-# rule all:
-    # input:
-        # expand("{sample}/clustering/{sample}_OTUs.fasta", sample = samples.index),
-        # expand("{sample}/clustering/{sample}_OTUs.txt", sample = samples.index),
-        # "reports/merging_stats.tsv",
-        # "reports/clustering_stats.tsv"
 
 # Reads merging and quality filtering rules----------------------------
 
@@ -111,7 +99,7 @@ rule qc_stats:
         """
 
         
-rule collect_qc_stats: # fix filenames
+rule collect_qc_stats:
     input:
         expand("{sample}/reports/{sample}_merging.tsv", sample = samples.index)
     output:

@@ -31,19 +31,18 @@ author: `r paste0(executor)`
 
 ```{r init}
 workdir <- snakemake@params[["workdir"]]
+
 overview <- snakemake@input[["summary"]]
 fastp <- snakemake@input[["fastp"]]
 qc_filtering <- snakemake@input[["qc_filtering"]]
 clustering <- snakemake@input[["clustering"]]
-mapping <- snakemake@input[["mapping"]]
-blast <- snakemake@input[["blast"]]
 blast_rep <- snakemake@input[["blast_rep"]]
 taxonomy <- snakemake@input[["taxonomy"]]
 result <- snakemake@input[["result"]]
 db <- snakemake@input[["db"]]
 soft <- snakemake@input[["soft"]]
-merged_qc <- snakemake@input[["merged_qc"]]
-centroid_size <- snakemake@input[["centroids"]]
+
+OTU_bool <- snakemake@params[["method"]] == "otu" # store True if using OTU 
 
 # infer run name from workdir
 run <- basename(workdir)
@@ -130,11 +129,10 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 						))
 ```
 
-## Read filtering statistics
-
-Merged reads were filtered with a length range of `r snakemake@params[["min_len"]]` to `r snakemake@params[["max_len"]]` nucleotides and `r snakemake@params[["max_ee"]]` maximum cumulated expected errors.
-
-```{r filtering}
+```{r filtering_header, results='asis', eval=OTU_bool}
+cat("## Read filtering statistics\n")
+```
+```{r filtering_table, eval=OTU_bool}
 data_table <- read.csv(file = qc_filtering, sep = "\t", check.names=FALSE)
 datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
@@ -158,9 +156,10 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 						))
 ```
 
-## Clustering statistics
-
-```{r clustering}
+```{r clustering_header, results='asis', eval=OTU_bool}
+cat("## Clustering statistics\n")
+```
+```{r clustering_table, eval=OTU_bool}
 data_table <- read.csv(file = clustering, sep = "\t", check.names=FALSE)
 datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
@@ -184,10 +183,11 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 						))
 ```
 
-## Mapping statistics
-
-```{r mapping}
-data_table <- read.csv(file = mapping, sep = "\t", check.names=FALSE)
+```{r denoising_header, results='asis', eval=!OTU_bool}
+cat("## Denoising statistics\n")
+```
+```{r denoising_table, eval=!OTU_bool}
+data_table <- read.csv(file = clustering, sep = "\t", check.names=FALSE)
 datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
 		options = list(	
@@ -213,43 +213,11 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 ## Taxonomic assignment
 
 ```{r blast_rep}
-if (snakemake@params[["taxonomy"]] == "sintax"){
-	data_table <- read.csv(file = blast_rep, sep = "\t", header= FALSE, check.names=FALSE,
-						col.names = c("OTU", "Predicted taxonomy (bootstrap)", "Strand", "Consensus taxonomy","drop")
-						) %>% separate("OTU", c("Query", "Count"), sep=";size=")
-	data_table$drop <- NULL
-} else if (snakemake@params[["taxonomy"]] == "blast"){
-	data_table <- read.csv(file = blast_rep, sep = "\t", header= FALSE, check.names=FALSE,
-						col.names = c("OTU", "Target sequence ID", "e-value", "Percent identity", "Bit-score", "Accession number", "Taxid", "Sequence description")
-						) %>% separate("OTU", c("Query", "Count"), sep=";size=")
-}
-						
-datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
-		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
-		options = list(	
-					dom = 'BRrltpi',
-					autoWidth=FALSE,
-					scrollX = TRUE,
-					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
-					ColReorder = TRUE,
-					buttons =
-					list(
-						'copy',
-						'print',
-						list(
-						extend = 'collection',
-						buttons = c('csv', 'excel', 'pdf'),
-						text = 'Download'
-						),
-						I('colvis')
-						)
-						))
-```
- 
-## Taxonomic consensus report
+data_table <- read.csv(file = blast_rep, sep = "\t", check.names=FALSE)
+					# col.names = c("OTU", "Target sequence ID", "e-value", "Percent identity", "Bit-score", "Accession number", "Taxid", "Sequence description")
+					# ) %>% separate("OTU", c("Query", "Count"), sep=";size=")
 
-```{r blast}
-data_table <- read.csv(file = blast, sep = "\t", check.names=FALSE)
+						
 datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
 		options = list(	
@@ -324,105 +292,10 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 						))
 ```
 
-## Quality plots
-
-Red dotted lines represent the cutoff values for filtering.
-
-```{r qcplots_import}
-
-# import for QC
-qc_table <- data.frame()
-for (file in merged_qc){
-	data <- read.csv(file = file, sep="\t", check.names=FALSE) %>%
-			mutate(count =  Recs - lead(Recs, default= 0)) %>%
-			add_column(sample = str_split(file, "/", n=2)[[1]][1], .before = 1)	%>%
-			select(sample, Pos, count, Min_EE, Low_EE, Med_EE, Hi_EE, Max_EE, Mean_Q)
-	qc_table <- rbind(qc_table, data)
-	}
-
-ee_table <- qc_table %>% group_by(sample) %>% top_n(1, Pos)
-
-# Import for Read number
-read_table <- read.csv(file = qc_filtering, sep = "\t", check.names=FALSE) %>%
-			select(Sample, `Quality filtered reads`)
-
-# Import centroid sizes
-centroid_table <- read.csv(file = centroid_size, sep = "\t", check.names=FALSE)
-centroid_table$sample <- as.factor(centroid_table$sample)
-```
-
-### Merged-read number
-
-```{r qcplot_reads}
-
-p <- ggplot(data= read_table, aes(x=Sample, y=`Quality filtered reads`)) +
-		geom_bar(stat= "identity", fill="gray", color="black") +
-		geom_text(aes(label=`Quality filtered reads`), vjust=-0.3, size=3.5) +
-		theme_minimal()
-p
-
-```
-
-### Merged-read length distribution
-
-```{r qcplot_length}
-
-qc_table <- qc_table %>% group_by(sample) %>%
-			mutate(weights = count/sum(count))
-p <- ggplot(qc_table, aes(x=sample, y= Pos, weight= weights))+
-		geom_violin(fill="gray") +
-		labs(x="Sample", y= "Merged read length") +
-		geom_hline(yintercept=snakemake@params[["max_len"]], linetype="dashed", color = "red") +
-		geom_hline(yintercept=snakemake@params[["min_len"]], linetype="dashed", color = "red") +
-		theme_minimal()
-p
-
-```
-
-### Merged-read quality distribution
-
-```{r qc_plot qual}
-
-p <- ggplot(qc_table, aes(x=Pos, y=Mean_Q)) +
-		geom_line(aes(color=sample)) + 
-		labs(x="Position", y= "Mean Phred score") +
-		theme_minimal()
-p
-```
-
-### Merged-read expected error distribution
-
-```{r qcplot_ee}
-
-p <- ggplot(ee_table, aes(x=sample, ymin= Min_EE, lower = Low_EE, middle= Med_EE, upper= Hi_EE, ymax= Max_EE)) +	
-		geom_boxplot(stat= "identity", fill = "gray") +
-		labs(x="Sample", y= "Expected errors per read") +
-		geom_hline(yintercept = snakemake@params[["max_ee"]], linetype="dashed", color = "red") +
-		theme_minimal()
-p
-
-```
-
-<!---
-### Centroid size distribution
-
-Interactive graph: draw a box to zoom in.
-
-```{r centroid}
-p <- ggplot(centroid_table, aes(x=size)) +
-		geom_histogram(binwidth=1, boundary= 0, closed="left") +
-		geom_vline(xintercept = snakemake@params[["min_cluster_size"]], linetype="dashed", color = "red") +
-		labs(x="Centroid size", y= "Count") + 
-		theme_minimal()	
-ggplotly(p)
-```
--->
-
-
 ## Graphical results
 
 ```{r iframe}
-htmltools::tags$iframe(title = "Krona chart", src = "Krona_chart.html", width ="100%", height="800px") 
+htmltools::tags$iframe(title = "Krona chart", src = snakemake@input[["krona"]], width ="100%", height="800px") 
 ```
 
 Link to chart: <a href=Krona_chart.html>`r file.path(workdir, snakemake@input[["krona"]])`<a/>
@@ -444,6 +317,8 @@ knitr::kable(soft_table)
 ```
 
 ## Help
+
+Needs rework with proper headings for all cases and usefull definitions.
 
 ```{r help}
 keyword <- c(

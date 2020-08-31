@@ -1,11 +1,13 @@
 import pandas as pd
-import os, subprocess
+import os, subprocess, time
 
 shell.executable("bash")
     
 # Settings ------------------------------------------------------------------------------------------------------------------
  
 workdir: config["workdir"]
+
+pipe_log = os.path.join(config["workdir"], "PIPELINE_STATUS")
 
 samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
 samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
@@ -24,18 +26,8 @@ def git_version():
  
 rule all:
     input: 
-        # Summaries
-        "reports/summary.tsv",
-        "reports/db_versions.tsv",
-        "reports/software_versions.tsv",
-        
-        # krona
-        expand("{sample}/reports/{sample}_krona_chart.html", sample = samples.index),
-        "reports/Krona_chart.html"
-        
-        # Markdown reports
-        # expand("{sample}/reports/{sample}_report.html", sample = samples.index)
-        # "reports/report.html"
+        expand("{sample}/reports/{sample}_report.html", sample = samples.index),
+        "reports/report.html"
 
 # Includes ------------------------------------------------------------------------------------------------------------------
  
@@ -160,36 +152,50 @@ rule collect_summaries:
 # FIXME: report all + generate single sample reports #
 ######################################################
 
+rule report_sample: 
+    input:
+        summary = "{sample}/reports/{sample}_summary.tsv",
+        fastp = "{sample}/reports/{sample}_trimmed.tsv",
+        qc_filtering = "{sample}/reports/{sample}_merging.tsv" if config["cluster"]["method"] == "otu" else "{sample}/reports/{sample}_denoising.tsv",
+        clustering = "{sample}/reports/{sample}_clustering.tsv" if config["cluster"]["method"] == "otu" else "{sample}/reports/{sample}_denoising.tsv",
+        blast_rep = "{sample}/reports/{sample}_blast_stats.tsv",
+        taxonomy = "{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
+        result = "{sample}/reports/{sample}_composition.tsv",
+        db = "reports/db_versions.tsv",
+        soft = "reports/software_versions.tsv",
+        krona = "{sample}/reports/{sample}_krona_chart.html"
+    params:
+        method = config["cluster"]["method"],
+        workdir = config["workdir"],
+        version = git_version()
+    output:
+        "{sample}/reports/{sample}_report.html"
+    conda:
+        "envs/rmarkdown.yaml"
+    message: "Generating html report"
+    script:
+        "scripts/write_report.Rmd"
+
 rule report_all: 
     input:
         summary = "reports/summary.tsv",
         fastp = "reports/fastp_stats.tsv",
-        qc_filtering = "reports/qc_filtering_stats.tsv",
-        clustering = "reports/clustering_stats.tsv",
-        centroids = "reports/centroid_size.tsv",
-        mapping = "reports/mapping_stats.tsv",
-        blast = "reports/assignment_stats.tsv",
-        blast_rep = "taxonomy/assignment_report.tsv",
-        taxonomy = "reports/taxonomy_stats.tsv",
-        result = "reports/result_summary.tsv",
+        qc_filtering = "reports/merging_stats.tsv" if config["cluster"]["method"] == "otu" else "reports/denoising.tsv",
+        clustering = "reports/clustering_stats.tsv" if config["cluster"]["method"] == "otu" else "reports/denoising.tsv",
+        blast_rep = "reports/blast_stats.tsv",
+        taxonomy = "reports/taxonomy_assignement_stats.tsv",
+        result = "reports/composition_summary.tsv",
         db = "reports/db_versions.tsv",
         soft = "reports/software_versions.tsv",
-        merged_qc = expand("{sample}/sequence_quality.stats", sample = samples.index),
         krona = "reports/Krona_chart.html"
     params:
+        method = config["cluster"]["method"],
         workdir = config["workdir"],
-        max_ee = config["read_filter"]["max_expected_errors"],
-        max_len = config["read_filter"]["max_length"],
-        min_len = config["read_filter"]["min_length"],
-        min_cluster_size = config["cluster"]["cluster_minsize"],
-        taxonomy = config["taxonomy"]["method"],
         version = git_version()
     output:
         "reports/report.html"
     conda:
         "envs/rmarkdown.yaml"
-    log:
-        "logs/rmarkdown.log"
     message: "Generating html report"
     script:
         "scripts/write_report.Rmd"
@@ -244,9 +250,15 @@ rule database_version:
 
 onstart:
     print("\nYou are using FooDMe version: {}".format(git_version()))
+    with open(pipe_log, 'a') as f:
+        f.write("[" + time.asctime(time.localtime(time.time())) + "]: Pipeline started\n")
 
 onsuccess:
     print("\nWorkflow finished, no error")
+    with open(pipe_log, 'a') as f:
+        f.write("[" + time.asctime(time.localtime(time.time())) + "]: Pipeline succesfully finished\n")
     
 onerror:
     print("\nAn error occured, please consult the latest log file in {}".format(os.path.join(config["workdir"], ".snakemake", "log")))
+    with open(pipe_log, 'a') as f:
+        f.write("[" + time.asctime(time.localtime(time.time())) + "]: Pipeline stopped on error\n")
