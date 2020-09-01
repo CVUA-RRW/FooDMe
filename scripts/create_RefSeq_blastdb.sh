@@ -4,7 +4,7 @@
 #set -o pipefail
 
 # Build a BLAST databse containing RefSeq Mitochondrion genomes
-# Author G. Denay, gregoire.denay@cvua-rrw.de
+# Author: G. Denay, gregoire.denay@cvua-rrw.de
 
 VERSION=1.0
 
