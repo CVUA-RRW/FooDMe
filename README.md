@@ -1,183 +1,149 @@
 # FooDMe - A pipeline for Food DNA Metabarcoding
 
-## Description
-
 FooDMe is a pipeline for taxonomic assignement of targeted sequencing reads (DNA Metabarcoding). 
-It is meant for food authenticity analysis but could also work for other applications.
-It works on raw paired-end Illumina reads, it will trim them, assemble read-pairs and perform a quality filtering, merge samples to filter out chimeras and find OTUs,
-map the assembled reads to the OTUs, and finally, perform taxonomic assignment using a nucleotide database. 
+It was designed with 16S amplicon sequencing of Food samples (Animal and birds metabarcoding) in mind but could be applied to
+ other datasets. 
+FooDMe will process demultiplexed Illumina sequencing reads to:
 
-FooDMe is built on Snakemake and uses the following tools:
+* Cut low quality 3' ends and apply basic quality filtering
+* Determine OTU or ASV in a sample-wise fashion and apply some quality filtering at the read and cluster levels
+* BLAST sequences in a user-provided database
+* Determine a taxonomic consensus based on sequence similarity
+* Output quality reports and results
 
-* [Fastp](https://github.com/OpenGene/fastp)
-* [VSearch](https://github.com/torognes/vsearch) 
-* [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) 
-* [Krona](https://github.com/marbl/Krona)
+## Getting started 
 
-Running FooDMe requires a UNIX environment (tested on Debian GNU/Linux 10 (buster)). An internet connection is required to setup the Databases and Conda environments but is not required to run the pipeline.
+### Prerequisites
 
-## Source
+FooDMe runs in a UNIX environment with BASH (tested on Debian GNU/Linux 10 (buster)) and requires conda and an internet connection (at 
+least for the first run).
 
-FooDMe is not yet distributed through a centralized hub. It is however Git-versionned.
-For the latest version see "Contact".
+### Installing
 
-## Known issues
+Start by getting a copy of this repository on your system, either by downloading and unpacking and archive, or using 'git clone'.
 
-* When using Blast, the pipeline will crash if no hits are found. 
-
-## Installation
-
-Get the latest version and upack it in the Repo directory:
+Set up a conda environment containing snakemake, python and the pandas library and activate it:
 
 ```bash
-REPO=path/to/repo
-cd $REPO
-tar -xzvf FooDme.tar
+conda create --name foodme -c bioconda -c anaconda snakemake pandas
 ```
 
-### Conda environment
+### Getting the databases
 
-FooDMe requires conda to manage environments of all dependencies. You can install conda from [here](https://docs.conda.io/en/latest/miniconda.html) or chose another distribution.
-Then you need to setup an environment to lauch the pipeline:
+FooDMe requires several databases to run, all are available from the NCBI ftp servers:
+
+* [taxdump](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz)
+* [taxdb](https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz)
+* Any nucleotide collection you want to use, this needs to be a searchable BLAST database with taxonomy information. For this
+ you can get your own local copy of the BLAST nucleotide database, or build a local database from a subset of sequences. Check
+ the [BLAST documentation](https://www.ncbi.nlm.nih.gov/books/NBK279688/) to know how to do this.
+ 
+This distribution provides a utility script to download and set up the database for **mitochondria RefSeq sequences**. Running
+this script will require the BLAST command line application:
 
 ```bash
-conda create -n foodme snakemake biopython
+conda create --name blast -c bioconda blast
+conda activate blast
+bash /path/to/FooDMe/ressources/create_RefSeq_blastdb.sh -d /path/to/database -t -c
 ```
 
-Additional environments should be installed during the first execution of the pipeline.
+This will download all nescessary files to the '/path/to/database/' folder.
 
-### Reference sequences database
+### Creating a sample sheet
 
-A Database of reference sequences should be provided, either in a BLAST or SINTAX compatible format.
+FooDMe requires a tabular file linking sample names to forward and reverse read files.
+This can be produced using the 'create_sampleSheet.sh' script from Carlus Deneke (BfR).
 
-### Taxonomy definitions 
-
-The taxdump files nodes.dmp and rankedlineage.dmp are nescessary for various taxonomy operations.
-These can be downloaded from the NCBI repository: <https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz>
-
-## Usage
-
-### Python wrapper
-
-One can execute the worflow using the provided python wrapper:
+Consult the help with:
 
 ```bash
-conda activate foodme
-python ${REPO}/foodme.py -l /path/to/sample/list -d /working/directory/ 
+bash /path/to/FooDMe/ressources/create_sampleSheet.sh -h
 ```
 
-A configuration file will be automatically generated in the working directory with default values. 
-These can be overridden by using the following arguments (use `-h` to display help):
+### Running FooDMe
+
+You can run FooDMe either by using the python wrapper or by calling directly snakemake. The python wrapper will each time 
+generate a config file containing the run's parameters. 
+
+Calling directly snakemake will allow you to reuse previously generated config files. This is especially useful to routinely 
+run the pipeline with fixed parameters. 
+
+Below is a minimal exemple for using the python wrapper, to get the full list of arguments use `foodme.py -h`.
 
 ```bash
-usage: FooDMe [-h] [-v] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
-              [-T THREADS] [-t THREADS_SAMPLE] [-c CONDAPREFIX] [-s SNAKEFILE]
-              [--clean_temp] [--fastp_length FASTP_LENGTH]
-              [--fastp_min_phred FASTP_MIN_PHRED]
-              [--fastp_window FASTP_WINDOW] [--fastp_meanq FASTP_MEANQ]
-              [--merge_minlength MERGE_MINLENGTH]
-              [--merge_maxlength MERGE_MAXLENGTH] [--merge_maxee MERGE_MAXEE]
-              [--merge_maxns MERGE_MAXNS] [--clustering {distance,abundance}]
-              [--cluster_id CLUSTER_ID] [--cluster_minsize CLUSTER_MINSIZE]
-              [--chim_denovo] [--chim_ref CHIM_REF] [--tax {blast,sintax}]
-              [--nodes_dmp NODES_DMP] [--rankedlineage_dmp NAMES_DMP]
-              [--sintaxdb SINTAXDB] [--sintax_cutoff SINTAX_CUTOFF]
-              [--blastdb BLASTDB] [--taxdb TAXDB] [--blast_eval BLAST_EVAL]
-              [--blast_id BLAST_ID] [--blast_cov BLAST_COV]
-              [--bitscore BITSCORE]
-
+DATABASES=/path/to/database/folder
+python /path/to/FooDMe/foodme.py -l /path/to/sample_sheet.tsv \
+	-d /path/to/working/dir \
+	--taxdump ${DATABASES} \
+	--taxdb ${DATABASES} \
+	--blastdb ${DATABASES}/my_blast_db.fasta
 ```
 
-The size of the output folder can be dramatically reduced (up to 7 times!) by using the `--clean_temp` tag. This will remove large fasta and fastq files generated by the analysis.
+Below is a minimal exemple for calling snakemake directly. Consult [snakemake's documentation](https://snakemake.readthedocs.io/en/stable/) for more details.
 
-### Snakemake
-
-One can also run snakemake directly by providing the path to the snakefile and confiuration file.
-For help with snakemake see the [homepage](https://snakemake.readthedocs.io/en/v5.1.4/executable.html).
-
-```bash
-conda activate foodme
-snakemake -s ${REPO}/Snakefile  --conda-prefix /path/to/conda/envs --configfile /path/to/config.yaml --use-conda
+```bash 
+snakemake -s /path/to/FooDMe/Snakefile --config path/to/config.yaml --use-conda
 ```
-
-Note that by default the pipeline will delete large fastq and fasta files generated during the analysis. To avoid this behavior use the `--notemp` tag
-
-### Sample sheet 
-
-FooDMe execution requires a sample sheet to be provided. This is a tab separated table referencing mate pair files for each samples.
-Such a table can be automatically generated with the script `create_sampleSheet.sh`, originally developped by the BfR Study Center for Genome Sequencing and Analysis :
-
-```bash
-bash ${REPO}/scripts/create_sampleSheet.sh -f path/to/reads
-```
-
-This script includes a range of options for dealing with non-Illumina file name formatting. 
-
-## Reports
-
-FooDMe will generate statistics files (tab-separated text), an html summary report, and many other files that are produced during the analysis.
-A typical result folder looks like this: 
-
-```
-working_directory/
-	.snakemake/ 	Contains the snakemake products, including snakemake log file for troobleshooting
-	blast/			Contains files with Blast report, filtering of blast results and taxonomy determination
-	logs/			Contains the log files for troobleshooting specific steps
-	reports/		Contains aggregated quality statistics of the different steps of the analysis and the html report
-	Sample_1/		Sample-level quality statistics and merged-reads and quality filtered fasta files
-	trimmed/		Contains the trimmed fastq files and trimming reports
-	VSEARCH/		Contains aggregated fasta files and cluster files as well as chimeras
-	config.yaml		Will be generated here by the python wrapper
-```
-
 ## Workflow details
 
-### Read trimming, merging, and quality filtering
+### Clustering methods
 
-Raw reads are pre-processed with fastp to remove adapters and mask low quality regions. 
-Mate pairs are then merged and the assembled reads are filtered for the their length and overall quality.
+By default FooDMe uses identity clustering as implemented by VSearch. To change this behaviour uses the `--denoise` option in 
+the python wrapper. This will results in FooDMe using the amplicon denoising procedure implemented in DADA2.
 
-### Clustering and chimera filtering
+#### Identity clustering
 
-Reads from all samples are pooled and dereplicated (exact match). Reads are then clustered in centroids using VSearch's `cluster_size` option. 
-By default, clustering is performed using a Distance-greedy clustering algorithm but an abundance-greedy clustering can also be performed (the 16 top sequences will be considered).
-Clusters consisting of a single read are removed from the analysis.
-Chimeras are then optionnaly detected and removed using *de novo* and database-based approaches.
+For identity clustering, the paired reads will first be merged into pseudo reads. Quality filtered pseudo-reads will then be 
+used to form Operational Taxonomic Units (OTU) based on the identity threshold specified by `--cluster_id`. OTUs containing 
+less the the minimal amount of reads specified by `--cluster_minsize` will be discarded.
 
-### Taxonomic assignment
+##### Amplicon denoising
 
-Dereplicated reads are mapped to the OTUs using VSearch global alignment option `usearch_global`. 
-Taxonomic assignment can be performed either using Blast or Sintax.
+For amplicon denoising, reads will first be quality filtered and error-corrected. Corrected reads will then be merged and 
+Amplicon Sequence Variants (ASV) will be determined. As ASV infer the real composition of the sample, the number of ASV 
+should be much closer to the expected number of different sequences in the sample than that of OTUs.
 
-Taxonomy granularity is as follow: 
+#### Chimera filtering
 
-* Species
-* Genus
-* Family
-* Order
-* Class
-* Phylum
-* Kingdom
+FooDMe will try to determine chimeric sequences after clustering and these will be discarded. To remove this behaviour use 
+the `--skip_chimera`flag.
 
-#### BLAST
+### BLAST filtering
 
-Each OTU is blasted against a nucleotide reference database to determine the Taxa of origin. 
-Hits are filtered by bit-score difference to the bast hit to remove lower similarity hits. 
-A taxonomic consensus is then determined as the lowest common node of all hits.
+You can fine tune the BLAST procedure by specifying a minimal e-value, identity, and coverage of the BLAST search. I however 
+recommend to keep these parameters relatively permissive and to filter the BLAST results using the bit-score difference. 
 
-#### Sintax
+Using the bit-score gives you a stable metric that is database-independent. 
 
-For each OTU the top k-mer hits are found in a database and a bootstrap support value is reported for each taxonomic rank.
-Taxonomic consensus is determined as the lowest rank with a bootstrap value above threshold.
+### Taxonomic consensus determination
+
+Consensus determination will return the last common node of all retrieved BLAST hits for a sequence. You should expect most 
+sequences to be determined at the species or genus level. 
 
 ## Credits
 
-This pipeline includes thrird-party source-code, available under BSD-3 license:
+FooDMe is built with [Snakemake](https://snakemake.readthedocs.io/en/stable/) and uses the following tools:
 
- * The `create_sampleSheet.sh` script as well as some code snippets were written by Carlus Deneke (Bundesinstitut für Risikobewertung). Source: [AQUAMIS](https://gitlab.com/bfr_bioinformatics/AQUAMIS).
- * Taxonomic lineage extraction uses the `ncbi_taxdump_utils.py` module (with minimal modifications) from Titus Brown (University of California). Source: [2018-ncbi-lineages](https://github.com/dib-lab/2018-ncbi-lineages>).
+* [Fastp](https://github.com/OpenGene/fastp)
+* [VSearch](https://github.com/torognes/vsearch) 
+* [DADA2](https://benjjneb.github.io/dada2/)
+* [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) 
+* [Krona](https://github.com/marbl/Krona)
+* [AQUAMIS' create_sampleSheet script](https://gitlab.com/bfr_bioinformatics/AQUAMIS)
 
-## Contact
+## Versionning
+
+Stable version will be given a tag in the form 1.0.0
+
+## Contributing
+
+For new features or to report bugs please submit issues directly on the online repository.
+
+## License
+
+This project is licensed under a BSD 3-Clauses License, see the LICENSE file for details.
+
+## Author
 
 For questions about the pipeline, problems, suggestions or requests, feel free to contact:
 
