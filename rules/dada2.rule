@@ -31,7 +31,8 @@ rule denoise:
         denoiseR2 = "{sample}/denoising/{sample}_R2_denoising.txt",
         merged = "{sample}/denoising/{sample}_merging.txt",
         asv = "{sample}/denoising/{sample}_ASVs.fasta",
-        report = "{sample}/reports/{sample}_denoising.tsv"
+        report = "{sample}/reports/{sample}_denoising.tsv",
+        chimeras = "{sample}/denoising/{sample}_chimeras.fasta"
     message: "Denoising and filtering {wildcards.sample}"
     threads: config["threads_sample"]
     conda: "../envs/dada2.yaml"
@@ -39,7 +40,9 @@ rule denoise:
         sample = "{sample}",
         max_EE = config["read_filter"]["max_expected_errors"],
         min_length = config["read_filter"]["min_length"],
-        max_length = config["read_filter"]["max_length"]
+        max_length = config["read_filter"]["max_length"],
+        chimera = config["chimera"]
+    log: "logs/{sample}_denoising.log"
     script:
         "../scripts/dada.R"
         

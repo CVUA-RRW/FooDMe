@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
-library(ggplot2)
-library(dada2)
+library(ggplot2, quiet=T)
+library(dada2, quiet=T)
 
 # Debug ---------------------------------------------------------------------------------------------------------------
 # fnFs <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/trimmed/DNA-M1-1_R1.fastq"
@@ -15,11 +15,13 @@ library(dada2)
 # denoising_R2 <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R1_R2_denoise.txt"
 # report <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/reports/DNA-M1-1_denoising.tsv"
 # merged <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_merging.txt"
+# chimeras_fasta <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_chiomeras.fasta"
 # threads <- 6
 # sample.names <- "DNA-M1-1"
 # max_EE <- 1
 # minlength <- 100
 # maxlength <- 120
+# chimera <-TRUE
 
 # Get parameters from snakemake ---------------------------------------------------------------------------------------------
 
@@ -37,6 +39,7 @@ denoising_R2 <- snakemake@output[["denoiseR2"]]
 merged <- snakemake@output[["merged"]]
 asv_table <- snakemake@output[["asv"]]
 report <- snakemake@output[["report"]]
+chimeras_fasta <- snakemake@output[["chimeras"]]
 
 # Multi-threading
 threads <- snakemake@threads[[1]]
@@ -46,6 +49,10 @@ sample.names <- snakemake@params[["sample"]]
 max_EE <- snakemake@params[["max_EE"]]
 minlength <- snakemake@params[["min_length"]]
 maxlength <- snakemake@params[["max_length"]]
+chimera <- snakemake@params[["chimera"]]
+
+# logging
+sink(snakemake@log[[1]], append=FALSE, split=FALSE)
 
 
 # DADA Workflow -------------------------------------------------------------------------------------------------------------
@@ -55,15 +62,15 @@ names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, 
               maxN=0, maxEE=max_EE, rm.phix=TRUE,
-              compress=TRUE, multithread=threads)
+              compress=TRUE, multithread=threads, verbose=TRUE)
 
 # Learn Error rate
-errF <- learnErrors(filtFs, multithread=threads)
-errR <- learnErrors(filtRs, multithread=threads)
+errF <- learnErrors(filtFs, multithread=threads, verbose=TRUE)
+errR <- learnErrors(filtRs, multithread=threads, verbose=TRUE)
 
 # Sample inference
-dadaFs <- dada(filtFs, err=errF, multithread=threads)
-dadaRs <- dada(filtRs, err=errR, multithread=threads)
+dadaFs <- dada(filtFs, err=errF, multithread=threads, verbose=TRUE)
+dadaRs <- dada(filtRs, err=errR, multithread=threads, verbose=TRUE)
  
 # Merge Reads
 mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs, verbose=TRUE)
@@ -73,13 +80,18 @@ seqtab <- makeSequenceTable(mergers)
 seqtab2 <- seqtab[,nchar(colnames(seqtab)) %in% minlength:maxlength]
 
 # Remove chimeras
-seqtab2.nochim <- removeBimeraDenovo(seqtab, method="per-sample", multithread=threads, verbose=TRUE)
+if (chimera == TRUE) {
+	seqtab2.nochim <- removeBimeraDenovo(seqtab2, method="per-sample", multithread=threads, verbose=TRUE)
+	bimeras <- isBimeraDenovo(seqtab2, multithread=threads, verbose = FALSE)
+} else {
+	seqtab2.nochim <- seqtab2
+}
 
 # Export sequences and QC reports -------------------------------------------------------------------------------------------
 
 # ASV table
-asv <- t(data.frame(seqtab2.nochim))
-colnames(asv) <- "count"
+asv <- data.frame(seqtab2.nochim)
+colnames(asv) <- c("count")
 asv <- cbind(asv, name = sprintf("ASV_%s", seq(1:dim(asv)[1])))
 asv <- cbind(asv, sequence = rownames(asv))
 rownames(asv) <- seq(1:dim(asv)[1])
@@ -88,9 +100,9 @@ asfasta <- apply(asv, MARGIN=1, fn)
 writeLines(asfasta, asv_table)
 
 # Error plots
-errFplot <- plotErrors(errF, nominalQ=TRUE) #+ theme(text=element_text(family="Arial"))
+errFplot <- plotErrors(errF, nominalQ=TRUE)
 ggsave(errplotF, width = 10, height = 10)
-errRplot <- plotErrors(errF, nominalQ=TRUE) #+ theme(text=element_text(family="Arial"))
+errRplot <- plotErrors(errF, nominalQ=TRUE)
 ggsave(errplotR, width = 10, height = 10)
 
 # Denoising reports
@@ -99,6 +111,18 @@ write.table(dadaRs$clustering, denoising_R2, quote = FALSE, sep = "\t", row.name
 
 # Merged reads
 write.table(mergers, merged, quote = FALSE, sep = "\t", row.names = FALSE)
+
+# Chimeras
+if (chimera == TRUE) {
+	bimeras <- bimeras[bimeras==TRUE]
+	asfasta = vector()
+	for (i in seq(1:length(bimeras))) {
+		asfasta <- c(asfasta, paste0(">bimera_", i, "\n", names(bimeras)[i]))
+	}
+} else {
+	asfasta <- c("Skipped chimera detection")
+}
+writeLines(asfasta, chimeras_fasta)
 
 # Report
 getN <- function(x) sum(getUniques(x))
