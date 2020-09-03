@@ -40,11 +40,12 @@ rule filter_blast:
         OTUs=$(cat {input} | cut -d";" -f1 | sort -u)
         for otu in $OTUs
         do
-            max=$(grep -E "^${{otu}};" {input} | cut -f5 | sort -rn | head -n1)
+            max=$(grep -E "^${{otu}};" {input} | cut -f5 | cut -d. -f1 | sort -rn | head -n1)
             for hit in $(grep "^${{otu}};" {input} | tr '\t' '#' | tr ' ' '@')
             do
-                val=$(echo $hit | cut -d'#' -f5)
-                if [ $[$max - val] -le {params.bit_diff} ]
+                val=$(echo $hit | cut -d'#' -f5 | cut -d. -f1)
+                diff=$(echo "$max - $val" | bc)
+                if [ $diff -le {params.bit_diff} ]
                 then
                     echo $hit | tr '@' ' ' | tr '#' '\t' | tr ';' '\t' | cut --complement -f2  >> {output}
                 fi
@@ -90,9 +91,9 @@ rule blast_stats:
                 echo "{wildcards.sample}\t$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-" >> {output}
             else
                 # Otherwise collect and print stats to file
-                bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -rn | head -n1)
-                bit_low=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | sort -n | head -n1)
-                bit_thr=$(($bit_best-{params.bit_diff}))
+                bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -rn | head -n1)
+                bit_low=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -n | head -n1)
+                bit_thr=$(($bit_best - {params.bit_diff}))
                 shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
                 cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-4)
                 

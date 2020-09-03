@@ -23,7 +23,9 @@ rule run_fastp:
         length_required = config["fastp"]["length_required"],
         qualified_quality_phred = config["fastp"]["qualified_quality_phred"],
         window_size = config["fastp"]["window_size"],
-        mean_qual = config["fastp"]["mean_quality"]
+        mean_qual = config["fastp"]["mean_quality"],
+        primer_F = config["fastp"]["primer_fwd"],
+        primer_R = config["fastp"]["primer_rev"]
     threads: config["threads_sample"]
     message: "Running fastp on {wildcards.sample}"
     conda: "../envs/fastp.yaml"
@@ -33,6 +35,7 @@ rule run_fastp:
         "fastp -i {input.r1} -I {input.r2} -o {output.r1} -O {output.r2} -h {output.html} -j {output.json}\
         --length_required {params.length_required} --qualified_quality_phred {params.qualified_quality_phred} --cut_by_quality3 \
         --cut_window_size {params.window_size} --cut_mean_quality {params.mean_qual} --detect_adapter_for_pe \
+        --trim_front1 {params.primer_F} --trim_front2 {params.primer_R} \
         --thread {threads} --report_title 'Sample {wildcards.sample}' > {log} 2>&1"
 
 rule parse_fastp:
