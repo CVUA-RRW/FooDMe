@@ -46,6 +46,8 @@ def create_config(config_file, args):
 		conf.write("{}qualified_quality_phred: {}\n".format(indent1, args.fastp_min_phred))
 		conf.write("{}window_size: {}\n".format(indent1, args.fastp_window))
 		conf.write("{}mean_quality: {}\n".format(indent1, args.fastp_meanq))
+		conf.write("{}primer_fwd: {}\n".format(indent1, args.fastp_prune1))
+		conf.write("{}primer_rev: {}\n".format(indent1, args.fastp_prune2))
 		
 		# Read filter
 		conf.write("read_filter:\n")
@@ -153,6 +155,10 @@ def main():
 						help="Size of the sliding window for tail quality trimming")
 	fastpargs.add_argument('--fastp_meanq', required=False, default=20, type=int,
 						help="Minimum mean Phred-score in the sliding window for tail quality trimming")
+	fastpargs.add_argument('--fastp_prune1', required=False, default=0, type=int,
+						help="Length of forward primer to prune from 5' end of forward reads (R1)")
+	fastpargs.add_argument('--fastp_prune2', required=False, default=0, type=int,
+						help="Length of reverse primer to prune from 5' end of reverse reads (R2)")
 						
 	# Read filter
 	readargs = parser.add_argument_group('Merged reads filtering options')

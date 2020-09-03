@@ -86,6 +86,12 @@ snakemake -s /path/to/FooDMe/Snakefile --config path/to/config.yaml --use-conda
 ```
 ## Workflow details
 
+### Reads pre-processing
+
+As first analysis step, the reads will be pre-processed for quality trimming on the 3' end and adapter trimming.
+If you want to trim the primer sequences, you can do so by indicating the forward and reverse primer length with the 
+`--fastp_prune1` and `--fastp_prune2` arguments (experimental).
+
 ### Clustering methods
 
 By default FooDMe uses identity clustering as implemented by VSearch. To change this behaviour uses the `--denoise` option in 
