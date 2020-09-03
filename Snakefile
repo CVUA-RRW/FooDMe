@@ -54,7 +54,7 @@ rule krona:
     input:
         "{sample}/krona/{sample}_krona_table.txt"
     output:
-        "{sample}/reports/krona_chart.html"
+        "{sample}/reports/{sample}_krona_chart.html"
     message: "producing graphical summary for {wildcards.sample}"
     conda:
         "envs/krona.yaml"
@@ -159,11 +159,13 @@ rule report_sample:
         taxonomy = "{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
         result = "{sample}/reports/{sample}_composition.tsv",
         db = "reports/db_versions.tsv",
-        soft = "reports/software_versions.tsv"
+        soft = "reports/software_versions.tsv",
+        krona = "{sample}/reports/{sample}_krona_chart.html"
     params:
         method = config["cluster"]["method"],
         workdir = config["workdir"],
-        version = git_version()
+        version = git_version(),
+        sample = "{sample}"
     output:
         "{sample}/reports/{sample}_report.html"
     conda:
@@ -182,11 +184,13 @@ rule report_all:
         taxonomy = "reports/taxonomy_assignement_stats.tsv",
         result = "reports/composition_summary.tsv",
         db = "reports/db_versions.tsv",
-        soft = "reports/software_versions.tsv"
+        soft = "reports/software_versions.tsv",
+        krona = "reports/krona_chart.html"
     params:
         method = config["cluster"]["method"],
         workdir = config["workdir"],
-        version = git_version()
+        version = git_version(),
+        sample = "all"
     output:
         "reports/report.html"
     conda:

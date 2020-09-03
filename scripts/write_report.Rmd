@@ -294,6 +294,20 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 						))
 ```
 
+## Graphical results
+
+```{r iframe}
+if (snakemake@params[["sample"]] == "all") {
+	krona_source <- "krona_chart.html"
+} else {
+	krona_source <- paste0(snakemake@params[["sample"]], "_krona_chart.html")
+}
+
+htmltools::tags$iframe(title = "Krona chart", src = krona_source, width ="100%", height="800px") 
+```
+
+Link to chart: <a href=`r krona_source`>`r krona_source`<a/>
+
 ## Versions
 
 ### Databases
