@@ -48,6 +48,8 @@ OTU_bool <- snakemake@params[["method"]] == "otu" # store True if using OTU
 run <- basename(workdir)
 #head(tail(strsplit(workdir,"/")[[1]],2),1)
 
+reportAll <- snakemake@params[["sample"]] == "all"
+
 # Number of samples
 nsamples <- nrow(read.csv(file = overview, sep = "\t", check.names=FALSE))
 ```
@@ -291,14 +293,6 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 						)
 						))
 ```
-
-## Graphical results
-
-```{r iframe}
-htmltools::tags$iframe(title = "Krona chart", src = snakemake@input[["krona"]], width ="100%", height="800px") 
-```
-
-Link to chart: <a href=Krona_chart.html>`r file.path(workdir, snakemake@input[["krona"]])`<a/>
 
 ## Versions
 

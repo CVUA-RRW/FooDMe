@@ -54,7 +54,7 @@ rule krona:
     input:
         "{sample}/krona/{sample}_krona_table.txt"
     output:
-        "{sample}/reports/{sample}_krona_chart.html"
+        "{sample}/reports/krona_chart.html"
     message: "producing graphical summary for {wildcards.sample}"
     conda:
         "envs/krona.yaml"
@@ -65,7 +65,7 @@ rule krona_all:
     input:
         expand("{sample}/krona/{sample}_krona_table.txt", sample = samples.index)
     output:
-        "reports/Krona_chart.html"
+        "reports/krona_chart.html"
     params:
         samples.index
     message:
@@ -148,9 +148,6 @@ rule collect_summaries:
         """
         
 # Rmarkdown reports rules ---------------------------------------------------------------------------------------------------
-######################################################
-# FIXME: report all + generate single sample reports #
-######################################################
 
 rule report_sample: 
     input:
@@ -162,8 +159,7 @@ rule report_sample:
         taxonomy = "{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
         result = "{sample}/reports/{sample}_composition.tsv",
         db = "reports/db_versions.tsv",
-        soft = "reports/software_versions.tsv",
-        krona = "{sample}/reports/{sample}_krona_chart.html"
+        soft = "reports/software_versions.tsv"
     params:
         method = config["cluster"]["method"],
         workdir = config["workdir"],
@@ -172,7 +168,7 @@ rule report_sample:
         "{sample}/reports/{sample}_report.html"
     conda:
         "envs/rmarkdown.yaml"
-    message: "Generating html report"
+    message: "Generating html report for {wildcards.sample}"
     script:
         "scripts/write_report.Rmd"
 
@@ -186,8 +182,7 @@ rule report_all:
         taxonomy = "reports/taxonomy_assignement_stats.tsv",
         result = "reports/composition_summary.tsv",
         db = "reports/db_versions.tsv",
-        soft = "reports/software_versions.tsv",
-        krona = "reports/Krona_chart.html"
+        soft = "reports/software_versions.tsv"
     params:
         method = config["cluster"]["method"],
         workdir = config["workdir"],
@@ -196,7 +191,7 @@ rule report_all:
         "reports/report.html"
     conda:
         "envs/rmarkdown.yaml"
-    message: "Generating html report"
+    message: "Generating global html report"
     script:
         "scripts/write_report.Rmd"
 
