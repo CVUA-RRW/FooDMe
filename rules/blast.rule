@@ -131,7 +131,7 @@ rule tax_stats:
     message: "Collecting taxonomy assignement stats for {wildcards.sample}"
     shell:
         """
-        echo "Sample\tQuery\tUnknown sequences\tUnknown sequences [%]\tSpecies consensus\tSpecies consensus [%]\tGenus consensus\tGenus consensus [%]\tFamily consensus\tFamily consensus [%]\tHigher rank consensus\tHigher rank consensus [%]" > {output}
+        echo "Sample\tQuery\tUnknown sequences\tUnknown sequences [%]\t(Sub-)Species consensus\t(Sub-)Species consensus [%]\tGenus consensus\tGenus consensus [%]\tFamily consensus\tFamily consensus [%]\tHigher rank consensus\tHigher rank consensus [%]" > {output}
         
         all=$(grep -c -E "OTU_|ASV_" <(tail -n +2 {input}) || true)
         nohits=$(grep -c "[[:blank:]]-[[:blank:]]" {input} || true)

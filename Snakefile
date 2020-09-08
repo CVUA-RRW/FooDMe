@@ -101,7 +101,7 @@ rule summary_report:
         """
         if [[ {params.method} == "otu" ]] 
         then
-            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in OTU\tOTU number\tSpecies consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
+            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in OTU\tOTU number\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
             
             Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f7)
             size=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
@@ -116,7 +116,7 @@ rule summary_report:
 
             echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$spec\t$gen\t$high\t$none" >> {output}
         else
-            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in ASV\tASV number\tSpecies consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
+            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in ASV\tASV number\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
         
             Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f7)
             size=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)

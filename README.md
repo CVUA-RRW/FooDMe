@@ -76,7 +76,7 @@ python /path/to/FooDMe/foodme.py -l /path/to/sample_sheet.tsv \
 	-d /path/to/working/dir \
 	--taxdump ${DATABASES} \
 	--taxdb ${DATABASES} \
-	--blastdb ${DATABASES}/my_blast_db.fasta
+	--blastdb ${DATABASES}/my_blast_db
 ```
 
 Below is a minimal exemple for calling snakemake directly. Consult [snakemake's documentation](https://snakemake.readthedocs.io/en/stable/) for more details.
@@ -125,6 +125,17 @@ Using the bit-score gives you a stable metric that is database-independent.
 
 Consensus determination will return the last common node of all retrieved BLAST hits for a sequence. You should expect most 
 sequences to be determined at the species or genus level. 
+
+Currently reported taxonomic levels are:
+
+* subspecies
+* species
+* genus
+* family
+* order 
+* class
+* phylum
+* kingdom
 
 ## Credits
 

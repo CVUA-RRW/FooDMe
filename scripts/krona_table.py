@@ -4,7 +4,7 @@
 from taxidTools import Taxdump
 import pandas as pd
 
-want_taxonomy = ['species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom']	
+want_taxonomy = ['subspecies', 'species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom']	
 
 def get_lineage(taxid, txd):
 	if taxid == "-":

@@ -4,7 +4,7 @@
 from collections import defaultdict
 from taxidTools import Taxdump
 
-want_taxonomy = ['species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom']	
+want_taxonomy = ['subspecies', 'species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom']	
 	
 def parse_blast(blast):
 	"""
