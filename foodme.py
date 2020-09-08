@@ -87,7 +87,7 @@ def run_snakemake(config_file, args):
 	dryrun = ("-n" if args.dryrun else "")
 	conda_prefix= ("--conda-prefix {}".format(args.condaprefix) if args.condaprefix else "")
 	notemp = ("--notemp" if args.keep_temp else "")
-	call = "snakemake -s {snakefile} --configfile {config_file} --use-conda --cores {cores} {conda_prefix} {notemp} {forceall} {dryrun}".format(snakefile= args.snakefile,
+	call = "snakemake -s {snakefile} --configfile {config_file} --use-conda --keep-going --cores {cores} {conda_prefix} {notemp} {forceall} {dryrun}".format(snakefile= args.snakefile,
 																																				config_file= config_file,
 																																				conda_prefix= conda_prefix,
 																																				forceall= forceall,
