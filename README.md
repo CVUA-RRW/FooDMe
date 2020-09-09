@@ -35,9 +35,11 @@ FooDMe requires several databases to run, all are available from the NCBI ftp se
 * [taxdump](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz)
 * [taxdb](https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz)
 * Any nucleotide collection you want to use, this needs to be a searchable BLAST database with taxonomy information. For this
- you can get your own local copy of the BLAST nucleotide database, or build a local database from a subset of sequences. Check
- the [BLAST documentation](https://www.ncbi.nlm.nih.gov/books/NBK279688/) to know how to do this.
- 
+ you can build a local database from a subset of sequences, for exemple from the BOLD database. Check the
+ [BLAST documentation](https://www.ncbi.nlm.nih.gov/books/NBK279688/) to know how to do this.
+
+#### Installing the RefSeq mitochondria database
+
 This distribution provides a utility script to download and set up the database for **mitochondria RefSeq sequences**. Running
 this script will require the BLAST command line application:
 
@@ -47,7 +49,19 @@ conda activate blast
 bash /path/to/FooDMe/ressources/create_RefSeq_blastdb.sh -d /path/to/database -t -c
 ```
 
-This will download all nescessary files to the '/path/to/database/' folder.
+This will download all nescessary files to the '/path/to/database/' folder. Use the '-t' flag to include the download of the 
+Taxdump files.
+
+#### Fetching the pre-formatted BLAST nt database
+
+We also provide a utility script, 'fetch_nt_blast.sh' to download the pre-formatted BLAST nt database.
+Note that you will need ~110 Gb of available disk space.
+
+```bash
+bash /path/to/FooDme/ressources/fetch_nt_blast.sh -d /path/to/database
+```
+
+*Note that size (of the database) does not equal performance, you should verify which database is most suited to your needs. 
 
 ### Creating a sample sheet
 
@@ -68,6 +82,128 @@ generate a config file containing the run's parameters.
 Calling directly snakemake will allow you to reuse previously generated config files. This is especially useful to routinely 
 run the pipeline with fixed parameters. 
 
+```bash
+usage: FooDMe [-h] [-v] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
+              [-T THREADS] [-t THREADS_SAMPLE] [-c CONDAPREFIX] [-s SNAKEFILE]
+              [--keep_temp] [--fastp_length FASTP_LENGTH]
+              [--fastp_min_phred FASTP_MIN_PHRED]
+              [--fastp_window FASTP_WINDOW] [--fastp_meanq FASTP_MEANQ]
+              [--fastp_prune1 FASTP_PRUNE1] [--fastp_prune2 FASTP_PRUNE2]
+              [--merge_minlength MERGE_MINLENGTH]
+              [--merge_maxlength MERGE_MAXLENGTH] [--merge_maxee MERGE_MAXEE]
+              [--merge_maxns MERGE_MAXNS] [--denoise]
+              [--cluster_id CLUSTER_ID] [--cluster_minsize CLUSTER_MINSIZE]
+              [--skip_chimera] [--taxdump TAXDUMP] [--nodes_dmp NODES_DMP]
+              [--rankedlineage_dmp RANKEDLINEAGE_DMP] --blastdb BLASTDB
+              --taxdb TAXDB [--blast_eval BLAST_EVAL] [--blast_id BLAST_ID]
+              [--blast_cov BLAST_COV] [--bitscore BITSCORE]
+
+Another pipeline for (Food) DNA metabarcoding
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --version         Print pipeline version and exit
+
+I/O path arguments:
+  -l SAMPLE_LIST, --sample_list SAMPLE_LIST
+                        Tab-delimited list of samples and paths to read files.
+                        Must contain one line of header, each further line
+                        contains sample_name, read1_path, read2_path (default:
+                        None)
+  -d WORKING_DIRECTORY, --working_directory WORKING_DIRECTORY
+                        Directory to create output files (default: None)
+
+Snakemake arguments:
+  --forceall            Force the recalculation of all files (default: False)
+  -n, --dryrun          Dryrun. Create config file and calculate the DAG but
+                        do not execute anything (default: False)
+  -T THREADS, --threads THREADS
+                        Maximum number of threads to use (default: 8)
+  -t THREADS_SAMPLE, --threads_sample THREADS_SAMPLE
+                        Number of threads to use per concurent job (default:
+                        1)
+  -c CONDAPREFIX, --condaprefix CONDAPREFIX
+                        Location of stored conda environment. Allows snakemake
+                        to reuse environments. (default: False)
+  -s SNAKEFILE, --snakefile SNAKEFILE
+                        Path to the Snkefile in the FOodMe repo (default:
+                        /home/debian/NGS/spezies_indev/FooDMe/Snakefile)
+  --keep_temp           Keep large fasta and fastq files, mostly for debug
+                        purposes (default: False)
+
+Fastp options:
+  --fastp_length FASTP_LENGTH
+                        Minimum length of input reads to keep (default: 50)
+  --fastp_min_phred FASTP_MIN_PHRED
+                        Minimal quality value per base (default: 15)
+  --fastp_window FASTP_WINDOW
+                        Size of the sliding window for tail quality trimming
+                        (default: 4)
+  --fastp_meanq FASTP_MEANQ
+                        Minimum mean Phred-score in the sliding window for
+                        tail quality trimming (default: 20)
+  --fastp_prune1 FASTP_PRUNE1
+                        Length of forward primer to prune from 5' end of
+                        forward reads (R1) (default: 0)
+  --fastp_prune2 FASTP_PRUNE2
+                        Length of reverse primer to prune from 5' end of
+                        reverse reads (R2) (default: 0)
+
+Merged reads filtering options:
+  --merge_minlength MERGE_MINLENGTH
+                        Minimum length merged reads to keep (default: 100)
+  --merge_maxlength MERGE_MAXLENGTH
+                        Maximum length merged reads to keep (default: 125)
+  --merge_maxee MERGE_MAXEE
+                        Maximum expected errors in merged reads to keep
+                        (default: 2)
+  --merge_maxns MERGE_MAXNS
+                        Maximum number of 'N' base in merged reads. If using
+                        denoising procedure this will be automatically reset
+                        to 0 (default: 0)
+
+Clustering options:
+  --denoise             Use denoising instead of identity clustering (default:
+                        False)
+  --cluster_id CLUSTER_ID
+                        Minimum identity for clustering sequences in OTUs
+                        (between 0 and 1). Will be ignored if using denoising
+                        (default: 0.97)
+  --cluster_minsize CLUSTER_MINSIZE
+                        Minimal size cutoff for OTUs. Will be ignored if using
+                        denoising (default: 2)
+  --skip_chimera        Skip de novo chimera detection and filtering step
+                        (default: False)
+
+Taxonomic assignement files:
+  --taxdump TAXDUMP     Path to the taxump folder containing nodes.dmp and
+                        rankedlineages.dmp (default: None)
+  --nodes_dmp NODES_DMP
+                        Path to the nodes.dmp file, needed if --taxdump is
+                        omitted (default: None)
+  --rankedlineage_dmp RANKEDLINEAGE_DMP
+                        Path to the names.dmp file, needed if --taxdump is
+                        omitted (default: None)
+
+Options for BLAST search:
+  --blastdb BLASTDB     Path to the BLAST database, including database
+                        basename but no extension (e.g. '/path/to/db/nt')
+                        (default: None)
+  --taxdb TAXDB         Path to the BLAST taxonomy database (folder) (default:
+                        None)
+  --blast_eval BLAST_EVAL
+                        E-value threshold for blast results (default: 1e-10)
+  --blast_id BLAST_ID   Minimal identity between the hit and query for blast
+                        results (in percent) (default: 90)
+  --blast_cov BLAST_COV
+                        Minimal proportion of the query covered by a hit for
+                        blast results. A mismatch is still counting as
+                        covering (in percent) (default: 90)
+  --bitscore BITSCORE   Maximum bit-score difference with the best hit for a
+                        blast result to be included in the taxonomy consensus
+                        detemination (default: 4)
+```
+
 Below is a minimal exemple for using the python wrapper, to get the full list of arguments use `foodme.py -h`.
 
 ```bash
@@ -84,6 +220,8 @@ Below is a minimal exemple for calling snakemake directly. Consult [snakemake's 
 ```bash 
 snakemake -s /path/to/FooDMe/Snakefile --config path/to/config.yaml --use-conda
 ```
+
+
 ## Workflow details
 
 ### Reads pre-processing
@@ -112,7 +250,7 @@ should be much closer to the expected number of different sequences in the sampl
 #### Chimera filtering
 
 FooDMe will try to determine chimeric sequences after clustering and these will be discarded. To remove this behaviour use 
-the `--skip_chimera`flag.
+the `--skip_chimera` flag.
 
 ### BLAST filtering
 
@@ -148,7 +286,7 @@ FooDMe is built with [Snakemake](https://snakemake.readthedocs.io/en/stable/) an
 * [Krona](https://github.com/marbl/Krona)
 * [AQUAMIS' create_sampleSheet script](https://gitlab.com/bfr_bioinformatics/AQUAMIS)
 
-## Versionning
+## Versioning
 
 Stable version will be given a tag in the form 1.0.0
 

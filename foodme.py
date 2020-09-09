@@ -113,7 +113,7 @@ def main():
 	
 	class DatabaseType(argparse.Action):
 		def __call__(self, parser, namespace, values, option_string=None):
-			if values and not os.path.exists(values):
+			if all(values, not os.path.exists(values), not os.path.exists(values+".nto")):
 				parser.error("'" + self.dest + "' not found: '" + values + "' does not exist.")
 			setattr(namespace, self.dest, values)
 	
@@ -194,7 +194,7 @@ def main():
 	# Blast
 	blastargs = parser.add_argument_group('Options for BLAST search')
 	blastargs.add_argument('--blastdb', required=True, type=os.path.abspath, action = DatabaseType,
-						help="Path to the BLAST database (FASTA)")
+						help="Path to the BLAST database, including database basename but no extension (e.g. '/path/to/db/nt')")
 	blastargs.add_argument('--taxdb', required=True, type=os.path.abspath, action = DatabaseType,
 						help="Path to the BLAST taxonomy database (folder)")
 	blastargs.add_argument('--blast_eval', required=False, default=1e-10, type=float,

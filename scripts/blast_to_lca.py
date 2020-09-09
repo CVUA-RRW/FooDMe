@@ -5,6 +5,7 @@ from collections import defaultdict
 from taxidTools import Taxdump
 
 want_taxonomy = ['subspecies', 'species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom']	
+# taxon_filter = '7711' 
 	
 def parse_blast(blast):
 	"""
@@ -27,7 +28,15 @@ def main(blast_report, output, rankedlineage_dmp, nodes_dmp):
 	otu_dict = parse_blast(blast_report)
 	with open(output, 'w') as out:
 		out.write("queryID\tConsensus\tRank\tTaxid\n")
+		# Set taxon_filter to one of want_rank
 		for queryID, taxid_list in otu_dict.items():
+			# Taxon filtering
+			# filtered = []
+			# for taxid in taxid_list:
+				# if taxon_filter in txd.getLineageAsList(taxid):
+					# filtered.append(taxid)
+			# taxid_list = filtered
+			# LCA determination
 			try:
 				lca = txd.lowestCommonNode(taxid_list)
 				rank = txd.getRank(lca)

@@ -228,7 +228,7 @@ rule database_version:
         "reports/db_versions.tsv"
     message: "Collecting databases versions"
     params:
-        blast = config["blast"]["blast_DB"],
+        blast = config["blast"]["blast_DB"] + ".nto",
         taxdb = config["blast"]["taxdb"],
         taxdump_nodes = config["taxonomy"]["nodes_dmp"],
         taxdump_lin = config["taxonomy"]["rankedlineage_dmp"]
