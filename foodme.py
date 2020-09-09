@@ -113,7 +113,7 @@ def main():
 	
 	class DatabaseType(argparse.Action):
 		def __call__(self, parser, namespace, values, option_string=None):
-			if all(values, not os.path.exists(values), not os.path.exists(values+".nto")):
+			if all( [values, not os.path.exists(values), not os.path.exists(values+".nto")] ):
 				parser.error("'" + self.dest + "' not found: '" + values + "' does not exist.")
 			setattr(namespace, self.dest, values)
 	

@@ -228,7 +228,7 @@ rule database_version:
         "reports/db_versions.tsv"
     message: "Collecting databases versions"
     params:
-        blast = config["blast"]["blast_DB"] + ".nto",
+        blast = config["blast"]["blast_DB"],
         taxdb = config["blast"]["taxdb"],
         taxdump_nodes = config["taxonomy"]["nodes_dmp"],
         taxdump_lin = config["taxonomy"]["rankedlineage_dmp"]
@@ -236,7 +236,7 @@ rule database_version:
         """
         echo "Database\tLast modified\tFull path" > {output}      
         
-        paste <(echo "BLAST") <(date +%F -r {params.blast}) <(echo {params.blast}) >> {output}
+        paste <(echo "BLAST") <(date +%F -r {params.blast}.nto) <(echo {params.blast}) >> {output}
         
         paste <(echo "taxdb.bti") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.taxdb}/taxdb.bti) >> {output}
         paste <(echo "taxdb.btd") <(date +%F -r {params.taxdb}/taxdb.btd) <(echo {params.taxdb}/taxdb.btd) >> {output}
