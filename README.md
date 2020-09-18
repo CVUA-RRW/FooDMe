@@ -26,6 +26,7 @@ Set up a conda environment containing snakemake, python and the pandas library a
 
 ```bash
 conda create --name foodme -c bioconda -c anaconda snakemake pandas
+conda activate foodme
 ```
 
 ### Getting the databases
@@ -207,6 +208,7 @@ Options for BLAST search:
 Below is a minimal exemple for using the python wrapper, to get the full list of arguments use `foodme.py -h`.
 
 ```bash
+conda activate foodme
 DATABASES=/path/to/database/folder
 python /path/to/FooDMe/foodme.py -l /path/to/sample_sheet.tsv \
 	-d /path/to/working/dir \
