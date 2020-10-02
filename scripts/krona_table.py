@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from taxidTools import Taxdump
+from taxidTools.taxidTools import Taxdump
 import pandas as pd
 
 want_taxonomy = ['subspecies', 'species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom']	

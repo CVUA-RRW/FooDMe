@@ -15,12 +15,18 @@ FooDMe will process demultiplexed Illumina sequencing reads to:
 
 ### Prerequisites
 
-FooDMe runs in a UNIX environment with BASH (tested on Debian GNU/Linux 10 (buster)) and requires conda and an internet connection (at 
-least for the first run).
+FooDMe runs in a UNIX environment with BASH (tested on Debian GNU/Linux 10 (buster)) and requires conda and an internet 
+connection (at least for the first run).
 
 ### Installing
 
-Start by getting a copy of this repository on your system, either by downloading and unpacking and archive, or using 'git clone'.
+Start by getting a copy of this repository on your system, either by downloading and unpacking the archive, 
+or using 'git clone':
+
+```bash
+cd path/to/repo/
+git clone --recurse-submodules https://github.com/CVUA-RRW/FooDMe.git
+```
 
 Set up a conda environment containing snakemake, python and the pandas library and activate it:
 
@@ -217,7 +223,8 @@ python /path/to/FooDMe/foodme.py -l /path/to/sample_sheet.tsv \
 	--blastdb ${DATABASES}/my_blast_db
 ```
 
-Below is a minimal exemple for calling snakemake directly. Consult [snakemake's documentation](https://snakemake.readthedocs.io/en/stable/) for more details.
+Below is a minimal exemple for calling snakemake directly. Consult 
+[snakemake's documentation](https://snakemake.readthedocs.io/en/stable/) for more details.
 
 ```bash 
 snakemake -s /path/to/FooDMe/Snakefile --config path/to/config.yaml --use-conda

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from taxidTools import Taxdump
+from taxidTools.taxidTools import Taxdump
 
 want_taxonomy = ['subspecies', 'species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom']	
 # taxon_filter = '7711' 
