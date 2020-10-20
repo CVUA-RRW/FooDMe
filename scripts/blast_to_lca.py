@@ -18,9 +18,9 @@ def parse_blast(blast):
 		for line in fi:
 			l = line.split()
 			if l[0] in dict.keys():
-				dict[l[0]].append(l[6])
+				dict[l[0]].append(str(l[6]))
 			else:
-				dict[l[0]] = [l[6]]
+				dict[l[0]] = [str(l[6])]
 	return dict
 
 def main(blast_report, output, rankedlineage_dmp, nodes_dmp):
@@ -43,7 +43,9 @@ def main(blast_report, output, rankedlineage_dmp, nodes_dmp):
 				name = txd.getName(lca)
 				out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, rank, lca))
 			except KeyError:
-				out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, "NA", "NA", "NA"))
+				out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, "Undertermined", "Undetermined", "Undetermined"))
+			except IndexError: # should only happen with ranks not following the wanted taxonomy
+				out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, "Undertermined", "Undetermined", "Undetermined"))
 			
 if __name__ == '__main__':
 	main(snakemake.input[0], snakemake.output[0], snakemake.params["lineage"], snakemake.params["nodes"])
