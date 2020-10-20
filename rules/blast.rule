@@ -37,12 +37,14 @@ rule filter_blast:
     message: "Filtering BLAST results for {wildcards.sample}"
     run:
         df = pd.read_csv(input[0], sep = '\t', header= None)
-        d = dict(tuple(df.groupby(0)))
+        sd = dict(tuple(df.groupby(0)))
 
         dfout = pd.DataFrame()
 
-        for otu in d.keys():
-            dfout = dfout.append( sd.loc[sd[4] >= max(sd[4]) - params.bit_diff])
+        for key, val in sd.items():
+            dfout = dfout.append( val[val[4] >= max(val[4]) - params.bit_diff])
+        
+        dfout[0] = dfout[0].str.split(';').str[0]
 
         dfout.to_csv(output[0], sep='\t', header=False, index=False)
 
