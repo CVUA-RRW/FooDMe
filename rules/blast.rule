@@ -35,28 +35,17 @@ rule filter_blast:
     params:
         bit_diff= config["blast"]["bit_score_diff"]
     message: "Filtering BLAST results for {wildcards.sample}"
-    shell:
-        """
-        if [ -s {input} ]; then
-            OTUs=$(cat {input} | cut -d";" -f1 | sort -u)
-            for otu in $OTUs
-            do
-                max=$(grep -E "^${{otu}};" {input} | cut -f5 | cut -d. -f1 | sort -rn | head -n1)
-                for hit in $(grep "^${{otu}};" {input} | tr '\t' '#' | tr ' ' '@')
-                do
-                    val=$(echo $hit | cut -d'#' -f5 | cut -d. -f1)
-                    diff=$(echo "$max - $val" | bc)
-                    if [ $diff -le {params.bit_diff} ]
-                    then
-                        echo $hit | tr '@' ' ' | tr '#' '\t' | tr ';' '\t' | cut --complement -f2  >> {output}
-                    fi
-                done
-            done
-        else
-            touch {output}
-        fi
-        """
-        
+    run:
+        df = pd.read_csv(input[0], sep = '\t', header= None)
+        d = dict(tuple(df.groupby(0)))
+
+        dfout = pd.DataFrame()
+
+        for otu in d.keys():
+            dfout = dfout.append( sd.loc[sd[4] >= max(sd[4]) - params.bit_diff])
+
+        dfout.to_csv(output[0], sep='\t', header=False, index=False)
+
 rule blast2lca:
     input:
         "{sample}/taxonomy/{sample}_blast_report_filtered.tsv"
