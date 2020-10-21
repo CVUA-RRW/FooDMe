@@ -1,10 +1,35 @@
 import pandas as pd
 
 shell.executable("bash")
-        
+
+def get_mask():
+    if config["blast"]["taxid_filter"] == "None":
+        return "common/nomask"
+    else:
+        return "common/taxid_mask.txt"
+
+rule create_blast_mask:
+    output:
+        "common/taxid_mask.txt"
+    params:
+        taxid = config["blast"]["taxid_filter"],
+        lineage = config["taxonomy"]["rankedlineage_dmp"],
+        nodes = config["taxonomy"]["nodes_dmp"]
+    message: "Preparing list of searchable taxids"
+    script:
+        "../scripts/make_blast_mask.py"
+
+rule no_masking:
+    output: temp("common/nomask")
+    shell:
+        """
+        touch {output}
+        """
+
 rule blast_otus:
     input: 
-        "{sample}/clustering/{sample}_OTUs.fasta" if config["cluster"]["method"] == "otu" else "{sample}/denoising/{sample}_ASVs.fasta"
+        query = "{sample}/clustering/{sample}_OTUs.fasta" if config["cluster"]["method"] == "otu" else "{sample}/denoising/{sample}_ASVs.fasta",
+        mask = get_mask()
     output:
         "{sample}/taxonomy/{sample}_blast_report.tsv"
     params:
@@ -12,7 +37,7 @@ rule blast_otus:
         taxdb = config["blast"]["taxdb"],
         e_value = config["blast"]["e_value"],
         perc_identity = config["blast"]["perc_identity"],
-        qcov = config["blast"]["qcov"] 
+        qcov = config["blast"]["qcov"], 
     threads: config["threads"]
     message: "BLASTing {wildcards.sample} OTUs against local database"
     conda: "../envs/blast.yaml"
@@ -22,7 +47,15 @@ rule blast_otus:
         """
         export BLASTDB={params.taxdb}
         
-        blastn -db {params.blast_DB} -query {input} -out {output} -task 'megablast' -evalue {params.e_value} -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} \
+        if [ {input.mask} = "common/taxid_mask.txt" ]
+        then
+            masking="-taxidlist common/taxid_mask.txt"
+        else
+            masking=""
+        fi
+        
+        blastn -db {params.blast_DB} -query {input.query} -out {output} -task 'megablast' -evalue {params.e_value} \
+        -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} $masking \
         -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxid stitle' -num_threads {threads} \
         > logs/blast.log 2>&1
         """

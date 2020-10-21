@@ -96,7 +96,8 @@ usage: FooDMe [-h] [-v] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
               [--cluster_id CLUSTER_ID] [--cluster_minsize CLUSTER_MINSIZE]
               [--skip_chimera] [--taxdump TAXDUMP] [--nodes_dmp NODES_DMP]
               [--rankedlineage_dmp RANKEDLINEAGE_DMP] --blastdb BLASTDB
-              --taxdb TAXDB [--blast_eval BLAST_EVAL] [--blast_id BLAST_ID]
+              --taxdb TAXDB [--taxid_filter TAXID_FILTER]
+              [--blast_eval BLAST_EVAL] [--blast_id BLAST_ID]
               [--blast_cov BLAST_COV] [--bitscore BITSCORE]
 
 Another pipeline for (Food) DNA metabarcoding
@@ -192,6 +193,9 @@ Options for BLAST search:
                         (default: None)
   --taxdb TAXDB         Path to the BLAST taxonomy database (folder) (default:
                         None)
+  --taxid_filter TAXID_FILTER
+                        Limit BLAST search to the taxids under the given node
+                        (default: None)
   --blast_eval BLAST_EVAL
                         E-value threshold for blast results (default: 1e-10)
   --blast_id BLAST_ID   Minimal identity between the hit and query for blast
@@ -243,13 +247,13 @@ For identity clustering, the paired reads will first be merged into pseudo reads
 used to form Operational Taxonomic Units (OTU) based on the identity threshold specified by `--cluster_id`. OTUs containing 
 less the the minimal amount of reads specified by `--cluster_minsize` will be discarded.
 
-##### Amplicon denoising
+#### Amplicon denoising
 
 For amplicon denoising, reads will first be quality filtered and error-corrected. Corrected reads will then be merged and 
 Amplicon Sequence Variants (ASV) will be determined. As ASV infer the real composition of the sample, the number of ASV 
 should be much closer to the expected number of different sequences in the sample than that of OTUs.
 
-#### Chimera filtering
+### Chimera filtering
 
 FooDMe will try to determine chimeric sequences after clustering and these will be discarded. To remove this behaviour use 
 the `--skip_chimera` flag.
@@ -260,6 +264,10 @@ You can fine tune the BLAST procedure by specifying a minimal e-value, identity,
 recommend to keep these parameters relatively permissive and to filter the BLAST results using the bit-score difference. 
 
 Using the bit-score gives you a stable metric that is database-independent. 
+
+It can be advisable to limit the BLAST search to the descendant of a node of interest. You can do this by providing the 
+parent node to the `--taxid_filter` option. For example providing `1177` will limit the search to Chordates and `40674` will 
+limit the search to Mammals.
 
 ### Taxonomic consensus determination
 
@@ -287,10 +295,6 @@ FooDMe is built with [Snakemake](https://snakemake.readthedocs.io/en/stable/) an
 * [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) 
 * [Krona](https://github.com/marbl/Krona)
 * [AQUAMIS' create_sampleSheet script](https://gitlab.com/bfr_bioinformatics/AQUAMIS)
-
-## Versioning
-
-Stable version will be given a tag in the form 1.0.0
 
 ## Contributing
 
