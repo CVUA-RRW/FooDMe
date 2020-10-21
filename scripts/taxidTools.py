@@ -441,7 +441,7 @@ class Taxdump(object):
 	@staticmethod	
 	def _filterLineage(dict_tax, want_ranks):
 		"""
-		Filter a dict to return only entries at the wanted ranks. Missing ranks are replaced bvy empty strings.
+		Filter a dict to return only entries at the wanted ranks. Missing ranks are replaced by empty strings.
 		"""
 		d = {}
 		for rank in want_ranks:
@@ -471,6 +471,9 @@ class Taxdump(object):
 		
 	def __iter__(self):
 		yield from self._data.keys()
+	
+	def keys(self):
+		return self._data.keys()
 	
 class GbToTaxid(ReadOnlyDict):
 	"""

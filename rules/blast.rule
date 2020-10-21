@@ -23,7 +23,7 @@ rule blast_otus:
         export BLASTDB={params.taxdb}
         
         blastn -db {params.blast_DB} -query {input} -out {output} -task 'megablast' -evalue {params.e_value} -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} \
-        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxids stitle' -num_threads {threads} \
+        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxid stitle' -num_threads {threads} \
         > logs/blast.log 2>&1
         """
 
