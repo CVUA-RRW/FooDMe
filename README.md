@@ -1,12 +1,12 @@
 # FooDMe - A pipeline for Food DNA Metabarcoding
 
 FooDMe is a pipeline for taxonomic assignement of targeted sequencing reads (DNA Metabarcoding). 
-It was designed with 16S amplicon sequencing of Food samples (Animal and birds metabarcoding) in mind but could be applied to
+It was designed with 16S amplicon sequencing of food samples (mammals and birds metabarcoding) in mind but could be applied to
  other datasets. 
 FooDMe will process demultiplexed Illumina sequencing reads to:
 
 * Cut low quality 3' ends and apply basic quality filtering
-* Determine OTU or ASV in a sample-wise fashion and apply some quality filtering at the read and cluster levels
+* Cluster sequences in a sample-wise fashion and apply some quality filtering at the read and cluster levels
 * BLAST sequences in a user-provided database
 * Determine a taxonomic consensus based on sequence similarity
 * Output quality reports and results
@@ -20,7 +20,12 @@ least for the first run).
 
 ### Installing
 
-Start by getting a copy of this repository on your system, either by downloading and unpacking and archive, or using 'git clone'.
+Start by getting a copy of this repository on your system:
+
+```bash
+cd /path/to/repo/
+git clone https://github.com/CVUA-RRW/FooDMe.git
+```
 
 Set up a conda environment containing snakemake, python and the pandas library and activate it:
 
@@ -62,8 +67,6 @@ Note that you will need ~110 Gb of available disk space.
 bash /path/to/FooDme/ressources/fetch_nt_blast.sh -d /path/to/database
 ```
 
-*Note that size (of the database) does not equal performance, you should verify which database is most suited to your needs. 
-
 ### Creating a sample sheet
 
 FooDMe requires a tabular file linking sample names to forward and reverse read files.
@@ -82,6 +85,8 @@ generate a config file containing the run's parameters.
 
 Calling directly snakemake will allow you to reuse previously generated config files. This is especially useful to routinely 
 run the pipeline with fixed parameters. 
+
+#### Using the python wrapper
 
 ```bash
 usage: FooDMe [-h] [-v] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
@@ -221,18 +226,19 @@ python /path/to/FooDMe/foodme.py -l /path/to/sample_sheet.tsv \
 	--blastdb ${DATABASES}/my_blast_db
 ```
 
+#### Calling snakemake with a configuration file
+
 Below is a minimal exemple for calling snakemake directly. Consult [snakemake's documentation](https://snakemake.readthedocs.io/en/stable/) for more details.
 
 ```bash 
 snakemake -s /path/to/FooDMe/Snakefile --config path/to/config.yaml --use-conda
 ```
 
-
 ## Workflow details
 
 ### Reads pre-processing
 
-As first analysis step, the reads will be pre-processed for quality trimming on the 3' end and adapter trimming.
+As a first analysis step, the reads will be pre-processed for quality trimming on the 3' end and adapter trimming.
 If you want to trim the primer sequences, you can do so by indicating the forward and reverse primer length with the 
 `--fastp_prune1` and `--fastp_prune2` arguments (experimental).
 
@@ -260,10 +266,9 @@ the `--skip_chimera` flag.
 
 ### BLAST filtering
 
-You can fine tune the BLAST procedure by specifying a minimal e-value, identity, and coverage of the BLAST search. I however 
-recommend to keep these parameters relatively permissive and to filter the BLAST results using the bit-score difference. 
-
-Using the bit-score gives you a stable metric that is database-independent. 
+You can fine tune the BLAST procedure by specifying a minimal e-value, identity, and coverage of the BLAST search. 
+The BLAST results will then be filtered using the bitscore of each hit sequence. The maximum allowed bitscore difference to 
+the best hit can be changed with the `--bitscore` option.
 
 It can be advisable to limit the BLAST search to the descendant of a node of interest. You can do this by providing the 
 parent node to the `--taxid_filter` option. For example providing `1177` will limit the search to Chordates and `40674` will 
@@ -271,7 +276,7 @@ limit the search to Mammals.
 
 ### Taxonomic consensus determination
 
-Consensus determination will return the last common node of all retrieved BLAST hits for a sequence. You should expect most 
+Consensus determination will return the highest common node of all retrieved BLAST hits for a sequence. You should expect most 
 sequences to be determined at the species or genus level. 
 
 Currently reported taxonomic levels are:
