@@ -84,6 +84,9 @@ def create_config(config_file, args):
 		conf.write("{}bit_score_diff: {}\n".format(indent1, args.bitscore))
 	
 def run_snakemake(config_file, args):
+	# go to working directory (for proper location of log file)
+	os.chdir(args.working_directory)
+	
 	forceall = ("--forceall" if args.forceall else "")
 	dryrun = ("-n" if args.dryrun else "")
 	conda_prefix= ("--conda-prefix {}".format(args.condaprefix) if args.condaprefix else "")

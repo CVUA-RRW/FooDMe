@@ -253,6 +253,12 @@ onstart:
         f.write("[" + time.asctime(time.localtime(time.time())) + "]: Pipeline started\n")
 
 onsuccess:
+    import shutil
+    
+    for logfile in os.listdir(".snakemake/log/"):
+        shutil.move(os.path.join(".snakemake/log", logfile), "logs")
+    shutil.rmtree(".snakemake", ignore_errors=True)
+    
     print("\nWorkflow finished, no error")
     with open(pipe_log, 'a') as f:
         f.write("[" + time.asctime(time.localtime(time.time())) + "]: Pipeline succesfully finished\n")
