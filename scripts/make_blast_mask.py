@@ -4,21 +4,23 @@
 from taxidTools import Taxdump
 
 want_taxonomy = ["forma", "varietas", "subspecies", "species"]
-
-def get_children_list(txd, taxid):
-	"""
-	Returns a list of unque taxid lower than the node given as an input
-	"""
-	d = txd.getChildren(str(taxid), want_ranks=want_taxonomy)
-	d2 = [e for dict in d for e in dict.values()]
-	d3 = set([e for e in d2 if e])
-	return d3
 	
-def main(taxid, output, rankedlineage_dmp, nodes_dmp):
+def main(taxid_file, parent, output, rankedlineage_dmp, nodes_dmp):
 	txd = Taxdump(rankedlineage_dmp, nodes_dmp, want_taxonomy)
+	
+	with open(taxid_file, "r") as fin:
+		db_entries = set(fin.read().splitlines()[1:])
+	
 	with open(output, "w") as fout:
-		for e in get_children_list(txd, taxid):
-			fout.write(e + "\n")
-
+		for taxid in db_entries:
+			try:
+				if str(parent) in txd.getFullLineage(str(taxid).strip()).values():
+					fout.write(taxid + "\n")
+				else:
+					pass
+			except KeyError:
+				#print("WARNING: taxid %s missing from Taxonomy reference, it will be ignored" % taxid)
+				continue
+				
 if __name__ == '__main__':
-	main(snakemake.params["taxid"], snakemake.output[0], snakemake.params["lineage"], snakemake.params["nodes"])
+	main(snakemake.input[0], snakemake.params["taxid"], snakemake.output[0], snakemake.params["lineage"], snakemake.params["nodes"])
