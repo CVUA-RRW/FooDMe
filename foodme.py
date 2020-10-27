@@ -77,12 +77,16 @@ def create_config(config_file, args):
 		conf.write("blast:\n")
 		conf.write("{}blast_DB: {}\n".format(indent1, args.blastdb))
 		conf.write("{}taxdb: {}\n".format(indent1, args.taxdb))
+		conf.write("{}taxid_filter: {}\n".format(indent1, args.taxid_filter))
 		conf.write("{}e_value: {}\n".format(indent1, args.blast_eval))
 		conf.write("{}perc_identity: {}\n".format(indent1, args.blast_id))
 		conf.write("{}qcov: {}\n".format(indent1, args.blast_cov))
 		conf.write("{}bit_score_diff: {}\n".format(indent1, args.bitscore))
 	
 def run_snakemake(config_file, args):
+	# go to working directory (for proper location of log file)
+	os.chdir(args.working_directory)
+	
 	forceall = ("--forceall" if args.forceall else "")
 	dryrun = ("-n" if args.dryrun else "")
 	conda_prefix= ("--conda-prefix {}".format(args.condaprefix) if args.condaprefix else "")
@@ -197,6 +201,8 @@ def main():
 						help="Path to the BLAST database, including database basename but no extension (e.g. '/path/to/db/nt')")
 	blastargs.add_argument('--taxdb', required=True, type=os.path.abspath, action = DatabaseType,
 						help="Path to the BLAST taxonomy database (folder)")
+	blastargs.add_argument('--taxid_filter', required=False, type=str, default=None,
+						help="Limit BLAST search to the taxids under the given node")
 	blastargs.add_argument('--blast_eval', required=False, default=1e-10, type=float,
 						help="E-value threshold for blast results")
 	blastargs.add_argument('--blast_id', required=False, default=90, type=float, action= PercentType,

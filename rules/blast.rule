@@ -1,10 +1,51 @@
 import pandas as pd
 
 shell.executable("bash")
+
+def get_mask():
+    if config["blast"]["taxid_filter"] == "None":
+        return "common/nomask"
+    else:
+        return "common/taxid_mask.txt"
+
+rule get_taxid_from_db:
+    output:
+        "common/taxid_list.txt"
+    params:
+        blast_DB = config["blast"]["blast_DB"],
+        taxdb = config["blast"]["taxdb"]
+    conda: "../envs/blast.yaml"
+    shell:
+        """
+        export BLASTDB={params.taxdb}
         
+        blastdbcmd -db {params.blast_DB} -tax_info -outfmt %T > {output}
+        """
+        
+rule create_blast_mask:
+    input:
+        "common/taxid_list.txt"
+    output:
+        "common/taxid_mask.txt"
+    params:
+        taxid = config["blast"]["taxid_filter"],
+        lineage = config["taxonomy"]["rankedlineage_dmp"],
+        nodes = config["taxonomy"]["nodes_dmp"],
+    message: "Preparing list of searchable taxids"
+    script:
+        "../scripts/make_blast_mask.py"
+
+rule no_masking:
+    output: temp("common/nomask")
+    shell:
+        """
+        touch {output}
+        """
+
 rule blast_otus:
     input: 
-        "{sample}/clustering/{sample}_OTUs.fasta" if config["cluster"]["method"] == "otu" else "{sample}/denoising/{sample}_ASVs.fasta"
+        query = "{sample}/clustering/{sample}_OTUs.fasta" if config["cluster"]["method"] == "otu" else "{sample}/denoising/{sample}_ASVs.fasta",
+        mask = get_mask()
     output:
         "{sample}/taxonomy/{sample}_blast_report.tsv"
     params:
@@ -12,7 +53,7 @@ rule blast_otus:
         taxdb = config["blast"]["taxdb"],
         e_value = config["blast"]["e_value"],
         perc_identity = config["blast"]["perc_identity"],
-        qcov = config["blast"]["qcov"] 
+        qcov = config["blast"]["qcov"], 
     threads: config["threads"]
     message: "BLASTing {wildcards.sample} OTUs against local database"
     conda: "../envs/blast.yaml"
@@ -22,8 +63,16 @@ rule blast_otus:
         """
         export BLASTDB={params.taxdb}
         
-        blastn -db {params.blast_DB} -query {input} -out {output} -task 'megablast' -evalue {params.e_value} -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} \
-        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxids stitle' -num_threads {threads} \
+        if [ {input.mask} = "common/taxid_mask.txt" ]
+        then
+            masking="-taxidlist common/taxid_mask.txt"
+        else
+            masking=""
+        fi
+        
+        blastn -db {params.blast_DB} -query {input.query} -out {output} -task 'megablast' -evalue {params.e_value} \
+        -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} $masking \
+        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxid stitle' -num_threads {threads} \
         > logs/blast.log 2>&1
         """
 
@@ -35,28 +84,19 @@ rule filter_blast:
     params:
         bit_diff= config["blast"]["bit_score_diff"]
     message: "Filtering BLAST results for {wildcards.sample}"
-    shell:
-        """
-        if [ -s {input} ]; then
-            OTUs=$(cat {input} | cut -d";" -f1 | sort -u)
-            for otu in $OTUs
-            do
-                max=$(grep -E "^${{otu}};" {input} | cut -f5 | cut -d. -f1 | sort -rn | head -n1)
-                for hit in $(grep "^${{otu}};" {input} | tr '\t' '#' | tr ' ' '@')
-                do
-                    val=$(echo $hit | cut -d'#' -f5 | cut -d. -f1)
-                    diff=$(echo "$max - $val" | bc)
-                    if [ $diff -le {params.bit_diff} ]
-                    then
-                        echo $hit | tr '@' ' ' | tr '#' '\t' | tr ';' '\t' | cut --complement -f2  >> {output}
-                    fi
-                done
-            done
-        else
-            touch {output}
-        fi
-        """
+    run:
+        df = pd.read_csv(input[0], sep = '\t', header= None)
+        sd = dict(tuple(df.groupby(0)))
+
+        dfout = pd.DataFrame()
+
+        for key, val in sd.items():
+            dfout = dfout.append( val[val[4] >= max(val[4]) - params.bit_diff])
         
+        dfout[0] = dfout[0].str.split(';').str[0]
+
+        dfout.to_csv(output[0], sep='\t', header=False, index=False)
+
 rule blast2lca:
     input:
         "{sample}/taxonomy/{sample}_blast_report_filtered.tsv"

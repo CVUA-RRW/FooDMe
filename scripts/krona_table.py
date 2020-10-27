@@ -9,6 +9,8 @@ want_taxonomy = ['subspecies', 'species', 'genus', 'family', 'order', 'class', '
 def get_lineage(taxid, txd):
 	if taxid == "-":
 		return ["Unassigned"]
+	elif taxid == "Undetermined":
+		return ["Undetermined"]
 	else:
 		return txd.getLineageAsList(str(taxid), asNames=True)[::-1] # inverting list to have the lineage descending for Krona
 
