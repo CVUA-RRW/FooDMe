@@ -3,9 +3,6 @@
 
 from collections import defaultdict
 from taxidTools.taxidTools import Taxdump
-
-want_taxonomy = ['subspecies', 'species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom']	
-# taxon_filter = '7711' 
 	
 def parse_blast(blast):
 	"""
@@ -31,7 +28,7 @@ def parse_blast(blast):
 	return dict
 
 def main(blast_report, output, rankedlineage_dmp, nodes_dmp):
-	txd = Taxdump(rankedlineage_dmp, nodes_dmp, want_taxonomy)
+	txd = Taxdump(rankedlineage_dmp, nodes_dmp)
 	otu_dict = parse_blast(blast_report)
 	with open(output, 'w') as out:
 		out.write("queryID\tConsensus\tRank\tTaxid\n")
@@ -51,16 +48,13 @@ def main(blast_report, output, rankedlineage_dmp, nodes_dmp):
 				name = txd.getName(lca)
 				out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, rank, lca))
 			
-			except (KeyError, IndexError) as err:
-				# Taxid not present in the Taxdump version used raises a KeyError.
-				# sequences classified under "Other" and "Unclassified" by the NCBI taxonomy raise IndexError
+			except KeyError:
+				# Taxid not present in the Taxdump version used raises a KeyError
 				# Filter out missing sequences
 				taxid_list_new =[]
 				for taxid in taxid_list:
 					if taxid not in txd.keys():
 						print("WARNING: taxid %s missing from Taxonomy reference, it will be ignored" % taxid)
-					elif "131567" not in list(txd.getFullLineage(taxid).values()): # checking if taxid belongs to "cellular organisms"
-						print("WARNING: taxid %s is not in 'cellular organisms', it will be ignored" % taxid)
 					else:
 						taxid_list_new.append(taxid)
 							
@@ -73,7 +67,6 @@ def main(blast_report, output, rankedlineage_dmp, nodes_dmp):
 				rank = txd.getRank(lca)
 				name = txd.getName(lca)
 				out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, rank, lca))
-				
 			
 if __name__ == '__main__':
 	main(snakemake.input[0], snakemake.output[0], snakemake.params["lineage"], snakemake.params["nodes"])

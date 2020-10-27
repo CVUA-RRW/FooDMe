@@ -274,24 +274,13 @@ The BLAST results will then be filtered using the bitscore of each hit sequence.
 the best hit can be changed with the `--bitscore` option.
 
 It can be advisable to limit the BLAST search to the descendant of a node of interest. You can do this by providing the 
-parent node to the `--taxid_filter` option. For example providing `1177` will limit the search to Chordates and `40674` will 
+parent node to the `--taxid_filter` option. For example providing `32524` will limit the search to Amniota and `40674` will 
 limit the search to Mammals.
 
 ### Taxonomic consensus determination
 
-Consensus determination will return the highest common node of all retrieved BLAST hits for a sequence. You should expect most 
+Consensus determination will return the lowest common node of all retrieved BLAST hits for a sequence. You should expect most 
 sequences to be determined at the species or genus level. 
-
-Currently reported taxonomic levels are:
-
-* subspecies
-* species
-* genus
-* family
-* order 
-* class
-* phylum
-* kingdom
 
 ## Credits
 
