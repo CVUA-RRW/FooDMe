@@ -1,3 +1,11 @@
+### Version 1.2.1:
+
+* taxidTools is now a submodule
+* Cloning the repository should now be done with '--recurse-submodules'
+* taxidtools updated to version 2
+* Adapted scripts to the new version of taxidtools
+* Changed BLAST database masking to not be silent about taxids missing from the Taxdump definition files
+
 ### Version 1.2.0:
 
 #### New features
