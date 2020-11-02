@@ -59,7 +59,7 @@ nsamples <- nrow(read.csv(file = overview, sep = "\t", check.names=FALSE))
 ## Overview
 
 * Run name: `r run`
-	
+
 * Number of samples: `r nsamples`
 
 * Run directory: `r workdir`
@@ -216,9 +216,11 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 
 ```{r blast_rep}
 data_table <- read.csv(file = blast_rep, sep = "\t", check.names=FALSE)
-					# col.names = c("OTU", "Target sequence ID", "e-value", "Percent identity", "Bit-score", "Accession number", "Taxid", "Sequence description")
-					# ) %>% separate("OTU", c("Query", "Count"), sep=";size=")
-
+#Process links
+data_table$blast_report <- paste0("<a href=", data_table$link_report, ">file</a>")
+data_table$link_report = NULL
+data_table$filtered_report <- paste0("<a href=", data_table$link_filtered, ">file</a>")
+data_table$link_filtered = NULL
 						
 datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 		extensions = list("ColReorder" = NULL, "Buttons" = NULL),

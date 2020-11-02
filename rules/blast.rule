@@ -143,12 +143,12 @@ rule blast_stats:
                 shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
                 cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-4)
                 
-                echo "{wildcards.sample}\t$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons" >> {output}
+                echo "{wildcards.sample}\t$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t..{input.blast}\t..{input.filtered}" >> {output}
             fi
         done
         # Sort by size and add header (just to get hits on top)
         sort -k3,3nr -o {output} {output}
-        sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid' {output}
+        sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tBlast_report\tFiltered_Blast_report' {output}
         """
 
 rule collect_blast_stats:
