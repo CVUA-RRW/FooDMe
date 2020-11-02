@@ -12,6 +12,7 @@ def parse_blast(blast):
 	"""
 	dict = defaultdict()
 	with open(blast, 'r') as fi:
+		header = fi.readline()
 		for line in fi:
 			l = line.split()
 			taxids = l[6].split(";") # split taxids if nescessary

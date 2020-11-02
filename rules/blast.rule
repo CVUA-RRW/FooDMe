@@ -72,8 +72,10 @@ rule blast_otus:
         
         blastn -db {params.blast_DB} -query {input.query} -out {output} -task 'megablast' -evalue {params.e_value} \
         -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} $masking \
-        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxid stitle' -num_threads {threads} \
+        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxid length mismatch gaps stitle' -num_threads {threads} \
         > logs/blast.log 2>&1
+        
+        sed -i '1 i\query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\tsubject_taxid\talignment_length\tmismatch\tgaps\tsubject_name' {output}
         """
 
 rule filter_blast:
@@ -85,7 +87,7 @@ rule filter_blast:
         bit_diff= config["blast"]["bit_score_diff"]
     message: "Filtering BLAST results for {wildcards.sample}"
     run:
-        df = pd.read_csv(input[0], sep = '\t', header= None)
+        df = pd.read_csv(input[0], sep = '\t', header= 0)
         sd = dict(tuple(df.groupby(0)))
 
         dfout = pd.DataFrame()
@@ -95,7 +97,7 @@ rule filter_blast:
         
         dfout[0] = dfout[0].str.split(';').str[0]
 
-        dfout.to_csv(output[0], sep='\t', header=False, index=False)
+        dfout.to_csv(output[0], sep='\t', header=True, index=False)
 
 rule blast2lca:
     input:
