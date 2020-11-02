@@ -148,7 +148,7 @@ rule blast_stats:
         done
         # Sort by size and add header (just to get hits on top)
         sort -k3,3nr -o {output} {output}
-        sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tBlast_report\tFiltered_Blast_report' {output}
+        sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tlink_report\tlink_filtered' {output}
         """
 
 rule collect_blast_stats:
