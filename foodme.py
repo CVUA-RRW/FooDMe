@@ -48,6 +48,7 @@ def create_config(config_file, args):
 		conf.write("{}mean_quality: {}\n".format(indent1, args.fastp_meanq))
 		conf.write("{}primer_fwd: {}\n".format(indent1, args.fastp_prune1))
 		conf.write("{}primer_rev: {}\n".format(indent1, args.fastp_prune2))
+		conf.write("{}skip_adapter_trimming: {}\n".format(indent1, args.skip_adapter_trimming))
 		
 		# Read filter
 		conf.write("read_filter:\n")
@@ -163,6 +164,8 @@ def main():
 						help="Length of forward primer to prune from 5' end of forward reads (R1)")
 	fastpargs.add_argument('--fastp_prune2', required=False, default=0, type=int,
 						help="Length of reverse primer to prune from 5' end of reverse reads (R2)")
+	fastpargs.add_argument('--skip_adapter_trimming', required=False, default=False, action='store_true',
+						help="Skip adapter trimming. Primers provided as an extra fasta files will still be trimmed.")
 						
 	# Read filter
 	readargs = parser.add_argument_group('Merged reads filtering options')
