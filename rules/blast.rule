@@ -88,16 +88,21 @@ rule filter_blast:
     message: "Filtering BLAST results for {wildcards.sample}"
     run:
         df = pd.read_csv(input[0], sep = '\t', header= 0)
-        sd = dict(tuple(df.groupby(0)))
-
-        dfout = pd.DataFrame()
-
-        for key, val in sd.items():
-            dfout = dfout.append( val[val[4] >= max(val[4]) - params.bit_diff])
         
-        dfout[0] = dfout[0].str.split(';').str[0]
+        if df.empty:
+            df.to_csv(output[0], sep='\t', header=True, index=False)
+        
+        else:
+            sd = dict(tuple(df.groupby('query')))
 
-        dfout.to_csv(output[0], sep='\t', header=True, index=False)
+            dfout = pd.DataFrame()
+
+            for key, val in sd.items():
+                dfout = dfout.append( val[val['bitscore'] >= max(val['bitscore']) - params.bit_diff] )
+            
+            dfout['query'] = dfout['query'].str.split(';').str[0]
+
+            dfout.to_csv(output[0], sep='\t', header=True, index=False)
 
 rule blast2lca:
     input:
@@ -143,7 +148,7 @@ rule blast_stats:
                 shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
                 cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-4)
                 
-                echo "{wildcards.sample}\t$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t..{input.blast}\t..{input.filtered}" >> {output}
+                echo "{wildcards.sample}\t$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t../{input.blast}\t../{input.filtered}" >> {output}
             fi
         done
         # Sort by size and add header (just to get hits on top)

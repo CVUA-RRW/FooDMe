@@ -46,7 +46,7 @@ def create_config(config_file, args):
 		conf.write("{}qualified_quality_phred: {}\n".format(indent1, args.fastp_min_phred))
 		conf.write("{}window_size: {}\n".format(indent1, args.fastp_window))
 		conf.write("{}mean_quality: {}\n".format(indent1, args.fastp_meanq))
-		conf.write("{}primers_fasta: {}\n".format(indent1, args.primer_fasta))
+		conf.write("{}primers_fasta: {}\n".format(indent1, args.primers_fasta))
 		conf.write("{}primer_fwd: {}\n".format(indent1, args.fastp_prune1))
 		conf.write("{}primer_rev: {}\n".format(indent1, args.fastp_prune2))
 		

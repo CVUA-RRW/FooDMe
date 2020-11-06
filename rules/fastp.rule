@@ -25,8 +25,8 @@ rule run_fastp:
         window_size = config["fastp"]["window_size"],
         mean_qual = config["fastp"]["mean_quality"],
         primer_F = config["fastp"]["primer_fwd"],
-        primer_R = config["fastp"]["primer_rev"]
-        primer_trim = "--adapter_fasta " + config["fastp"]["primers_fasta"] if config["fastp"]["primers_fasta"] =! "None" else ""
+        primer_R = config["fastp"]["primer_rev"],
+        primer_trim = "--adapter_fasta " + config["fastp"]["primers_fasta"] if config["fastp"]["primers_fasta"] != "None" else " "
     threads: config["threads_sample"]
     message: "Running fastp on {wildcards.sample}"
     conda: "../envs/fastp.yaml"

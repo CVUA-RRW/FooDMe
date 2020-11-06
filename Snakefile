@@ -1,5 +1,8 @@
 import pandas as pd
-import os, subprocess, time
+import os 
+import subprocess
+import time
+import shutil
 
 shell.executable("bash")
     
@@ -253,8 +256,6 @@ onstart:
         f.write("[" + time.asctime(time.localtime(time.time())) + "]: Pipeline started\n")
 
 onsuccess:
-    import shutil
-    
     for logfile in os.listdir(".snakemake/log/"):
         shutil.move(os.path.join(".snakemake/log", logfile), "logs")
     shutil.rmtree(".snakemake", ignore_errors=True)
@@ -264,6 +265,10 @@ onsuccess:
         f.write("[" + time.asctime(time.localtime(time.time())) + "]: Pipeline succesfully finished\n")
     
 onerror:
+    for logfile in os.listdir(".snakemake/log/"):
+        shutil.move(os.path.join(".snakemake/log", logfile), "logs")
+    shutil.rmtree(".snakemake", ignore_errors=True)
+    
     print("\nAn error occured, please consult the latest log file in {}".format(os.path.join(config["workdir"], ".snakemake", "log")))
     with open(pipe_log, 'a') as f:
         f.write("[" + time.asctime(time.localtime(time.time())) + "]: Pipeline stopped on error\n")
