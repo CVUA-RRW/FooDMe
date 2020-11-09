@@ -1,3 +1,10 @@
+## Version 1.2.2:
+
+* Updated BLAST+ and Fastp to the latest version
+* Report now includes links to BLast reports
+* Blast report now includes number of mismatch, gaps and alignment length
+* Added the --skip_adapter_trimming option to disable adapter trimming in fastp (only recommended for artificial dataset)
+
 ### Version 1.2.1:
 
 * taxidTools is now a submodule
