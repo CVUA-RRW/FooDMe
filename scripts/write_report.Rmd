@@ -20,7 +20,6 @@ options(markdown.HTML.header = system.file("misc", "datatables.html", package = 
 
 library(DT, quietly = T)
 library(tidyverse, quietly = T)
-library(plotly, quietly=T)
 
 executor <- Sys.info()["user"]
 ```
@@ -240,7 +239,9 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 						text = 'Download'
 						),
 						I('colvis')
-						)
+						),
+						deferRender = TRUE,
+						scroller = TRUE
 						))
 ```
 
@@ -292,7 +293,9 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 						text = 'Download'
 						),
 						I('colvis')
-						)
+						),
+						deferRender = TRUE,
+						scroller = TRUE
 						))
 ```
 
