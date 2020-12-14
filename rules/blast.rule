@@ -7,6 +7,12 @@ def get_mask():
         return "common/nomask"
     else:
         return "common/taxid_mask.txt"
+		
+def concatenate_uniq(entries):
+	s = str(entries.to_list()[0])
+	uniq = list(set(s.split("; ")))
+	uniq_no_zero = ["-" if e=="0" else e for e in uniq]
+	return "; ".join(uniq_no_zero)
 
 rule get_taxid_from_db:
     output:
@@ -139,21 +145,21 @@ rule blast_stats:
             if [ $bhits -eq 0 ]
             then
                 # When there is no blast hit
-                echo "{wildcards.sample}\t$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-" >> {output}
+                echo "{wildcards.sample}\t$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-\t-" >> {output}
             else
                 # Otherwise collect and print stats to file
                 bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -rn | head -n1)
                 bit_low=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -n | head -n1)
                 bit_thr=$(($bit_best - {params.bit_diff}))
                 shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
-                cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-4)
+                cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-5)
                 
                 echo "{wildcards.sample}\t$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t../{input.blast}\t../{input.filtered}" >> {output}
             fi
         done
         # Sort by size and add header (just to get hits on top)
         sort -k3,3nr -o {output} {output}
-        sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tlink_report\tlink_filtered' {output}
+        sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
         """
 
 rule collect_blast_stats:
@@ -219,13 +225,15 @@ rule summarize_results:
         "Summarizing results for {wildcards.sample}"
     run:
         df = pd.read_csv(input.compo, sep="\t", header=0).fillna(0)
-        groups = df.groupby(['Consensus', 'Rank', 'Taxid'])['Count'].sum().sort_values(ascending=False).to_frame().reset_index()
-        groups['perc']= round(groups['Count']/groups['Count'].sum() *100, 2)
+        groups = df.groupby(['Consensus', 'Rank', 'Taxid']).agg({'Count': 'sum', 'Disambiguation': concatenate_uniq})
+        groups = groups.sort_values("Count", ascending = False).reset_index()
+        # groups = df.groupby(['Consensus', 'Rank', 'Taxid'])['Count'].sum().sort_values(ascending=False).to_frame().reset_index()
+        groups['perc'] = round(groups['Count']/groups['Count'].sum() *100, 2)
         groups.insert(0, 'Sample', wildcards.sample)
-        groups.rename(columns={"perc":"Percent of total"},inplace = True)
+        groups.rename(columns = {"perc":"Percent of total"},inplace = True)
         groups["Consensus"].replace({"-": "No match"}, inplace = True)
         groups["Taxid"].replace({0: "-"}, inplace = True)
-        groups.to_csv(output.report, sep="\t", index = False)
+        groups.to_csv(output.report, sep = "\t", index = False)
         
 rule collect_results:
     input:

@@ -32,42 +32,43 @@ def main(blast_report, output, rankedlineage_dmp, nodes_dmp):
 	txd = Taxdump(rankedlineage_dmp, nodes_dmp)
 	otu_dict = parse_blast(blast_report)
 	with open(output, 'w') as out:
-		out.write("queryID\tConsensus\tRank\tTaxid\n")
-		for queryID, taxid_list in otu_dict.items():
-		
-			# Taxon filtering 
-			# filtered = []
-			# for taxid in taxid_list:
-				# if taxon_filter in txd.getLineageAsList(taxid):
-					# filtered.append(taxid)
-			# taxid_list = filtered
-			
+		out.write("queryID\tConsensus\tRank\tTaxid\tDisambiguation\n")
+		for queryID, taxid_list in otu_dict.items():	
 			# LCA determination
 			try:
 				lca = txd.lowestCommonNode(taxid_list)
 				rank = txd.getRank(lca)
 				name = txd.getName(lca)
-				out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, rank, lca))
 			
 			except KeyError:
 				# Taxid not present in the Taxdump version used raises a KeyError
-				# Filter out missing sequences
+				# Filter out missing sequences (verbose)
 				taxid_list_new =[]
 				for taxid in taxid_list:
 					if taxid not in txd.keys():
 						print("WARNING: taxid %s missing from Taxonomy reference, it will be ignored" % taxid)
 					else:
 						taxid_list_new.append(taxid)
+				
+				# Update list
+				taxid_list = taxid_list_new
 							
 				# Empty list case:
-				if not taxid_list_new:
-					out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, "Undetermined", "Undetermined", "Undetermined"))
-				
-				# Get the LCA with the filtered taxids
-				lca = txd.lowestCommonNode(taxid_list_new)
-				rank = txd.getRank(lca)
-				name = txd.getName(lca)
-				out.write("{0}\t{1}\t{2}\t{3}\n".format(queryID, name, rank, lca))
+				if not taxid_list:
+					lca = "Undetermined"
+					rank = "Undetermined"
+					name = "Undetermined"
+				else:
+					# Get the LCA with the filtered taxids
+					lca = txd.lowestCommonNode(taxid_list)
+					rank = txd.getRank(lca)
+					name = txd.getName(lca)
+			
+			finally:
+				# Format disambiguation list
+				name_list = txd.getName(list(set(taxid_list)))
+				names = "; ".join(name_list)
+				out.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(queryID, name, rank, lca, names))
 			
 if __name__ == '__main__':
 	main(snakemake.input[0], snakemake.output[0], snakemake.params["lineage"], snakemake.params["nodes"])
