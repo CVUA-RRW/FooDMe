@@ -1,6 +1,6 @@
 # FooDMe - A pipeline for Food DNA Metabarcoding
 
-FooDMe is a pipeline for taxonomic assignement of targeted sequencing reads (DNA Metabarcoding). 
+FooDMe is a sankemake workflow for taxonomic assignement of targeted sequencing reads (DNA Metabarcoding). 
 It was designed with 16S amplicon sequencing of food samples (mammals and birds metabarcoding) in mind but could be applied to
  other datasets. 
 FooDMe will process demultiplexed Illumina sequencing reads to:
@@ -252,6 +252,12 @@ limit the search to Mammals.
 
 Consensus determination will return the lowest common node of all retrieved BLAST hits for a sequence. You should expect most 
 sequences to be determined at the species or genus level. 
+
+TODO explain disambiguation
+    
+## Connex tools
+TBD
+-> BAnalyzer and MetaSeqSim
 
 ## Credits
 

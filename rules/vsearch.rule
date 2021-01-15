@@ -2,57 +2,66 @@ import pandas as pd
 
 shell.executable("bash")
 
-# Rules
-
-# Reads merging and quality filtering rules----------------------------
+# Reads merging and quality filtering rules-------------------------------------
 
 rule merge_reads:
     input:
         r1 = "{sample}/trimmed/{sample}_R1.fastq.gz",
-        r2 = "{sample}/trimmed/{sample}_R2.fastq.gz"
+        r2 = "{sample}/trimmed/{sample}_R2.fastq.gz",
     output:
         merged = temp("{sample}/pseudo_reads/{sample}_merged.fastq"),
         notmerged_fwd = temp("{sample}/pseudo_reads/{sample}_notmerged_fwd.fasta"),
-        notmerged_rev = temp("{sample}/pseudo_reads/{sample}_notmerged_rev.fasta")
-    threads: config["threads_sample"]
-    message: "Merging reads on {wildcards.sample}"
-    conda: "../envs/vsearch.yaml"
+        notmerged_rev = temp("{sample}/pseudo_reads/{sample}_notmerged_rev.fasta"),
+    threads:
+        config["threads_sample"]
+    message:
+        "Merging reads on {wildcards.sample}"
+    conda:
+        "../envs/vsearch.yaml"
     log:
         "logs/{sample}_merge.log"
     shell:
-        "vsearch --fastq_mergepairs {input.r1} --reverse {input.r2} --threads {threads} --fastqout {output.merged} \
+        """
+        vsearch --fastq_mergepairs {input.r1} --reverse {input.r2} --threads {threads} --fastqout {output.merged} \
         --fastq_eeout --fastaout_notmerged_fwd {output.notmerged_fwd} --fastaout_notmerged_rev {output.notmerged_rev} \
-        --fastq_allowmergestagger > {log} 2>&1"
+        --fastq_allowmergestagger > {log} 2>&1
+        """
 
 rule qual_stat:
     input: 
-        merged = "{sample}/pseudo_reads/{sample}_merged.fastq"
+        merged = "{sample}/pseudo_reads/{sample}_merged.fastq",
     output:
-        stat = "{sample}/pseudo_reads/{sample}_merged_qual.txt"
-    message: "Collecting quality statistics for {wildcards.sample}"
-    conda: "../envs/vsearch.yaml"
+        stat = "{sample}/pseudo_reads/{sample}_merged_qual.txt",
+    message:
+        "Collecting quality statistics for {wildcards.sample}"
+    conda:
+        "../envs/vsearch.yaml"
     shell:
         "vsearch --fastq_eestats {input.merged} --output {output.stat}"
-        
+
 rule quality_filter: 
     input: 
-        merged = "{sample}/pseudo_reads/{sample}_merged.fastq"
+        merged = "{sample}/pseudo_reads/{sample}_merged.fastq",
     output:
         filtered = temp("{sample}/pseudo_reads/{sample}_filtered.fasta"),
-        discarded = temp("{sample}/pseudo_reads/{sample}_discarded.fasta")
+        discarded = temp("{sample}/pseudo_reads/{sample}_discarded.fasta"),
     params:
         minlen= config["read_filter"]["min_length"],
         maxlen = config["read_filter"]["max_length"],
         maxee = config["read_filter"]["max_expected_errors"],
-        maxns = config["read_filter"]["max_ns"]
-    message: "Quality filtering {wildcards.sample}"
-    conda: "../envs/vsearch.yaml"
+        maxns = config["read_filter"]["max_ns"],
+    message:
+        "Quality filtering {wildcards.sample}"
+    conda:
+        "../envs/vsearch.yaml"
     log:
         "logs/{sample}_filter.log"
     shell:
-        "vsearch --fastq_filter {input.merged} --fastq_maxee {params.maxee} --fastq_minlen {params.minlen} \
+        """
+        vsearch --fastq_filter {input.merged} --fastq_maxee {params.maxee} --fastq_minlen {params.minlen} \
         --fastq_maxlen {params.maxlen} --fastq_maxns {params.maxns} --fastaout {output.filtered} --fasta_width 0 \
-        --fastaout_discarded {output.discarded} --log {log}"
+        --fastaout_discarded {output.discarded} --log {log}
+        """
 
 rule dereplicate:
     input: 
@@ -74,10 +83,11 @@ rule qc_stats:
         notmerged_fwd = "{sample}/pseudo_reads/{sample}_notmerged_fwd.fasta",
         notmerged_rev = "{sample}/pseudo_reads/{sample}_notmerged_rev.fasta",
         discarded = "{sample}/pseudo_reads/{sample}_discarded.fasta",
-        dereplicated = "{sample}/pseudo_reads/{sample}_derep.fasta"
+        dereplicated = "{sample}/pseudo_reads/{sample}_derep.fasta",
     output:
-        "{sample}/reports/{sample}_merging.tsv"
-    message: "Collecting quality filtering summary for {wildcards.sample}"
+        "{sample}/reports/{sample}_merging.tsv",
+    message:
+        "Collecting quality filtering summary for {wildcards.sample}"
     shell:
         """
         # Parsing fasta/fastq files
@@ -98,13 +108,13 @@ rule qc_stats:
         echo "{wildcards.sample}\t$total_reads\t$merged\t$notmerged_perc\t$filtered\t$discarded_perc\t$dereplicated\t$duplicate_perc" >> {output}
         """
 
-        
 rule collect_qc_stats:
     input:
-        expand("{sample}/reports/{sample}_merging.tsv", sample = samples.index)
+        expand("{sample}/reports/{sample}_merging.tsv", sample = samples.index),
     output:
-        "reports/merging_stats.tsv"
-    message: "Collecting quality filtering stats"
+        "reports/merging_stats.tsv",
+    message:
+        "Collecting quality filtering stats"
     shell:
         """
         cat {input[0]} | head -n 1 > {output}
@@ -112,80 +122,101 @@ rule collect_qc_stats:
             cat ${{i}} | tail -n +2 >> {output}
         done
         """
-        
+
 # Clustering rules----------------------------
 
 rule cluster:
     input: 
-        fasta = "{sample}/pseudo_reads/{sample}_derep.fasta"
+        fasta = "{sample}/pseudo_reads/{sample}_derep.fasta",
     output:
         centroids = temp("{sample}/clustering/{sample}_clusters.fasta"),
-        stat = "{sample}/clustering/{sample}_clustertab.txt"
+        stat = "{sample}/clustering/{sample}_clustertab.txt",
     params:
-        clusterID = config["cluster"]["cluster_identity"]
-    conda: "../envs/vsearch.yaml"
-    threads: config["threads"]
-    message: "Distance greedy clustering sequences  for {wildcards.sample}"
+        clusterID = config["cluster"]["cluster_identity"],
+    conda:
+        "../envs/vsearch.yaml"
+    threads:
+        config["threads"]
+    message:
+        "Distance greedy clustering sequences  for {wildcards.sample}"
     log:
         "logs/{sample}_clustering.log"
     shell:
-        "vsearch --cluster_size {input.fasta} --threads {threads} --id {params.clusterID} --strand plus --sizein --sizeout \
-        --fasta_width 0 --centroids {output.centroids} --uc {output.stat} --log {log}"
+        """
+        vsearch --cluster_size {input.fasta} --threads {threads} \
+        --id {params.clusterID} --strand plus --sizein --sizeout \
+        --fasta_width 0 --centroids {output.centroids} --uc {output.stat} \
+        --log {log}
+        """
 
 rule sort_otu:
     input: 
-        "{sample}/clustering/{sample}_clusters.fasta"
+        "{sample}/clustering/{sample}_clusters.fasta",
     output:
-        "{sample}/clustering/{sample}_clusters_sorted.fasta"
+        "{sample}/clustering/{sample}_clusters_sorted.fasta",
     params:
-        min_size= config["cluster"]["cluster_minsize"]
-    conda: "../envs/vsearch.yaml"
-    threads: config["threads"]
-    message: "Sorting centroids and size-filtering for {wildcards.sample}"
+        min_size= config["cluster"]["cluster_minsize"],
+    conda:
+        "../envs/vsearch.yaml"
+    threads:
+        config["threads"]
+    message:
+        "Sorting centroids and size-filtering for {wildcards.sample}"
     log:
         "logs/{sample}_sort_otu.log"
     shell:
-        "vsearch --sortbysize {input} --threads {threads} --sizein --sizeout --fasta_width 0 --minsize {params.min_size} --output {output} --log {log}"
-  
+        """
+        vsearch --sortbysize {input} --threads {threads} --sizein --sizeout \
+        --fasta_width 0 --minsize {params.min_size} --output {output} \
+        --log {log}
+        """
+
 # Chimera detection-------------
 
 rule chimera_denovo:
     # should be skipped if config["chimera"] is False
     input:
-        "{sample}/clustering/{sample}_clusters_sorted.fasta"
+        "{sample}/clustering/{sample}_clusters_sorted.fasta",
     output:
         nonchim = "{sample}/clustering/{sample}_clusters_nonchimera.fasta",
-        chimera = "{sample}/clustering/{sample}_clusters_chimeras.txt"
-    conda: "../envs/vsearch.yaml"
-    message: "De novo chimera detection for {wildcards.sample}"
+        chimera = "{sample}/clustering/{sample}_clusters_chimeras.txt",
+    conda:
+        "../envs/vsearch.yaml"
+    message:
+        "De novo chimera detection for {wildcards.sample}"
     log:
         "logs/{sample}_denovo_chimera.log"
     shell:
         """
-        vsearch --uchime_denovo {input} --sizein --sizeout --fasta_width 0 --qmask none --nonchimeras {output.nonchim} \
-            --uchimeout {output.chimera} | tee {log} 2>&1
+        vsearch --uchime_denovo {input} --sizein --sizeout --fasta_width 0 \
+        --qmask none --nonchimeras {output.nonchim} \
+        --uchimeout {output.chimera} | tee {log} 2>&1
         """
 
 rule relabel_otu:
     input:
-        "{sample}/clustering/{sample}_clusters_nonchimera.fasta" if config["chimera"] else "{sample}/clustering/{sample}_clusters_sorted.fasta"
+        "{sample}/clustering/{sample}_clusters_nonchimera.fasta" if config["chimera"] else "{sample}/clustering/{sample}_clusters_sorted.fasta",
     output:
-        "{sample}/clustering/{sample}_OTUs.fasta"
-    conda: "../envs/vsearch.yaml"
-    message: "Relabelling OTUs  for {wildcards.sample}"
+        "{sample}/clustering/{sample}_OTUs.fasta",
+    conda:
+        "../envs/vsearch.yaml"
+    message:
+        "Relabelling OTUs  for {wildcards.sample}"
     log:
         "logs/{sample}_relabel_otus.log"
     shell:
         """
-        vsearch --fastx_filter {input} --sizein --sizeout --fasta_width 0 --relabel OTU_ --fastaout {output}
+        vsearch --fastx_filter {input} --sizein --sizeout --fasta_width 0 \
+        --relabel OTU_ --fastaout {output}
         """
         
 rule create_otu_tab:
     input:
-        "{sample}/clustering/{sample}_OTUs.fasta"
+        "{sample}/clustering/{sample}_OTUs.fasta",
     output:
-        "{sample}/clustering/{sample}_OTUs.txt"
-    message: "Export OTU table  for {wildcards.sample}"
+        "{sample}/clustering/{sample}_OTUs.txt",
+    message:
+        "Export OTU table  for {wildcards.sample}"
     shell:
         """
         grep "^>" {input} | sed -e 's/;size=/\t/' | tr -d '>' > {output}
@@ -196,10 +227,11 @@ rule clustering_stats:
         derep = "{sample}/pseudo_reads/{sample}_derep.fasta",
         clusters = "{sample}/clustering/{sample}_clusters.fasta",
         sizefilt = "{sample}/clustering/{sample}_clusters_sorted.fasta",
-        non_chimera = "{sample}/clustering/{sample}_OTUs.fasta"
+        non_chimera = "{sample}/clustering/{sample}_OTUs.fasta",
     output:
-        "{sample}/reports/{sample}_clustering.tsv"
-    message: "Collecting clustering stats  for {wildcards.sample}"
+        "{sample}/reports/{sample}_clustering.tsv",
+    message:
+        "Collecting clustering stats  for {wildcards.sample}"
     shell:
         """
         # Collecting counts
@@ -232,13 +264,14 @@ rule clustering_stats:
         echo "Sample\tUnique sequences\tClusters\tClusters above size filter\tDiscarded clusters[% of clusters]\tDiscarded clusters[% of reads]\tNon-chimeric clusters (OTU)\tChimeras [% of clusters]\tChimeras [% of reads]\tPseudo-reads clustered\tPseudo-reads clustered [%]" > {output}
         echo "{wildcards.sample}\t$uniques_seq\t$clusters_seq\t$size_filt_seq\t$discarded_perc_clust\t$discarded_perc_reads\t$non_chimera_seq\t$chim_seq_perc\t$chim_reads_perc\t$non_chimera_reads\t$clustered_perc" >> {output}
         """
-        
+
 rule collect_clustering_stats:
     input:
-        expand("{sample}/reports/{sample}_clustering.tsv", sample = samples.index)
+        expand("{sample}/reports/{sample}_clustering.tsv", sample = samples.index),
     output:
-        "reports/clustering_stats.tsv"
-    message: "collecting clustering stats"
+        "reports/clustering_stats.tsv",
+    message:
+        "collecting clustering stats"
     shell:
         """
         cat {input[0]} | head -n 1 > {output}
