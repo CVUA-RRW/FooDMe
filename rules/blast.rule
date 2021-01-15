@@ -88,9 +88,15 @@ rule blast_otus:
             masking=""
         fi
         
-        blastn -db {params.blast_DB} -query {input.query} -out {output} -task 'megablast' -evalue {params.e_value} \
-        -perc_identity {params.perc_identity} -qcov_hsp_perc {params.qcov} $masking \
-        -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxid length mismatch gaps stitle' -num_threads {threads} \
+        blastn -db {params.blast_DB} \
+            -query {input.query} \
+            -out {output} \
+            -task 'megablast' \
+            -evalue {params.e_value} \
+            -perc_identity {params.perc_identity} \
+            -qcov_hsp_perc {params.qcov} $masking \
+            -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxid length mismatch gaps stitle' \
+            -num_threads {threads} \
         > logs/blast.log 2>&1
         
         sed -i '1 i\query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\tsubject_taxid\talignment_length\tmismatch\tgaps\tsubject_name' {output}

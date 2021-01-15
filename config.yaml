@@ -1,0 +1,35 @@
+# Configuration file template
+workdir: /path/to/workdir
+samples: /path/to/samples.tsv
+threads_sample: 1
+threads: 4
+trimming: # Modified from fastp
+    length_required: 50
+    qualified_quality_phred: 15
+    window_size: 4
+    mean_quality: 20 
+    primers_fasta: None # make compulsary file path
+    primers_3end: True #new boolean
+    primer_error_rate: 0.1 # new float 0 to 1
+    primer_fwd: 0 # remove 
+    primer_rev: 0 # remove
+    skip_adapter_trimming: False # remove
+read_filter:
+    min_length: 70 # change default
+    max_length: 100 # change default
+    max_expected_errors: 2
+    max_ns: 0
+cluster:
+    method: asv
+chimera: False # change default
+taxonomy:
+    rankedlineage_dmp: /path/to/rankedlineage.dmp
+    nodes_dmp: /path/to/nodes.dmp
+blast:
+    blast_DB: /path/to/BLAST_folder/db_base_name
+    taxdb: /path/to/taxdb_folder
+    taxid_filter: None
+    e_value: 1e-10
+    perc_identity: 90
+    qcov: 90
+    bit_score_diff: 0 # Changed default

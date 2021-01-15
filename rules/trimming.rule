@@ -8,12 +8,81 @@ shell.executable("bash")
 def _get_fastq(wildcards,read_pair='fq1'):
     return samples.loc[(wildcards.sample), [read_pair]].dropna()[0]
 
+# Rules primers trimming
+
+rule cutadapt:
+    input:
+        r1 = lambda wildcards: _get_fastq(wildcards, 'fq1'),
+        r2 = lambda wildcards: _get_fastq(wildcards, 'fq2'),
+    output:
+        r1 = temp("{sample}/trimmed/{sample}_primertrimmed_R1.fastq.gz"),
+        r2 = temp("{sample}/trimmed/{sample}_primertrimmed_R2.fastq.gz"),
+        primers_rc = temp("common/primer_revcomp.fa"),
+        trash_R1_5p = temp("{sample}/trimmed/{sample}_noprimer5p_R1.fastq.gz"),
+        trash_R2_5p =temp("{sample}/trimmed/{sample}_noprimer5p_R2.fastq.gz"),
+        trash_R1_3p = temp("{sample}/trimmed/{sample}_noprimer3p_R1.fastq.gz"),
+        trash_R2_3p =temp("{sample}/trimmed/{sample}_noprimer3p_R2.fastq.gz"),
+    params:
+        primers = config["primers_fasta"],
+        primer_3p = config["primers_3end"],
+        error_rate = config["primer_error_rate"],
+    message:
+        "Trimming primers on {wildcards.sample}"
+    conda:
+        "../envs/cutadapt.yaml"
+    log:
+        "logs/{sample}_cutadapt.log"
+    shell:
+        """
+        # Get reverse complement of primers
+        seqtk seq -r {params.primers} > {output.primers_rc}
+        
+        # Simple case only 5p trimming
+        if [[ {params.primer_3p} == false ]]
+        then
+            cutadapt {input.r1} \
+                {input.r2} \
+                -o {output.r1} \
+                -p {output.r2} \
+                -g file:{params.primers} \
+                -G file:{params.primers} \
+                --untrimmed-output {output.trash_R1_5p} \
+                --untrimmed-paired-output {output.trash_R2_5p} \
+                --error-rate {error_rate} \
+                2>&1 > {log}
+            touch {output.trash_R1_3p}
+            touch {output.trash_R2_3p}
+            
+        # in case trimming of 3p is also nescessary
+        else
+            cutadapt --interleaved \
+                {input.r1} \
+                {input.r2} \
+                -g file:{params.primers} \
+                -G file:{params.primers} \
+                --untrimmed-output {output.trash_R1_5p} \
+                --untrimmed-paired-output {output.trash_R2_5p} \
+                --error-rate {error_rate} \
+            2>> {log} \
+            | cutadapt --interleaved \
+                -o {output.r1} \
+                -p {output.r2} \
+                -a file:{output.primers_rc} \
+                -A file:{output.primers_rc} \
+                --untrimmed-output {output.trash_R1_3p} \
+                --untrimmed-paired-output {output.trash_R2_3p} \
+                --error-rate {error_rate} \
+                - \
+            2>&1 >> {log}
+        fi
+        """
+
 # Rules quality trimming -------------------------------------------------------
 
 rule run_fastp:
     input:
-        r1 = lambda wildcards: _get_fastq(wildcards, 'fq1'),
-        r2 = lambda wildcards: _get_fastq(wildcards, 'fq2'),
+        r1 = "{sample}/trimmed/{sample}_primertrimmed_R1.fastq.gz",
+        r2 = "{sample}/trimmed/{sample}_primertrimmed_R2.fastq.gz",
     output:
         r1 = temp("{sample}/trimmed/{sample}_R1.fastq.gz"),
         r2 = temp("{sample}/trimmed/{sample}_R2.fastq.gz"),
@@ -24,9 +93,6 @@ rule run_fastp:
         qualified_quality_phred = config["fastp"]["qualified_quality_phred"],
         window_size = config["fastp"]["window_size"],
         mean_qual = config["fastp"]["mean_quality"],
-        primer_F = config["fastp"]["primer_fwd"],
-        primer_R = config["fastp"]["primer_rev"],
-        dect_adapt = "--disable_adapter_trimming" if config["fastp"]["skip_adapter_trimming"] == True else "--detect_adapter_for_pe",
     threads:
         config["threads_sample"]
     message:
@@ -37,11 +103,17 @@ rule run_fastp:
         "logs/{sample}_fastp.log"
     shell:
         """
-        fastp -i {input.r1} -I {input.r2} -o {output.r1} -O {output.r2} -h {output.html} -j {output.json}\
-        --length_required {params.length_required} --qualified_quality_phred {params.qualified_quality_phred} --cut_by_quality3 \
-        --cut_window_size {params.window_size} --cut_mean_quality {params.mean_qual} {params.dect_adapt} \
-        --trim_front1 {params.primer_F} --trim_front2 {params.primer_R} \
-        --thread {threads} --report_title 'Sample {wildcards.sample}' > {log} 2>&1
+        fastp -i {input.r1} -I {input.r2} \
+            -o {output.r1} -O {output.r2} \
+            -h {output.html} -j {output.json}\
+            --length_required {params.length_required} \
+            --qualified_quality_phred {params.qualified_quality_phred} \
+            --cut_by_quality3 \
+            --cut_window_size {params.window_size} \
+            --cut_mean_quality {params.mean_qual} \
+            --thread {threads} \
+            --report_title 'Sample {wildcards.sample}' \
+        > {log} 2>&1
         """
 
 rule parse_fastp:
