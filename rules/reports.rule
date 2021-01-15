@@ -169,7 +169,7 @@ rule report_all:
     message:
         "Generating global html report"
     script:
-        "scripts/write_report.Rmd"
+        "../scripts/write_report.Rmd"
 
 # Version reports -----------------------------------------------------------------------------------------------------------
 
@@ -185,6 +185,8 @@ rule software_versions:
         echo "Software\tVersion" > {output}
         
         paste <(echo "fastp") <(grep fastp= {workflow.basedir}/envs/fastp.yaml | cut -d "=" -f2) >> {output}
+        
+        paste <(echo "cutadapt") <(grep cutadapt= {workflow.basedir}/envs/cutadapt.yaml | cut -d "=" -f2) >> {output}
         
         if [[ {params.method} == "otu" ]] 
         then

@@ -10,22 +10,34 @@ def _get_fastq(wildcards,read_pair='fq1'):
 
 # Rules primers trimming
 
+rule get_primer_revcomp:
+    output:
+        primers_rc = temp("common/primer_revcomp.fa"),
+    params:
+        primers = config["trimming"]["primers_fasta"],
+    conda:
+        "../envs/cutadapt.yaml"
+    shell:
+        """
+        seqtk seq -r {params.primers} > {output.primers_rc}
+        """
+
 rule cutadapt:
     input:
         r1 = lambda wildcards: _get_fastq(wildcards, 'fq1'),
         r2 = lambda wildcards: _get_fastq(wildcards, 'fq2'),
+        primers_rc = "common/primer_revcomp.fa",
     output:
         r1 = temp("{sample}/trimmed/{sample}_primertrimmed_R1.fastq.gz"),
         r2 = temp("{sample}/trimmed/{sample}_primertrimmed_R2.fastq.gz"),
-        primers_rc = temp("common/primer_revcomp.fa"),
         trash_R1_5p = temp("{sample}/trimmed/{sample}_noprimer5p_R1.fastq.gz"),
         trash_R2_5p =temp("{sample}/trimmed/{sample}_noprimer5p_R2.fastq.gz"),
         trash_R1_3p = temp("{sample}/trimmed/{sample}_noprimer3p_R1.fastq.gz"),
         trash_R2_3p =temp("{sample}/trimmed/{sample}_noprimer3p_R2.fastq.gz"),
     params:
-        primers = config["primers_fasta"],
-        primer_3p = config["primers_3end"],
-        error_rate = config["primer_error_rate"],
+        error_rate = config["trimming"]["primer_error_rate"],
+        primer_3p = config["trimming"]["primers_3end"],
+        primers = config["trimming"]["primers_fasta"],
     message:
         "Trimming primers on {wildcards.sample}"
     conda:
@@ -34,9 +46,6 @@ rule cutadapt:
         "logs/{sample}_cutadapt.log"
     shell:
         """
-        # Get reverse complement of primers
-        seqtk seq -r {params.primers} > {output.primers_rc}
-        
         # Simple case only 5p trimming
         if [[ {params.primer_3p} == false ]]
         then
@@ -48,7 +57,7 @@ rule cutadapt:
                 -G file:{params.primers} \
                 --untrimmed-output {output.trash_R1_5p} \
                 --untrimmed-paired-output {output.trash_R2_5p} \
-                --error-rate {error_rate} \
+                --error-rate {params.error_rate} \
                 2>&1 > {log}
             touch {output.trash_R1_3p}
             touch {output.trash_R2_3p}
@@ -62,16 +71,16 @@ rule cutadapt:
                 -G file:{params.primers} \
                 --untrimmed-output {output.trash_R1_5p} \
                 --untrimmed-paired-output {output.trash_R2_5p} \
-                --error-rate {error_rate} \
+                --error-rate {params.error_rate} \
             2>> {log} \
             | cutadapt --interleaved \
                 -o {output.r1} \
                 -p {output.r2} \
-                -a file:{output.primers_rc} \
-                -A file:{output.primers_rc} \
+                -a file:{input.primers_rc} \
+                -A file:{input.primers_rc} \
                 --untrimmed-output {output.trash_R1_3p} \
                 --untrimmed-paired-output {output.trash_R2_3p} \
-                --error-rate {error_rate} \
+                --error-rate {params.error_rate} \
                 - \
             2>&1 >> {log}
         fi
@@ -89,10 +98,10 @@ rule run_fastp:
         json = "{sample}/trimmed/{sample}.json",
         html = "{sample}/trimmed/{sample}.html",
     params:
-        length_required = config["fastp"]["length_required"],
-        qualified_quality_phred = config["fastp"]["qualified_quality_phred"],
-        window_size = config["fastp"]["window_size"],
-        mean_qual = config["fastp"]["mean_quality"],
+        length_required = config["trimming"]["length_required"],
+        qualified_quality_phred = config["trimming"]["qualified_quality_phred"],
+        window_size = config["trimming"]["window_size"],
+        mean_qual = config["trimming"]["mean_quality"],
     threads:
         config["threads_sample"]
     message:
