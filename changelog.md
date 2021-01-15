@@ -1,4 +1,19 @@
-## Version 1.2.2:
+### Version 1.3.0
+
+#### Incompatible changes
+
+* Now requires user to provide a fasta file with primer sequences
+
+#### New features
+
+* Taxonomic reports now include a 'disambiguation' field summarizing the different blast hit for each cluster
+* Primers will now be trimmed for the reads before quality trimming. It is possible to trim primers on both ends
+
+#### Minor changes
+
+* Performance fix for the display of large tables in the html report
+
+### Version 1.2.2:
 
 * Updated BLAST+ and Fastp to the latest version
 * Report now includes links to BLast reports

@@ -52,9 +52,14 @@ onstart:
         f.write("[" + time.asctime(time.localtime(time.time())) + "]: Pipeline started\n")
 
 onsuccess:
-    for logfile in os.listdir(".snakemake/log/"):
-        shutil.move(os.path.join(".snakemake/log", logfile), "logs")
-    shutil.rmtree(".snakemake", ignore_errors=True)
+    try:
+        for logfile in os.listdir(".snakemake/log/"):
+            shutil.move(os.path.join(".snakemake/log", logfile), "logs")
+        shutil.rmtree(".snakemake", ignore_errors=True)
+    except:
+        # if not executing .snakemake from workdir, the log file will be in execution directory
+        # as far as I know, there is now way to access this form here
+        pass
     
     print("\nWorkflow finished, no error")
     with open(pipe_log, 'a') as f:
