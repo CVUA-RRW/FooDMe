@@ -5,9 +5,9 @@ threads_sample: 1
 threads: 4
 trimming: # Modified from fastp
     length_required: 50
-    qualified_quality_phred: 15
+    qualified_quality_phred: 20 # Changed default
     window_size: 4
-    mean_quality: 20 
+    mean_quality: 25 # Changed default 
     primers_fasta: None # make compulsary file path
     primers_3end: True #new boolean
     primer_error_rate: 0.1 # new float 0 to 1

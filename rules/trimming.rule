@@ -111,6 +111,7 @@ rule run_fastp:
             --cut_by_quality3 \
             --cut_window_size {params.window_size} \
             --cut_mean_quality {params.mean_qual} \
+            --disable_adapter_trimming \
             --thread {threads} \
             --report_title 'Sample {wildcards.sample}' \
         > {log} 2>&1
