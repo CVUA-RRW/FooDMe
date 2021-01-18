@@ -153,7 +153,7 @@ def main():
     # Trimming
     fastpargs = parser.add_argument_group('Trimming options')
     fastpargs.add_argument('--fastp_length', required=False, default=50, type=int,
-                        help="Minimum length of input reads to keep")
+                        help="Minimum length of input reads (after primer trimming) to keep")
     fastpargs.add_argument('--fastp_min_phred', required=False, default=20, type=int,
                         help="Minimal quality value per base")
     fastpargs.add_argument('--fastp_window', required=False, default=4, type=int,
@@ -174,7 +174,7 @@ def main():
     readargs.add_argument('--merge_maxlength', required=False, default=100, type=int,
                         help="Maximum length merged reads to keep")
     readargs.add_argument('--merge_maxee', required=False, default=2, type=int,
-                        help="Maximum expected errors in merged reads to keep")
+                        help="Maximum expected errors in merged reads to keep. Note that for the denoising procedure this filter is applied on the reads BEFORE merging.")
     readargs.add_argument('--merge_maxns', required=False, default = 0, type=int,
                         help="Maximum number of 'N' base in merged reads. If using denoising procedure this will be automatically reset to 0")
     

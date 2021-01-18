@@ -23,8 +23,8 @@ rule merge_reads:
     shell:
         """
         vsearch --fastq_mergepairs {input.r1} --reverse {input.r2} --threads {threads} --fastqout {output.merged} \
-        --fastq_eeout --fastaout_notmerged_fwd {output.notmerged_fwd} --fastaout_notmerged_rev {output.notmerged_rev} \
-        --fastq_allowmergestagger > {log} 2>&1
+            --fastq_eeout --fastaout_notmerged_fwd {output.notmerged_fwd} --fastaout_notmerged_rev {output.notmerged_rev} \
+            --fastq_allowmergestagger > {log} 2>&1
         """
 
 rule qual_stat:

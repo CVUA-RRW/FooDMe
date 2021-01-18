@@ -1,4 +1,5 @@
 import pandas as pd
+from os import stat
 
 shell.executable("bash")
 
@@ -112,22 +113,26 @@ rule filter_blast:
     message:
         "Filtering BLAST results for {wildcards.sample}"
     run:
-        df = pd.read_csv(input[0], sep = '\t', header= 0)
-        
-        if df.empty:
-            df.to_csv(output[0], sep='\t', header=True, index=False)
-        
+        if stat(input[0]).st_size == 0:
+            with open(output[0], 'w') as fout:
+                fout.write("query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\tsubject_taxid\talignment_length\tmismatch\tgaps\tsubject_name")
         else:
-            sd = dict(tuple(df.groupby('query')))
-
-            dfout = pd.DataFrame()
-
-            for key, val in sd.items():
-                dfout = dfout.append( val[val['bitscore'] >= max(val['bitscore']) - params.bit_diff] )
+            df = pd.read_csv(input[0], sep = '\t', header= 0)
             
-            dfout['query'] = dfout['query'].str.split(';').str[0]
+            if df.empty:
+                df.to_csv(output[0], sep='\t', header=True, index=False)
+            
+            else:
+                sd = dict(tuple(df.groupby('query')))
 
-            dfout.to_csv(output[0], sep='\t', header=True, index=False)
+                dfout = pd.DataFrame()
+
+                for key, val in sd.items():
+                    dfout = dfout.append( val[val['bitscore'] >= max(val['bitscore']) - params.bit_diff] )
+                
+                dfout['query'] = dfout['query'].str.split(';').str[0]
+
+                dfout.to_csv(output[0], sep='\t', header=True, index=False)
 
 rule blast2lca:
     input:
@@ -157,32 +162,38 @@ rule blast_stats:
     message:
         "Collecting BLAST stats for {wildcards.sample}"
     shell:
-        """      
-        # Get list of all OTUs
-        OTUs=$(grep "^>" {input.otus} | cut -d";" -f1 | tr -d '>' | sort -u)
-       
-        for otu in $OTUs
-        do
-            size=$(grep -E "^>${{otu}}\>" {input.otus}  | cut -d"=" -f2)
-            bhits=$(grep -c -E "^${{otu}};" {input.blast} || true)
-            if [ $bhits -eq 0 ]
-            then
-                # When there is no blast hit
-                echo "{wildcards.sample}\t$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-\t-" >> {output}
-            else
-                # Otherwise collect and print stats to file
-                bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -rn | head -n1)
-                bit_low=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -n | head -n1)
-                bit_thr=$(($bit_best - {params.bit_diff}))
-                shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
-                cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-5)
-                
-                echo "{wildcards.sample}\t$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t../{input.blast}\t../{input.filtered}" >> {output}
-            fi
-        done
-        # Sort by size and add header (just to get hits on top)
-        sort -k3,3nr -o {output} {output}
-        sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
+        """
+        if [ -s {input.otus} ]
+        then
+            echo "{wildcards.sample}\t-\t-\t0\t0\t0\t0\t0\t-\t-\t-\t-" > {output}
+            sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
+        else
+            # Get list of all OTUs
+            OTUs=$(grep "^>" {input.otus} | cut -d";" -f1 | tr -d '>' | sort -u)
+           
+            for otu in $OTUs
+            do
+                size=$(grep -E "^>${{otu}}\>" {input.otus}  | cut -d"=" -f2)
+                bhits=$(grep -c -E "^${{otu}};" {input.blast} || true)
+                if [ $bhits -eq 0 ]
+                then
+                    # When there is no blast hit
+                    echo "{wildcards.sample}\t$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-\t-" >> {output}
+                else
+                    # Otherwise collect and print stats to file
+                    bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -rn | head -n1)
+                    bit_low=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -n | head -n1)
+                    bit_thr=$(($bit_best - {params.bit_diff}))
+                    shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
+                    cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-5)
+                    
+                    echo "{wildcards.sample}\t$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t../{input.blast}\t../{input.filtered}" >> {output}
+                fi
+            done
+            # Sort by size and add header (just to get hits on top)
+            sort -k3,3nr -o {output} {output}
+            sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
+        fi
         """
 
 rule collect_blast_stats:
@@ -250,16 +261,21 @@ rule summarize_results:
     message:
         "Summarizing results for {wildcards.sample}"
     run:
-        df = pd.read_csv(input.compo, sep="\t", header=0).fillna(0)
-        groups = df.groupby(['Consensus', 'Rank', 'Taxid']).agg({'Count': 'sum', 'Disambiguation': concatenate_uniq})
-        groups = groups.sort_values("Count", ascending = False).reset_index()
-        # groups = df.groupby(['Consensus', 'Rank', 'Taxid'])['Count'].sum().sort_values(ascending=False).to_frame().reset_index()
-        groups['perc'] = round(groups['Count']/groups['Count'].sum() *100, 2)
-        groups.insert(0, 'Sample', wildcards.sample)
-        groups.rename(columns = {"perc":"Percent of total"},inplace = True)
-        groups["Consensus"].replace({"-": "No match"}, inplace = True)
-        groups["Taxid"].replace({0: "-"}, inplace = True)
-        groups.to_csv(output.report, sep = "\t", index = False)
+        ## Detect empty file and break out.
+        try:
+            df = pd.read_csv(input.compo, sep="\t", header=0).fillna(0)
+            groups = df.groupby(['Consensus', 'Rank', 'Taxid']).agg({'Count': 'sum', 'Disambiguation': concatenate_uniq})
+            groups = groups.sort_values("Count", ascending = False).reset_index()
+            # groups = df.groupby(['Consensus', 'Rank', 'Taxid'])['Count'].sum().sort_values(ascending=False).to_frame().reset_index()
+            groups['perc'] = round(groups['Count']/groups['Count'].sum() *100, 2)
+            groups.insert(0, 'Sample', wildcards.sample)
+            groups.rename(columns = {"perc":"Percent of total"},inplace = True)
+            groups["Consensus"].replace({"-": "No match"}, inplace = True)
+            groups["Taxid"].replace({0: "-"}, inplace = True)
+            groups.to_csv(output.report, sep = "\t", index = False)
+        except: # Empty files
+            with open(output.report, 'w') as fout:
+                fout.write("Sample\tConsensus\tRank\tTaxid\tCount\tDisambiguation\tPercent of total")
         
 rule collect_results:
     input:

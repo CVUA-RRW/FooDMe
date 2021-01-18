@@ -38,10 +38,10 @@ rule all:
 # Includes ------------------------------------------------------------------------------------------------------------------
 
 
-include: "rules/trimming.rule"
-include: "rules/vsearch.rule" if config["cluster"]["method"] == "otu" else "rules/dada2.rule" 
-include: "rules/blast.rule"
-include: "rules/reports.rule"
+include: "rules/trimming.smk"
+include: "rules/vsearch.smk" if config["cluster"]["method"] == "otu" else "rules/dada2.smk" 
+include: "rules/blast.smk"
+include: "rules/reports.smk"
 
 
 # Workflow ------------------------------------------------------------------------------------------------------------------
