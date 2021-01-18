@@ -232,7 +232,7 @@ rule tax_stats:
         
         if [ $all -ne 0 ]
         then
-            nohits_perc=$(echo "scale=2;(100* $nohits / $all)" | bc || 0)
+            nohits_perc=$(echo "scale=2;(100* $nohits / $all)" | bc)
             spec_perc=$(echo "scale=2;(100* $spec / $all)" | bc)
             gen_perc=$(echo "scale=2;(100* $gen / $all)" | bc)
             fam_perc=$(echo "scale=2;(100* $fam / $all)" | bc)

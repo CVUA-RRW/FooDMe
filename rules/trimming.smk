@@ -85,6 +85,37 @@ rule cutadapt:
             2>&1 >> {log}
         fi
         """
+        
+rule primer_trimming_stats:
+    input:
+        before_r1 = lambda wildcards: _get_fastq(wildcards, 'fq1'),
+        after_r1 = "{sample}/trimmed/{sample}_primertrimmed_R1.fastq.gz",
+        before_r2 = lambda wildcards: _get_fastq(wildcards, 'fq2'),
+        after_r2 = "{sample}/trimmed/{sample}_primertrimmed_R2.fastq.gz",
+    output:
+        report = temp("{sample}/trimmed/{sample}_primer_trimming.tsv"),
+    message:
+        "Collecting primer trimming statisctics for {wildcards.sample}"
+    shell:
+        """
+        before_r1=$(zcat {input.before_r1} | echo $((`wc -l`/4)))
+        after_r1=$(zcat {input.after_r1} | echo $((`wc -l`/4)))
+        before_r2=$(zcat {input.before_r2} | echo $((`wc -l`/4)))
+        after_r2=$(zcat {input.after_r2} | echo $((`wc -l`/4)))
+        
+        before=$(( before_r1 + before_r2 ))
+        after=$(( after_r1 + after_r2 ))
+        
+        if [ $after -ne 0 ] 
+        then
+            perc_discarded=$(echo "scale=2;(100* (1- $after/$before))" | bc)
+        else
+            perc_discarded=0.00
+        fi
+        
+        echo "Sample\tTotal raw reads\tTotal reads after primer trim\tNo primer found [%]" > {output.report}
+        echo "{wildcards.sample}\t$before\t$after\t$perc_discarded" >> {output.report}
+        """
 
 # Rules quality trimming -------------------------------------------------------
 
@@ -131,18 +162,16 @@ rule parse_fastp:
         json = "{sample}/trimmed/{sample}.json",
         html = "{sample}/trimmed/{sample}.html",
     output:
-        tsv = "{sample}/reports/{sample}_trimmed.tsv",
+        tsv = temp("{sample}/trimmed/{sample}_fastp.tsv"),
     message:
-        "Parsing fastp json report"
+        "Parsing fastp json report for {wildcards.sample}"
     run:
         with open(input.json,'r') as handle:
             data = json.load(handle)
           
         link_path = os.path.join("..", input.html)
-        header = "Sample\tTotal reads before\tTotal bases before\tTotal reads after\tTotal bases after\tQ20 rate after\tQ30 rate after\tDuplication rate\tInsert size peak\tlink_to_report"
-        datalist = [wildcards.sample, 
-                    data["summary"]["before_filtering"]["total_reads"],
-                    data["summary"]["before_filtering"]["total_bases"],
+        header = "Total bases before quality trim\tTotal reads after quality trim\tTotal bases after quality trim\tQ20 rate after\tQ30 rate after\tDuplication rate\tInsert size peak\tlink_to_report"
+        datalist = [data["summary"]["before_filtering"]["total_bases"],
                     data["summary"]["after_filtering"]["total_reads"],
                     data["summary"]["after_filtering"]["total_bases"],
                     data["summary"]["after_filtering"]["q20_rate"],
@@ -155,7 +184,22 @@ rule parse_fastp:
             writer=csv.writer(outfile, delimiter='\t')
             writer.writerow(datalist) 
 
-rule collect_fastp_stats:
+# Reporting rules --------------------------------------------------------------
+
+rule trimming_stats:
+    input:
+        cutadapt = "{sample}/trimmed/{sample}_primer_trimming.tsv",
+        fastp = "{sample}/trimmed/{sample}_fastp.tsv",
+    output:
+        report = "{sample}/reports/{sample}_trimmed.tsv"
+    message:
+        "Merging trimming stats for {wildcards.sample}"
+    shell:
+        """
+        paste {input.cutadapt} {input.fastp} > {output.report}
+        """
+
+rule collect_trimming_stats:
     input:
         expand("{sample}/reports/{sample}_trimmed.tsv", sample=samples.index),
     output:
