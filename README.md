@@ -36,6 +36,16 @@ conda create --name foodme -c bioconda -c anaconda snakemake pandas
 conda activate foodme
 ```
 
+### Testting the installation
+
+You can run an installation test with the data provided in the `tests` folder:
+
+```bash
+bash /path/to/repo/tests/test_foodme.sh
+```
+
+This should produce the same output as the one present in the `example_output` folder.
+
 ### Getting the databases
 
 FooDMe requires several databases to run, all are available from the NCBI ftp servers:

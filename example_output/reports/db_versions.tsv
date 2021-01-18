@@ -1,0 +1,6 @@
+Database	Last modified	Full path
+BLAST	2020-11-16	/home/debian/NGS/spezies_indev/FooDMe/tests/miniblast/miniblast
+taxdb.bti	2021-01-18	/home/debian/NGS/spezies_indev/FooDMe/tests/miniblast/taxdb.bti
+taxdb.btd	2021-01-18	/home/debian/NGS/spezies_indev/FooDMe/tests/miniblast/taxdb.btd
+taxdump lineages	2021-01-18	/home/debian/NGS/spezies_indev/FooDMe/tests/minitaxdump/minirankedlineage.dmp
+taxdump nodes	2021-01-18	/home/debian/NGS/spezies_indev/FooDMe/tests/minitaxdump/mininodes.dmp

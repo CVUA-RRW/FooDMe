@@ -1,0 +1,7 @@
+Sample	Consensus	Rank	Taxid	Count	Disambiguation	Percent of total
+Lasagne_clean	Bos taurus	species	9913	4992	Bos taurus	71.41
+Lasagne_clean	Sus scrofa	species	9823	1999	Sus scrofa	28.59
+Lasagne_horse	Sus scrofa	species	9823	4995	Sus scrofa	37.89
+Lasagne_horse	Bos taurus	species	9913	4992	Bos taurus	37.87
+Lasagne_horse	Meleagris gallopavo	species	9103	1997	Meleagris gallopavo	15.15
+Lasagne_horse	Equus caballus	species	9796	1199	Equus caballus	9.1

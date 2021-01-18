@@ -1,0 +1,2 @@
+Sample	Total raw reads	Total reads after primer trim	No primer found [%]	Total bases before quality trim	Total reads after quality trim	Total bases after quality trim	Q20 rate after	Q30 rate after	Duplication rate	Insert size peak	link_to_report
+Lasagne_horse	26400	26366	1.00	2008272	26366	2008199	0.937308	0.923566	0.438849	74	../Lasagne_horse/trimmed/Lasagne_horse.html
