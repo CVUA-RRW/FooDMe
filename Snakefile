@@ -3,9 +3,13 @@ import os
 import subprocess
 import time
 import shutil
+from snakemake.utils import min_version
 
 
 # Settings ------------------------------------------------------------------------------------------------------------------
+
+min_version("5.26")
+
 
 shell.executable("bash")
 
@@ -15,8 +19,10 @@ workdir: config["workdir"]
 
 pipe_log = os.path.join(config["workdir"], "PIPELINE_STATUS")
 
+
 samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
 samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
+
 
 # Functions -----------------------------------------------------------------------------------------------------------------
 
