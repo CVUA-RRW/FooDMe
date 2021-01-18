@@ -1,3 +1,8 @@
+### Version 1.3.1
+
+* Workflow will no longer crash on blank samples
+* Now reports the proportion of reads discarded during primer trimming
+
 ### Version 1.3.0
 
 #### Incompatible changes
