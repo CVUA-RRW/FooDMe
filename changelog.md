@@ -2,7 +2,7 @@
 
 * Added a very basic test script. This is meant to test the installation - not provide unit testing
 * Added an example of expected output
-* Fixed Snakaemake version
+* Fixed Snakemake version
 * Fixed summary report
 
 ### Version 1.3.1
