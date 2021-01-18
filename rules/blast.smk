@@ -73,7 +73,7 @@ rule blast_otus:
     threads:
         config["threads"]
     message:
-        "BLASTing {wildcards.sample} OTUs against local database"
+        "BLASTing {wildcards.sample} clusters against local database"
     conda:
         "../envs/blast.yaml"
     log:
@@ -163,11 +163,8 @@ rule blast_stats:
         "Collecting BLAST stats for {wildcards.sample}"
     shell:
         """
-        if [ -s {input.otus} ]
+        if [ -s {input.blast} ]
         then
-            echo "{wildcards.sample}\t-\t-\t0\t0\t0\t0\t0\t-\t-\t-\t-" > {output}
-            sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
-        else
             # Get list of all OTUs
             OTUs=$(grep "^>" {input.otus} | cut -d";" -f1 | tr -d '>' | sort -u)
            
@@ -192,6 +189,10 @@ rule blast_stats:
             done
             # Sort by size and add header (just to get hits on top)
             sort -k3,3nr -o {output} {output}
+            sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
+
+        else
+            echo "{wildcards.sample}\t-\t-\t0\t0\t0\t0\t0\t-\t-\t-\t-" > {output}
             sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
         fi
         """
@@ -229,13 +230,19 @@ rule tax_stats:
         fam=$(grep -c "family" {input} || true)
         other=$(( $all - $nohits - $spec - $gen - $fam ))
         
-        nohits_perc=$(echo "scale=2;(100* $nohits / $all)" | bc)
-        spec_perc=$(echo "scale=2;(100* $spec / $all)" | bc)
-        gen_perc=$(echo "scale=2;(100* $gen / $all)" | bc)
-        fam_perc=$(echo "scale=2;(100* $fam / $all)" | bc)
-        other_perc=$(echo "scale=2;(100* $other / $all)" | bc)
+        if [ $all -ne 0 ]
+        then
+            nohits_perc=$(echo "scale=2;(100* $nohits / $all)" | bc || 0)
+            spec_perc=$(echo "scale=2;(100* $spec / $all)" | bc)
+            gen_perc=$(echo "scale=2;(100* $gen / $all)" | bc)
+            fam_perc=$(echo "scale=2;(100* $fam / $all)" | bc)
+            other_perc=$(echo "scale=2;(100* $other / $all)" | bc)
+            
+            echo "{wildcards.sample}\t$all\t$nohits\t$nohits_perc\t$spec\t$spec_perc\t$gen\t$gen_perc\t$fam\t$fam_perc\t$other\t$other_perc" >> {output}
         
-        echo "{wildcards.sample}\t$all\t$nohits\t$nohits_perc\t$spec\t$spec_perc\t$gen\t$gen_perc\t$fam\t$fam_perc\t$other\t$other_perc" >> {output}
+        else
+            echo "{wildcards.sample}\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0" >> {output}
+        fi
         """
 
 rule collect_tax_stats:
@@ -261,21 +268,21 @@ rule summarize_results:
     message:
         "Summarizing results for {wildcards.sample}"
     run:
-        ## Detect empty file and break out.
-        try:
-            df = pd.read_csv(input.compo, sep="\t", header=0).fillna(0)
+        df = pd.read_csv(input.compo, sep="\t", header=0).fillna(0)
+
+        # Empty input case
+        if len(df["Query"]) == 1 and  df["Query"].head(1).item() == "-":
+            with open(output.report, 'w') as fout:
+                fout.write("Sample\tConsensus\tRank\tTaxid\tCount\tDisambiguation\tPercent of total")
+        else:
             groups = df.groupby(['Consensus', 'Rank', 'Taxid']).agg({'Count': 'sum', 'Disambiguation': concatenate_uniq})
             groups = groups.sort_values("Count", ascending = False).reset_index()
-            # groups = df.groupby(['Consensus', 'Rank', 'Taxid'])['Count'].sum().sort_values(ascending=False).to_frame().reset_index()
             groups['perc'] = round(groups['Count']/groups['Count'].sum() *100, 2)
             groups.insert(0, 'Sample', wildcards.sample)
             groups.rename(columns = {"perc":"Percent of total"},inplace = True)
             groups["Consensus"].replace({"-": "No match"}, inplace = True)
             groups["Taxid"].replace({0: "-"}, inplace = True)
             groups.to_csv(output.report, sep = "\t", index = False)
-        except: # Empty files
-            with open(output.report, 'w') as fout:
-                fout.write("Sample\tConsensus\tRank\tTaxid\tCount\tDisambiguation\tPercent of total")
         
 rule collect_results:
     input:
