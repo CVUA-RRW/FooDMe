@@ -90,7 +90,7 @@ run the pipeline with fixed parameters.
 
 #### Using the python wrapper
 
-```bash
+```
 usage: FooDMe [-h] [-v] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
               [-T THREADS] [-t THREADS_SAMPLE] [-c CONDAPREFIX] [-s SNAKEFILE]
               [--keep_temp] [--fastp_length FASTP_LENGTH]

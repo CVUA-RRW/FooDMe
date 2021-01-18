@@ -1,3 +1,6 @@
+* Fixed Snakaemake version
+* Fixed summary report
+
 ### Version 1.3.1
 
 * Workflow will no longer crash on blank samples

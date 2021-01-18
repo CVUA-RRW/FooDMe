@@ -8,7 +8,7 @@ from snakemake.utils import min_version
 
 # Settings ------------------------------------------------------------------------------------------------------------------
 
-min_version("5.26")
+min_version("5.10")
 
 
 shell.executable("bash")

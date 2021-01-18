@@ -72,8 +72,8 @@ rule summary_report:
         then
             echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in OTU\tOTU number\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
             
-            Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f7)
-            size=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
+            Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
+            size=$(tail -n +2 {input.fastp} | cut -d'\t' -f11)
             reads=$(tail -n +2 {input.merging} | cut -d'\t' -f2)
             pseudo=$(tail -n +2 {input.merging} | cut -d'\t' -f5)
             clustered=$(tail -n +2 {input.clustering} | cut -d'\t' -f10)
@@ -87,8 +87,8 @@ rule summary_report:
         else
             echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in ASV\tASV number\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
         
-            Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f7)
-            size=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
+            Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
+            size=$(tail -n +2 {input.fastp} | cut -d'\t' -f11)
             reads=$(tail -n +2 {input.clustering} | cut -d'\t' -f2)
             pseudo=$(tail -n +2 {input.clustering} | cut -d'\t' -f6)
             clustered=$(tail -n +2 {input.clustering} | cut -d'\t' -f16)
