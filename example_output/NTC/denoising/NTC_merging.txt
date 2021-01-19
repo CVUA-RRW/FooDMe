@@ -1,0 +1,1 @@
+sequence	abundance	forward	reverse	nmatch	nmismatch	nindel	prefer	accept

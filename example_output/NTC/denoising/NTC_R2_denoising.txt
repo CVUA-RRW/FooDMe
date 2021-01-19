@@ -1,0 +1,1 @@
+sequence	abundance	n0	n1	nunq	pval	birth_from	birth_pval	birth_fold	birth_ham	birth_qave

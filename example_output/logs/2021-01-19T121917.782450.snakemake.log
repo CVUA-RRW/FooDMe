@@ -1,0 +1,14 @@
+Building DAG of jobs...
+Creating conda environment /home/debian/NGS/spezies_indev/FooDMe/rules/../envs/rmarkdown.yaml...
+Downloading and installing remote packages.
+CreateCondaEnvironmentException:
+Could not create conda environment from /home/debian/NGS/spezies_indev/FooDMe/rules/../envs/rmarkdown.yaml:
+Collecting package metadata (repodata.json): ...working... done
+Solving environment: ...working... failed
+
+ResolvePackageNotFound: 
+  - r-tidyverse=1.2.1
+  - pandoc=2.9.1.1
+
+
+  File "/home/debian/anaconda3/envs/snakemake/lib/python3.8/site-packages/snakemake/deployment/conda.py", line 350, in create

@@ -1,0 +1,40 @@
+WARNING: cut_by_quality3 is deprecated, please use cut_tail instead.
+Read1 before filtering:
+total reads: 6991
+total bases: 523339
+Q20 bases: 497823(95.1244%)
+Q30 bases: 490042(93.6376%)
+
+Read2 before filtering:
+total reads: 6991
+total bases: 523341
+Q20 bases: 483613(92.4088%)
+Q30 bases: 476957(91.1369%)
+
+Read1 after filtering:
+total reads: 6991
+total bases: 523339
+Q20 bases: 497823(95.1244%)
+Q30 bases: 490042(93.6376%)
+
+Read2 aftering filtering:
+total reads: 6991
+total bases: 523302
+Q20 bases: 483598(92.4128%)
+Q30 bases: 476942(91.1409%)
+
+Filtering result:
+reads passed filter: 13982
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+
+Duplication rate: 35.9375%
+
+Insert size peak (evaluated by paired-end reads): 74
+
+JSON report: Lasagne_clean/trimmed/Lasagne_clean.json
+HTML report: Lasagne_clean/trimmed/Lasagne_clean.html
+
+fastp -i Lasagne_clean/trimmed/Lasagne_clean_primertrimmed_R1.fastq.gz -I Lasagne_clean/trimmed/Lasagne_clean_primertrimmed_R2.fastq.gz -o Lasagne_clean/trimmed/Lasagne_clean_R1.fastq.gz -O Lasagne_clean/trimmed/Lasagne_clean_R2.fastq.gz -h Lasagne_clean/trimmed/Lasagne_clean.html -j Lasagne_clean/trimmed/Lasagne_clean.json --length_required 50 --qualified_quality_phred 20 --cut_by_quality3 --cut_window_size 4 --cut_mean_quality 25 --disable_adapter_trimming --thread 1 --report_title Sample Lasagne_clean 
+fastp v0.20.1, time used: 1 seconds

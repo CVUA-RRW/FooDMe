@@ -1,0 +1,2 @@
+Sample	Total raw reads	Total reads after primer trim	No primer found [%]	Total bases before quality trim	Total reads after quality trim	Total bases after quality trim	Q20 rate after	Q30 rate after	Duplication rate	Insert size peak	link_to_report
+NTC	8	2	75.00	280	2	280	1	1	0	140	../NTC/trimmed/NTC.html

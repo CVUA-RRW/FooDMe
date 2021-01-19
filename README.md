@@ -41,6 +41,7 @@ conda activate foodme
 You can run an installation test with the data provided in the `tests` folder:
 
 ```bash
+conda activate foodme
 bash /path/to/repo/tests/test_foodme.sh
 ```
 

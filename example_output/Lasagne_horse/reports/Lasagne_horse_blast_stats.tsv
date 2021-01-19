@@ -1,5 +1,5 @@
 Sample	Query	Count	Blast hits	Best bit-score	Lowest bit-score	Bit-score threshold	Saved Blast hits	Consensus	Rank	Taxid	Disambiguation	link_report	link_filtered
-Lasagne_horse	ASV_1	4995	8	143	126	143	2	Sus scrofa	species	9823	Sus scrofa	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report.tsv	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report_filtered.tsv
-Lasagne_horse	ASV_2	4992	7	137	115	137	2	Bos taurus	species	9913	Bos taurus	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report.tsv	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report_filtered.tsv
+Lasagne_horse	ASV_1	4995	1	143	143	143	1	Sus scrofa	species	9823	Sus scrofa	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report.tsv	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report_filtered.tsv
+Lasagne_horse	ASV_2	4992	2	137	126	137	1	Bos taurus	species	9913	Bos taurus	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report.tsv	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report_filtered.tsv
 Lasagne_horse	ASV_3	1997	1	141	141	141	1	Meleagris gallopavo	species	9103	Meleagris gallopavo	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report.tsv	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report_filtered.tsv
-Lasagne_horse	ASV_4	1199	10	152	121	152	1	Equus caballus	species	9796	Equus caballus	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report.tsv	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report_filtered.tsv
+Lasagne_horse	ASV_4	1199	1	152	152	152	1	Equus caballus	species	9796	Equus caballus	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report.tsv	../Lasagne_horse/taxonomy/Lasagne_horse_blast_report_filtered.tsv

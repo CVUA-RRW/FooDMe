@@ -1,0 +1,527 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	3	blast2lca
+	3	blast_otus
+	3	blast_stats
+	1	collect_blast_stats
+	1	collect_denoising_stats
+	1	collect_results
+	1	collect_summaries
+	1	collect_tax_stats
+	1	collect_trimming_stats
+	3	cutadapt
+	3	denoise
+	3	filter_blast
+	1	get_primer_revcomp
+	3	krona
+	1	krona_all
+	3	krona_table
+	1	no_masking
+	3	parse_fastp
+	3	primer_trimming_stats
+	1	report_all
+	3	report_sample
+	3	run_fastp
+	3	summarize_results
+	3	summary_report
+	3	tax_stats
+	3	trimming_stats
+	1	unpack_fastq
+	60
+
+[Tue Jan 19 12:23:10 2021]
+rule get_primer_revcomp:
+    output: common/primer_revcomp.fa
+    jobid: 61
+
+Activating conda environment: /home/debian/anaconda3/envs/6c6f0c7e
+[Tue Jan 19 12:23:11 2021]
+Finished job 61.
+1 of 60 steps (2%) done
+
+[Tue Jan 19 12:23:11 2021]
+Job 60: Trimming primers on NTC
+
+Activating conda environment: /home/debian/anaconda3/envs/6c6f0c7e
+Removing temporary output file NTC/trimmed/NTC_noprimer5p_R1.fastq.gz.
+Removing temporary output file NTC/trimmed/NTC_noprimer5p_R2.fastq.gz.
+Removing temporary output file NTC/trimmed/NTC_noprimer3p_R1.fastq.gz.
+Removing temporary output file NTC/trimmed/NTC_noprimer3p_R2.fastq.gz.
+[Tue Jan 19 12:23:12 2021]
+Finished job 60.
+2 of 60 steps (3%) done
+
+[Tue Jan 19 12:23:12 2021]
+Job 57: Running fastp on NTC
+
+Activating conda environment: /home/debian/anaconda3/envs/b65a18b5
+[Tue Jan 19 12:23:13 2021]
+Finished job 57.
+3 of 60 steps (5%) done
+
+[Tue Jan 19 12:23:13 2021]
+Job 48: Collecting primer trimming statisctics for NTC
+
+Removing temporary output file NTC/trimmed/NTC_primertrimmed_R1.fastq.gz.
+Removing temporary output file NTC/trimmed/NTC_primertrimmed_R2.fastq.gz.
+[Tue Jan 19 12:23:13 2021]
+Finished job 48.
+4 of 60 steps (7%) done
+
+[Tue Jan 19 12:23:13 2021]
+Job 54: Trimming primers on Lasagne_clean
+
+Activating conda environment: /home/debian/anaconda3/envs/6c6f0c7e
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_noprimer5p_R1.fastq.gz.
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_noprimer5p_R2.fastq.gz.
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_noprimer3p_R1.fastq.gz.
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_noprimer3p_R2.fastq.gz.
+[Tue Jan 19 12:23:14 2021]
+Finished job 54.
+5 of 60 steps (8%) done
+
+[Tue Jan 19 12:23:14 2021]
+Job 59: Trimming primers on Lasagne_horse
+
+Activating conda environment: /home/debian/anaconda3/envs/6c6f0c7e
+Removing temporary output file common/primer_revcomp.fa.
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_noprimer5p_R1.fastq.gz.
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_noprimer5p_R2.fastq.gz.
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_noprimer3p_R1.fastq.gz.
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_noprimer3p_R2.fastq.gz.
+[Tue Jan 19 12:23:16 2021]
+Finished job 59.
+6 of 60 steps (10%) done
+
+[Tue Jan 19 12:23:16 2021]
+Job 56: Running fastp on Lasagne_horse
+
+Activating conda environment: /home/debian/anaconda3/envs/b65a18b5
+[Tue Jan 19 12:23:16 2021]
+Finished job 56.
+7 of 60 steps (12%) done
+
+[Tue Jan 19 12:23:16 2021]
+Job 42: Collecting primer trimming statisctics for Lasagne_horse
+
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_primertrimmed_R2.fastq.gz.
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_primertrimmed_R1.fastq.gz.
+[Tue Jan 19 12:23:17 2021]
+Finished job 42.
+8 of 60 steps (13%) done
+
+[Tue Jan 19 12:23:17 2021]
+Job 35: Collecting primer trimming statisctics for Lasagne_clean
+
+[Tue Jan 19 12:23:17 2021]
+Finished job 35.
+9 of 60 steps (15%) done
+
+[Tue Jan 19 12:23:17 2021]
+Job 55: Running fastp on Lasagne_clean
+
+Activating conda environment: /home/debian/anaconda3/envs/b65a18b5
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_primertrimmed_R1.fastq.gz.
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_primertrimmed_R2.fastq.gz.
+[Tue Jan 19 12:23:18 2021]
+Finished job 55.
+10 of 60 steps (17%) done
+
+[Tue Jan 19 12:23:18 2021]
+Job 37: Unpacking fastq files
+
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_R1.fastq.gz.
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_R2.fastq.gz.
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_R2.fastq.gz.
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_R1.fastq.gz.
+Removing temporary output file NTC/trimmed/NTC_R2.fastq.gz.
+Removing temporary output file NTC/trimmed/NTC_R1.fastq.gz.
+[Tue Jan 19 12:23:18 2021]
+Finished job 37.
+11 of 60 steps (18%) done
+
+[Tue Jan 19 12:23:18 2021]
+Job 16: Denoising and filtering Lasagne_horse
+
+Activating conda environment: /home/debian/anaconda3/envs/51258262
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_R2.fastq.
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_R1.fastq.
+Removing temporary output file Lasagne_horse/denoising/Lasagne_horse_R1_filtered.fasta.
+Removing temporary output file Lasagne_horse/denoising/Lasagne_horse_R2_filtered.fasta.
+[Tue Jan 19 12:23:30 2021]
+Finished job 16.
+12 of 60 steps (20%) done
+
+[Tue Jan 19 12:23:30 2021]
+Job 7: Denoising and filtering Lasagne_clean
+
+Activating conda environment: /home/debian/anaconda3/envs/51258262
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_R1.fastq.
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_R2.fastq.
+Removing temporary output file Lasagne_clean/denoising/Lasagne_clean_R1_filtered.fasta.
+Removing temporary output file Lasagne_clean/denoising/Lasagne_clean_R2_filtered.fasta.
+[Tue Jan 19 12:23:43 2021]
+Finished job 7.
+13 of 60 steps (22%) done
+
+[Tue Jan 19 12:23:43 2021]
+Job 23: Denoising and filtering NTC
+
+Activating conda environment: /home/debian/anaconda3/envs/51258262
+Removing temporary output file NTC/trimmed/NTC_R2.fastq.
+Removing temporary output file NTC/trimmed/NTC_R1.fastq.
+Removing temporary output file NTC/denoising/NTC_R1_filtered.fasta.
+Removing temporary output file NTC/denoising/NTC_R2_filtered.fasta.
+[Tue Jan 19 12:23:52 2021]
+Finished job 23.
+14 of 60 steps (23%) done
+
+[Tue Jan 19 12:23:52 2021]
+Job 43: Parsing fastp json report for Lasagne_horse
+
+[Tue Jan 19 12:23:53 2021]
+Finished job 43.
+15 of 60 steps (25%) done
+
+[Tue Jan 19 12:23:53 2021]
+Job 15: Merging trimming stats for Lasagne_horse
+
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_primer_trimming.tsv.
+Removing temporary output file Lasagne_horse/trimmed/Lasagne_horse_fastp.tsv.
+[Tue Jan 19 12:23:53 2021]
+Finished job 15.
+16 of 60 steps (27%) done
+
+[Tue Jan 19 12:23:53 2021]
+Job 36: Parsing fastp json report for Lasagne_clean
+
+[Tue Jan 19 12:23:53 2021]
+Finished job 36.
+17 of 60 steps (28%) done
+
+[Tue Jan 19 12:23:53 2021]
+Job 6: Merging trimming stats for Lasagne_clean
+
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_primer_trimming.tsv.
+Removing temporary output file Lasagne_clean/trimmed/Lasagne_clean_fastp.tsv.
+[Tue Jan 19 12:23:53 2021]
+Finished job 6.
+18 of 60 steps (30%) done
+
+[Tue Jan 19 12:23:53 2021]
+rule no_masking:
+    output: common/nomask
+    jobid: 58
+
+[Tue Jan 19 12:23:54 2021]
+Finished job 58.
+19 of 60 steps (32%) done
+
+[Tue Jan 19 12:23:54 2021]
+Job 38: BLASTing Lasagne_clean clusters against local database
+
+Activating conda environment: /home/debian/anaconda3/envs/010f28c1
+[Tue Jan 19 12:23:54 2021]
+Finished job 38.
+20 of 60 steps (33%) done
+
+[Tue Jan 19 12:23:54 2021]
+Job 50: BLASTing NTC clusters against local database
+
+Activating conda environment: /home/debian/anaconda3/envs/010f28c1
+[Tue Jan 19 12:23:55 2021]
+Finished job 50.
+21 of 60 steps (35%) done
+
+[Tue Jan 19 12:23:55 2021]
+Job 44: BLASTing Lasagne_horse clusters against local database
+
+Activating conda environment: /home/debian/anaconda3/envs/010f28c1
+Removing temporary output file common/nomask.
+[Tue Jan 19 12:23:55 2021]
+Finished job 44.
+22 of 60 steps (37%) done
+
+[Tue Jan 19 12:23:56 2021]
+Job 51: Filtering BLAST results for NTC
+
+[Tue Jan 19 12:23:56 2021]
+Finished job 51.
+23 of 60 steps (38%) done
+
+[Tue Jan 19 12:23:56 2021]
+Job 45: Filtering BLAST results for Lasagne_horse
+
+[Tue Jan 19 12:23:57 2021]
+Finished job 45.
+24 of 60 steps (40%) done
+
+[Tue Jan 19 12:23:57 2021]
+Job 39: Filtering BLAST results for Lasagne_clean
+
+[Tue Jan 19 12:23:57 2021]
+Finished job 39.
+25 of 60 steps (42%) done
+
+[Tue Jan 19 12:23:57 2021]
+Job 40: Lowest common ancestor determination
+
+[Tue Jan 19 12:23:57 2021]
+Finished job 40.
+26 of 60 steps (43%) done
+
+[Tue Jan 19 12:23:57 2021]
+Job 8: Collecting BLAST stats for Lasagne_clean
+
+[Tue Jan 19 12:23:57 2021]
+Finished job 8.
+27 of 60 steps (45%) done
+
+[Tue Jan 19 12:23:57 2021]
+Job 9: Collecting taxonomy assignement stats for Lasagne_clean
+
+[Tue Jan 19 12:23:57 2021]
+Finished job 9.
+28 of 60 steps (47%) done
+
+[Tue Jan 19 12:23:57 2021]
+Job 5: Summarizing statistics for Lasagne_clean
+
+[Tue Jan 19 12:23:57 2021]
+Finished job 5.
+29 of 60 steps (48%) done
+
+[Tue Jan 19 12:23:58 2021]
+Job 10: Summarizing results for Lasagne_clean
+
+[Tue Jan 19 12:23:58 2021]
+Finished job 10.
+30 of 60 steps (50%) done
+
+[Tue Jan 19 12:23:58 2021]
+Job 41: Exporting Lasagne_clean in Krona input format
+
+[Tue Jan 19 12:23:58 2021]
+Finished job 41.
+31 of 60 steps (52%) done
+
+[Tue Jan 19 12:23:58 2021]
+Job 13: producing graphical summary for Lasagne_clean
+
+Activating conda environment: /home/debian/anaconda3/envs/f74daf43
+[Tue Jan 19 12:23:59 2021]
+Finished job 13.
+32 of 60 steps (53%) done
+
+[Tue Jan 19 12:23:59 2021]
+Job 1: Generating html report for Lasagne_clean
+
+Activating conda environment: /home/debian/anaconda3/envs/f946a128
+[Tue Jan 19 12:24:02 2021]
+Finished job 1.
+33 of 60 steps (55%) done
+
+[Tue Jan 19 12:24:02 2021]
+Job 30: collecting denoising stats
+
+[Tue Jan 19 12:24:02 2021]
+Finished job 30.
+34 of 60 steps (57%) done
+
+[Tue Jan 19 12:24:02 2021]
+Job 49: Parsing fastp json report for NTC
+
+[Tue Jan 19 12:24:03 2021]
+Finished job 49.
+35 of 60 steps (58%) done
+
+[Tue Jan 19 12:24:03 2021]
+Job 22: Merging trimming stats for NTC
+
+Removing temporary output file NTC/trimmed/NTC_primer_trimming.tsv.
+Removing temporary output file NTC/trimmed/NTC_fastp.tsv.
+[Tue Jan 19 12:24:03 2021]
+Finished job 22.
+36 of 60 steps (60%) done
+
+[Tue Jan 19 12:24:03 2021]
+Job 29: Collecting fastp stats
+
+[Tue Jan 19 12:24:03 2021]
+Finished job 29.
+37 of 60 steps (62%) done
+
+[Tue Jan 19 12:24:03 2021]
+Job 46: Lowest common ancestor determination
+
+[Tue Jan 19 12:24:03 2021]
+Finished job 46.
+38 of 60 steps (63%) done
+
+[Tue Jan 19 12:24:03 2021]
+Job 52: Lowest common ancestor determination
+
+[Tue Jan 19 12:24:03 2021]
+Finished job 52.
+39 of 60 steps (65%) done
+
+[Tue Jan 19 12:24:03 2021]
+Job 24: Collecting BLAST stats for NTC
+
+[Tue Jan 19 12:24:03 2021]
+Finished job 24.
+40 of 60 steps (67%) done
+
+[Tue Jan 19 12:24:03 2021]
+Job 17: Collecting BLAST stats for Lasagne_horse
+
+[Tue Jan 19 12:24:03 2021]
+Finished job 17.
+41 of 60 steps (68%) done
+
+[Tue Jan 19 12:24:03 2021]
+Job 19: Summarizing results for Lasagne_horse
+
+[Tue Jan 19 12:24:04 2021]
+Finished job 19.
+42 of 60 steps (70%) done
+
+[Tue Jan 19 12:24:04 2021]
+Job 47: Exporting Lasagne_horse in Krona input format
+
+[Tue Jan 19 12:24:04 2021]
+Finished job 47.
+43 of 60 steps (72%) done
+
+[Tue Jan 19 12:24:04 2021]
+Job 26: Summarizing results for NTC
+
+[Tue Jan 19 12:24:05 2021]
+Finished job 26.
+44 of 60 steps (73%) done
+
+[Tue Jan 19 12:24:05 2021]
+Job 53: Exporting NTC in Krona input format
+
+[Tue Jan 19 12:24:05 2021]
+Finished job 53.
+45 of 60 steps (75%) done
+
+[Tue Jan 19 12:24:05 2021]
+Job 33: Collecting results
+
+[Tue Jan 19 12:24:05 2021]
+Finished job 33.
+46 of 60 steps (77%) done
+
+[Tue Jan 19 12:24:05 2021]
+Job 31: Collecting BLAST stats
+
+[Tue Jan 19 12:24:05 2021]
+Finished job 31.
+47 of 60 steps (78%) done
+
+[Tue Jan 19 12:24:05 2021]
+Job 25: Collecting taxonomy assignement stats for NTC
+
+[Tue Jan 19 12:24:05 2021]
+Finished job 25.
+48 of 60 steps (80%) done
+
+[Tue Jan 19 12:24:05 2021]
+Job 21: Summarizing statistics for NTC
+
+[Tue Jan 19 12:24:05 2021]
+Finished job 21.
+49 of 60 steps (82%) done
+
+[Tue Jan 19 12:24:05 2021]
+Job 18: Collecting taxonomy assignement stats for Lasagne_horse
+
+[Tue Jan 19 12:24:05 2021]
+Finished job 18.
+50 of 60 steps (83%) done
+
+[Tue Jan 19 12:24:05 2021]
+Job 14: Summarizing statistics for Lasagne_horse
+
+[Tue Jan 19 12:24:05 2021]
+Finished job 14.
+51 of 60 steps (85%) done
+
+[Tue Jan 19 12:24:06 2021]
+Job 28: Collecting summary reports
+
+[Tue Jan 19 12:24:06 2021]
+Finished job 28.
+52 of 60 steps (87%) done
+
+[Tue Jan 19 12:24:06 2021]
+Job 32: Collecting taxonomy assignement stats
+
+[Tue Jan 19 12:24:06 2021]
+Finished job 32.
+53 of 60 steps (88%) done
+
+[Tue Jan 19 12:24:06 2021]
+Job 20: producing graphical summary for Lasagne_horse
+
+Activating conda environment: /home/debian/anaconda3/envs/f74daf43
+[Tue Jan 19 12:24:06 2021]
+Finished job 20.
+54 of 60 steps (90%) done
+
+[Tue Jan 19 12:24:06 2021]
+Job 2: Generating html report for Lasagne_horse
+
+Activating conda environment: /home/debian/anaconda3/envs/f946a128
+[Tue Jan 19 12:24:10 2021]
+Finished job 2.
+55 of 60 steps (92%) done
+
+[Tue Jan 19 12:24:10 2021]
+Job 34: Producing graphical summary result
+
+Activating conda environment: /home/debian/anaconda3/envs/f74daf43
+[Tue Jan 19 12:24:10 2021]
+Finished job 34.
+56 of 60 steps (93%) done
+
+[Tue Jan 19 12:24:10 2021]
+Job 27: producing graphical summary for NTC
+
+Activating conda environment: /home/debian/anaconda3/envs/f74daf43
+[Tue Jan 19 12:24:11 2021]
+Finished job 27.
+57 of 60 steps (95%) done
+
+[Tue Jan 19 12:24:11 2021]
+Job 3: Generating html report for NTC
+
+Activating conda environment: /home/debian/anaconda3/envs/f946a128
+[Tue Jan 19 12:24:14 2021]
+Finished job 3.
+58 of 60 steps (97%) done
+
+[Tue Jan 19 12:24:14 2021]
+Job 4: Generating global html report
+
+Activating conda environment: /home/debian/anaconda3/envs/f946a128
+[Tue Jan 19 12:24:18 2021]
+Finished job 4.
+59 of 60 steps (98%) done
+
+[Tue Jan 19 12:24:18 2021]
+localrule all:
+    input: Lasagne_clean/reports/Lasagne_clean_report.html, Lasagne_horse/reports/Lasagne_horse_report.html, NTC/reports/NTC_report.html, reports/report.html
+    jobid: 0
+
+[Tue Jan 19 12:24:18 2021]
+Finished job 0.
+60 of 60 steps (100%) done
+Complete log: /home/debian/NGS/spezies_indev/FooDMe/tests/output/.snakemake/log/2021-01-19T122310.204249.snakemake.log

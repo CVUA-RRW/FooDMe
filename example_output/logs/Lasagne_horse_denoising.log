@@ -1,0 +1,20 @@
+Read in 13183 paired-sequences, output 13183 (100%) filtered paired-sequences.
+1004128 total bases in 13183 reads from 1 samples will be used for learning the error rates.
+Initializing error rates to maximum possible estimate.
+selfConsist step 1 .
+   selfConsist step 2
+Convergence after  2  rounds.
+1004071 total bases in 13183 reads from 1 samples will be used for learning the error rates.
+Initializing error rates to maximum possible estimate.
+selfConsist step 1 .
+   selfConsist step 2
+Convergence after  2  rounds.
+Sample 1 - 13183 reads in 700 unique sequences.
+Sample 1 - 13183 reads in 902 unique sequences.
+13183 paired-reads (in 4 unique pairings) successfully merged out of 13183 (in 4 pairings) input.
+Identified 0 bimeras out of 4 input sequences.
+Warnmeldungen:
+1: Transformation introduced infinite values in continuous y-axis 
+2: Transformation introduced infinite values in continuous y-axis 
+3: Transformation introduced infinite values in continuous y-axis 
+4: Transformation introduced infinite values in continuous y-axis 

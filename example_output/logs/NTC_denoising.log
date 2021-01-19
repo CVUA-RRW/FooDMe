@@ -1,0 +1,16 @@
+Read in 1 paired-sequences, output 1 (100%) filtered paired-sequences.
+140 total bases in 1 reads from 1 samples will be used for learning the error rates.
+Initializing error rates to maximum possible estimate.
+selfConsist step 1 .
+   selfConsist step 2
+Convergence after  2  rounds.
+140 total bases in 1 reads from 1 samples will be used for learning the error rates.
+Initializing error rates to maximum possible estimate.
+selfConsist step 1 .
+   selfConsist step 2
+Convergence after  2  rounds.
+Sample 1 - 1 reads in 1 unique sequences.
+Sample 1 - 1 reads in 1 unique sequences.
+1 paired-reads (in 1 unique pairings) successfully merged out of 1 (in 1 pairings) input.
+Saving 7 x 7 in image
+Saving 7 x 7 in image

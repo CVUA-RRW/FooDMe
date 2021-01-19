@@ -1,0 +1,40 @@
+WARNING: cut_by_quality3 is deprecated, please use cut_tail instead.
+Read1 before filtering:
+total reads: 13183
+total bases: 1004128
+Q20 bases: 955156(95.1229%)
+Q30 bases: 940326(93.646%)
+
+Read2 before filtering:
+total reads: 13183
+total bases: 1004144
+Q20 bases: 927177(92.3351%)
+Q30 bases: 914411(91.0637%)
+
+Read1 after filtering:
+total reads: 13183
+total bases: 1004128
+Q20 bases: 955156(95.1229%)
+Q30 bases: 940326(93.646%)
+
+Read2 aftering filtering:
+total reads: 13183
+total bases: 1004071
+Q20 bases: 927145(92.3386%)
+Q30 bases: 914379(91.0672%)
+
+Filtering result:
+reads passed filter: 26366
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+
+Duplication rate: 43.8849%
+
+Insert size peak (evaluated by paired-end reads): 74
+
+JSON report: Lasagne_horse/trimmed/Lasagne_horse.json
+HTML report: Lasagne_horse/trimmed/Lasagne_horse.html
+
+fastp -i Lasagne_horse/trimmed/Lasagne_horse_primertrimmed_R1.fastq.gz -I Lasagne_horse/trimmed/Lasagne_horse_primertrimmed_R2.fastq.gz -o Lasagne_horse/trimmed/Lasagne_horse_R1.fastq.gz -O Lasagne_horse/trimmed/Lasagne_horse_R2.fastq.gz -h Lasagne_horse/trimmed/Lasagne_horse.html -j Lasagne_horse/trimmed/Lasagne_horse.json --length_required 50 --qualified_quality_phred 20 --cut_by_quality3 --cut_window_size 4 --cut_mean_quality 25 --disable_adapter_trimming --thread 1 --report_title Sample Lasagne_horse 
+fastp v0.20.1, time used: 0 seconds

@@ -1,0 +1,5 @@
+Building DAG of jobs...
+MissingInputException in line 25 of /home/debian/NGS/spezies_indev/FooDMe/rules/trimming.smk:
+Missing input files for rule cutadapt:
+../fastq/NTC_S1_L001_R1_001.fastq.gz
+../fastq/NTC_S1_L001_R2_001.fastq.gz

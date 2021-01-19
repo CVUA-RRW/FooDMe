@@ -1,0 +1,40 @@
+WARNING: cut_by_quality3 is deprecated, please use cut_tail instead.
+Read1 before filtering:
+total reads: 1
+total bases: 140
+Q20 bases: 140(100%)
+Q30 bases: 140(100%)
+
+Read2 before filtering:
+total reads: 1
+total bases: 140
+Q20 bases: 140(100%)
+Q30 bases: 140(100%)
+
+Read1 after filtering:
+total reads: 1
+total bases: 140
+Q20 bases: 140(100%)
+Q30 bases: 140(100%)
+
+Read2 aftering filtering:
+total reads: 1
+total bases: 140
+Q20 bases: 140(100%)
+Q30 bases: 140(100%)
+
+Filtering result:
+reads passed filter: 2
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+
+Duplication rate: 0%
+
+Insert size peak (evaluated by paired-end reads): 140
+
+JSON report: NTC/trimmed/NTC.json
+HTML report: NTC/trimmed/NTC.html
+
+fastp -i NTC/trimmed/NTC_primertrimmed_R1.fastq.gz -I NTC/trimmed/NTC_primertrimmed_R2.fastq.gz -o NTC/trimmed/NTC_R1.fastq.gz -O NTC/trimmed/NTC_R2.fastq.gz -h NTC/trimmed/NTC.html -j NTC/trimmed/NTC.json --length_required 50 --qualified_quality_phred 20 --cut_by_quality3 --cut_window_size 4 --cut_mean_quality 25 --disable_adapter_trimming --thread 1 --report_title Sample NTC 
+fastp v0.20.1, time used: 1 seconds

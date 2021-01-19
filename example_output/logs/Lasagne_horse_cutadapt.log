@@ -1,0 +1,216 @@
+This is cutadapt 2.10 with Python 3.8.6
+Command line parameters: --interleaved -o Lasagne_horse/trimmed/Lasagne_horse_primertrimmed_R1.fastq.gz -p Lasagne_horse/trimmed/Lasagne_horse_primertrimmed_R2.fastq.gz -a file:common/primer_revcomp.fa -A file:common/primer_revcomp.fa --untrimmed-output Lasagne_horse/trimmed/Lasagne_horse_noprimer3p_R1.fastq.gz --untrimmed-paired-output Lasagne_horse/trimmed/Lasagne_horse_noprimer3p_R2.fastq.gz --error-rate 0.1 -
+This is cutadapt 2.10 with Python 3.8.6
+Command line parameters: --interleaved ../fastq/Lasagne_horse_S1_L001_R1_001.fastq.gz ../fastq/Lasagne_horse_S1_L001_R2_001.fastq.gz -g file:/home/debian/NGS/spezies_indev/FooDMe/tests/primers/16S.fa -G file:/home/debian/NGS/spezies_indev/FooDMe/tests/primers/16S.fa --untrimmed-output Lasagne_horse/trimmed/Lasagne_horse_noprimer5p_R1.fastq.gz --untrimmed-paired-output Lasagne_horse/trimmed/Lasagne_horse_noprimer5p_R2.fastq.gz --error-rate 0.1
+Processing reads on 1 core in paired-end mode ...
+Processing reads on 1 core in paired-end mode ...
+Finished in 0.96 s (73 us/read; 0.83 M reads/minute).
+
+=== Summary ===
+
+Total read pairs processed:             13,200
+  Read 1 with adapter:                  13,200 (100.0%)
+  Read 2 with adapter:                  13,198 (100.0%)
+Pairs written (passing filters):        13,200 (100.0%)
+
+Total basepairs processed:     3,014,000 bp
+  Read 1:     1,507,000 bp
+  Read 2:     1,507,000 bp
+Total written (filtered):      2,499,280 bp (82.9%)
+  Read 1:     1,229,813 bp
+  Read 2:     1,269,467 bp
+
+=== First read: Adapter FwdM ===
+
+Sequence: GACGAGAAGACCCTATGGAGC; Type: regular 5'; Length: 21; Trimmed: 11200 times
+
+No. of allowed errors:
+0-9 bp: 0; 10-19 bp: 1; 20-21 bp: 2
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+20	12	0.0	2	0 12
+21	11188	0.0	2	11039 148 1
+
+
+=== First read: Adapter RevM ===
+
+Sequence: TCCGAGGTCACCCCAACC; Type: regular 5'; Length: 18; Trimmed: 0 times
+
+=== First read: Adapter FwdP ===
+
+Sequence: GACGAGAAGACCCTGTGGAAC; Type: regular 5'; Length: 21; Trimmed: 2000 times
+
+No. of allowed errors:
+0-9 bp: 0; 10-19 bp: 1; 20-21 bp: 2
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+20	1	0.0	2	0 1
+21	1999	0.0	2	1973 26
+
+
+=== First read: Adapter RevP ===
+
+Sequence: TCCAAGGTCGCCCCAACC; Type: regular 5'; Length: 18; Trimmed: 0 times
+
+=== Second read: Adapter FwdM ===
+
+Sequence: GACGAGAAGACCCTATGGAGC; Type: regular 5'; Length: 21; Trimmed: 0 times
+
+=== Second read: Adapter RevM ===
+
+Sequence: TCCGAGGTCACCCCAACC; Type: regular 5'; Length: 18; Trimmed: 11202 times
+
+No. of allowed errors:
+0-9 bp: 0; 10-18 bp: 1
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+3	1	206.2	0	1
+17	17	0.0	1	0 17
+18	11183	0.0	1	10950 233
+19	1	0.0	1	0 1
+
+
+=== Second read: Adapter FwdP ===
+
+Sequence: GACGAGAAGACCCTGTGGAAC; Type: regular 5'; Length: 21; Trimmed: 0 times
+
+=== Second read: Adapter RevP ===
+
+Sequence: TCCAAGGTCGCCCCAACC; Type: regular 5'; Length: 18; Trimmed: 1996 times
+
+No. of allowed errors:
+0-9 bp: 0; 10-18 bp: 1
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+18	1996	0.0	1	1952 44
+Finished in 1.01 s (77 us/read; 0.78 M reads/minute).
+
+=== Summary ===
+
+Total read pairs processed:             13,198
+  Read 1 with adapter:                  13,183 (99.9%)
+  Read 2 with adapter:                  13,198 (100.0%)
+Pairs written (passing filters):        13,198 (100.0%)
+
+Total basepairs processed:     2,498,868 bp
+  Read 1:     1,229,628 bp
+  Read 2:     1,269,240 bp
+Total written (filtered):      2,010,799 bp (80.5%)
+  Read 1:     1,005,519 bp
+  Read 2:     1,005,280 bp
+
+=== First read: Adapter FwdM ===
+
+Sequence: GCTCCATAGGGTCTTCTCGTC; Type: regular 3'; Length: 21; Trimmed: 0 times
+
+=== First read: Adapter RevM ===
+
+Sequence: GGTTGGGGTGACCTCGGA; Type: regular 3'; Length: 18; Trimmed: 11189 times
+
+No. of allowed errors:
+0-9 bp: 0; 10-18 bp: 1
+
+Bases preceding removed adapters:
+  A: 0.1%
+  C: 99.8%
+  G: 0.1%
+  T: 0.1%
+  none/other: 0.0%
+WARNING:
+    The adapter is preceded by "C" extremely often.
+    The provided adapter sequence could be incomplete at its 3' end.
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+16	2	0.0	1	2
+17	11187	0.0	1	10709 478
+
+
+=== First read: Adapter FwdP ===
+
+Sequence: GTTCCACAGGGTCTTCTCGTC; Type: regular 3'; Length: 21; Trimmed: 0 times
+
+=== First read: Adapter RevP ===
+
+Sequence: GGTTGGGGCGACCTTGGA; Type: regular 3'; Length: 18; Trimmed: 1994 times
+
+No. of allowed errors:
+0-9 bp: 0; 10-18 bp: 1
+
+Bases preceding removed adapters:
+  A: 0.1%
+  C: 0.1%
+  G: 0.1%
+  T: 99.8%
+  none/other: 0.0%
+WARNING:
+    The adapter is preceded by "T" extremely often.
+    The provided adapter sequence could be incomplete at its 3' end.
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+17	1994	0.0	1	1912 82
+
+
+=== Second read: Adapter FwdM ===
+
+Sequence: GCTCCATAGGGTCTTCTCGTC; Type: regular 3'; Length: 21; Trimmed: 11204 times
+
+No. of allowed errors:
+0-9 bp: 0; 10-19 bp: 1; 20-21 bp: 2
+
+Bases preceding removed adapters:
+  A: 99.8%
+  C: 0.1%
+  G: 0.1%
+  T: 0.1%
+  none/other: 0.0%
+WARNING:
+    The adapter is preceded by "A" extremely often.
+    The provided adapter sequence could be incomplete at its 3' end.
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+19	2	0.0	1	2
+20	11199	0.0	2	10531 652 16
+21	3	0.0	2	3
+
+
+=== Second read: Adapter RevM ===
+
+Sequence: GGTTGGGGTGACCTCGGA; Type: regular 3'; Length: 18; Trimmed: 0 times
+
+=== Second read: Adapter FwdP ===
+
+Sequence: GTTCCACAGGGTCTTCTCGTC; Type: regular 3'; Length: 21; Trimmed: 1994 times
+
+No. of allowed errors:
+0-9 bp: 0; 10-19 bp: 1; 20-21 bp: 2
+
+Bases preceding removed adapters:
+  A: 99.9%
+  C: 0.0%
+  G: 0.0%
+  T: 0.1%
+  none/other: 0.0%
+WARNING:
+    The adapter is preceded by "A" extremely often.
+    The provided adapter sequence could be incomplete at its 3' end.
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+19	1	0.0	1	1
+20	1993	0.0	2	1894 97 2
+
+
+=== Second read: Adapter RevP ===
+
+Sequence: GGTTGGGGCGACCTTGGA; Type: regular 3'; Length: 18; Trimmed: 0 times
+
+WARNING:
+    One or more of your adapter sequences may be incomplete.
+    Please see the detailed output above.

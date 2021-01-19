@@ -7,7 +7,9 @@ python foodme.py -l tests/samples.tsv \
     --rankedlineage_dmp tests/minitaxdump/minirankedlineage.dmp \
     --nodes_dmp tests/minitaxdump/mininodes.dmp \
     --taxdb tests/miniblast \
-    --blastdb tests/miniblast/mitochondrion.genomic.fna_16S_AGES \
+    --blastdb tests/miniblast/miniblast \
     --primers_fasta tests/primers/16S.fa \
     --denoise \
-    -T 1
+    --trim_3end \
+    -T 1 \
+    -c ~/anaconda3/envs

@@ -1,16 +1,4 @@
 query	subject	evalue	identity	bitscore	subject_acc	subject_taxid	alignment_length	mismatch	gaps	subject_name
-ASV_1;size=4992	ref|NC_012706.1|	3.23e-35	100.000	137	NC_012706	9906	74	0	0	Bos javanicus mitochondrion, complete genome
-ASV_1;size=4992	ref|NC_006853.1|	3.23e-35	100.000	137	NC_006853	9913	74	0	0	Bos taurus mitochondrion, complete genome
-ASV_1;size=4992	ref|NC_005971.1|	6.99e-32	97.297	126	NC_005971	9915	74	2	0	Bos indicus mitochondrion, complete genome
-ASV_1;size=4992	ref|NC_014044.1|	3.25e-30	95.946	121	NC_014044	9902	74	3	0	Bison bonasus mitochondrion, complete genome
-ASV_1;size=4992	ref|NC_046055.1|	1.51e-28	94.595	115	NC_046055	331036	74	4	0	Bos grunniens x Bos taurus voucher DZO20190618 mitochondrion, complete genome
-ASV_1;size=4992	ref|NC_025563.1|	1.51e-28	94.595	115	NC_025563	72004	74	4	0	Bos mutus mitochondrion, complete genome
-ASV_1;size=4992	ref|NC_006380.3|	1.51e-28	94.595	115	NC_006380	30521	74	4	0	Bos grunniens mitochondrion, complete genome
-ASV_2;size=1999	ref|NC_000845.1|	7.29e-37	100.000	143	NC_000845	9823	77	0	0	Sus scrofa mitochondrion, complete genome
-ASV_2;size=1999	ref|NC_012095.1|	7.29e-37	100.000	143	NC_012095	9825	77	0	0	Sus scrofa domesticus mitochondrion, complete genome
-ASV_2;size=1999	ref|NC_014692.1|	3.39e-35	98.701	137	NC_014692	310261	77	1	0	Sus scrofa taiwanensis mitochondrion, complete genome
-ASV_2;size=1999	ref|NC_039090.1|	3.39e-35	98.701	137	NC_039090	309913	77	1	0	Sus scrofa cristatus isolate ABT/SWFH/1 mitochondrion, complete genome
-ASV_2;size=1999	ref|NC_024860.1|	3.39e-35	98.701	137	NC_024860	273789	77	1	0	Sus celebensis mitochondrion, complete genome
-ASV_2;size=1999	ref|NC_023536.1|	3.39e-35	98.701	137	NC_023536	159856	77	1	0	Sus verrucosus mitochondrion, complete genome
-ASV_2;size=1999	ref|NC_026992.1|	3.39e-35	98.701	137	NC_026992	41807	77	1	0	Sus barbatus mitochondrion, complete genome
-ASV_2;size=1999	ref|NC_023541.1|	7.34e-32	96.104	126	NC_023541	315377	77	3	0	Sus cebifrons mitochondrion, complete genome
+ASV_1;size=4992	ref|NC_006853.1|	1.16e-37	100.000	137	NC_006853	9913	74	0	0	Bos taurus mitochondrion, complete genome
+ASV_1;size=4992	ref|NC_005971.1|	2.52e-34	97.297	126	NC_005971	9915	74	2	0	Bos indicus mitochondrion, complete genome
+ASV_2;size=1999	ref|NC_000845.1|	2.62e-39	100.000	143	NC_000845	9823	77	0	0	Sus scrofa mitochondrion, complete genome
