@@ -14,14 +14,20 @@ min_version("5.10")
 shell.executable("bash")
 
 
+configfile: os.path.join(workflow.basedir, "tests", "config", "config.yaml")
+
+
 workdir: config["workdir"]
 
 
-pipe_log = os.path.join(config["workdir"], "PIPELINE_STATUS")
+sample_path = config["samples"]
 
 
-samples = pd.read_csv(config["samples"], index_col="sample", sep = "\t", engine="python")
+samples = pd.read_csv(sample_path, index_col="sample", sep = "\t", engine="python")
 samples.index = samples.index.astype('str', copy=False) # in case samples are integers, need to convert them to str
+
+
+pipe_log = os.path.join(os.getcwd(), "PIPELINE_STATUS")
 
 
 # Functions -----------------------------------------------------------------------------------------------------------------
