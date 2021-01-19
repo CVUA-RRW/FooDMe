@@ -33,6 +33,6 @@ jobs:
         with:
           directory: 'tests'
           snakefile: 'Snakefile'
-          args: "--config-file config/config.yaml --cores 1 --use-conda --show-failed-jobs --conda-cleanup-pkgs cache"
+          args: "--configfile config/config.yaml --cores 1 --use-conda --conda-cleanup-pkgs cache"
           stagein: |
             export TMPDIR=/tmp
