@@ -1,0 +1,4 @@
+sample	fq1	fq2
+Lasagne_clean	tests/data/fastq/Lasagne_clean_S1_L001_R1_001.fastq.gz	tests/data/fastq/Lasagne_clean_S1_L001_R2_001.fastq.gz
+Lasagne_horse	tests/data/fastq/Lasagne_horse_S1_L001_R1_001.fastq.gz	tests/data/fastq/Lasagne_horse_S1_L001_R2_001.fastq.gz
+NTC	tests/data/fastq/NTC_S01_L001_R1_001.fastq.gz	tests/data/fastq/NTC_S01_L001_R2_001.fastq.gz
