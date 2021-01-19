@@ -252,6 +252,8 @@ python /path/to/FooDMe/foodme.py -l /path/to/sample_sheet.tsv \
     --primers_fasta /path/to/my/primers.fa
 ```
 
+To use the pipeline offline and/or avoid recreating the conda environements use 
+`-c /path/to/conda/envs`
 
 #### Calling snakemake with a configuration file
 
@@ -261,6 +263,9 @@ Below is a minimal exemple for calling snakemake directly. Consult
 ```bash 
 snakemake -s /path/to/FooDMe/Snakefile --config path/to/config.yaml --use-conda --cores 1
 ```
+
+To use the pipeline offline and/or avoid recreating the conda environements use 
+`--conda-prefix /path/to/conda/envs`
 
 ## Workflow details
 
