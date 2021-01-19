@@ -1,0 +1,27 @@
+name: Test workflow
+
+on:
+  push:
+    branches: 
+      - automated_testing
+  pull_request:
+    branches: [ automated_testing ]
+
+  workflow_dispatch:
+
+jobs:
+  Testing:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Checkout submodules
+      uses: textbook/git-checkout-submodule-action@2.0.0
+
+    - name: Test workflow
+      uses: snakemake/snakemake-github-action@v1.9.0
+      with:
+        directory: 'tests'
+        snakefile: 'Snakefile'
+        args: "--cores 1 --use-conda --conda-cleanup-pkgs cache"
+        stagein: |
+          export TMPDIR=/tmp
