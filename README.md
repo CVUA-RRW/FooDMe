@@ -1,3 +1,5 @@
+![CI](https://github.com/CVUA-RRW/FooDMe/workflows/CI/badge.svg?branch=master)
+
 # FooDMe - A pipeline for Food DNA Metabarcoding
 
 FooDMe is a snakemake workflow for taxonomic assignement of targeted sequencing reads (DNA Metabarcoding). 
@@ -353,6 +355,6 @@ This project is licensed under a BSD 3-Clauses License, see the LICENSE file for
 
 For questions about the pipeline, problems, suggestions or requests, feel free to contact:
 
-GrÈgoire Denay, Chemisches- und Veterin‰r-Untersuchungsamt Rhein-Ruhr-Wupper 
+Gr√©goire Denay, Chemisches- und Veterin√§r-Untersuchungsamt Rhein-Ruhr-Wupper 
 
 <gregoire.denay@cvua-rrw.de>
