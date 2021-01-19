@@ -3,22 +3,13 @@ name: Test workflow
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
- push:
-   branches: [ automated_testing ]
- pull_request:
-   branches: [ automated_testing ]
+  push:
+    branches: [ automated_testing ]
+  pull_request:
+    branches: [ automated_testing ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-      inputs:
-        name:
-          # Friendly description to be shown in the UI instead of 'name'
-          description: 'Person to greet'
-          # Default value if no value is explicitly provided
-          default: 'World'
-          # Input has to be provided for the workflow to run
-          required: true
-
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
