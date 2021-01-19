@@ -1,6 +1,6 @@
 # FooDMe - A pipeline for Food DNA Metabarcoding
 
-FooDMe is a sankemake workflow for taxonomic assignement of targeted sequencing reads (DNA Metabarcoding). 
+FooDMe is a snakemake workflow for taxonomic assignement of targeted sequencing reads (DNA Metabarcoding). 
 It was designed with 16S amplicon sequencing of food samples (mammals and birds metabarcoding) in mind but could be applied to
  other datasets. 
 FooDMe will process demultiplexed Illumina sequencing reads to:
@@ -36,7 +36,7 @@ conda create --name foodme -c bioconda -c anaconda snakemake pandas
 conda activate foodme
 ```
 
-### Testting the installation
+### Testing the installation
 
 You can run an installation test with the data provided in the `tests` folder:
 
