@@ -42,10 +42,14 @@ You can run an installation test with the data provided in the `tests` folder:
 
 ```bash
 conda activate foodme
-bash /path/to/repo/tests/test_foodme.sh
+cd path/to/repo
+snakemake --use-conda --cores 1
 ```
 
-This should produce the same output as the one present in the `example_output` folder.
+This should produce the same output as the one present in the `foodme-example_output` folder.
+
+Note that if you provide the `--conda-prefix /path/to/conda/envs` argument, the above command will 
+set-up the conda environements that you can reuse offline later.
 
 ### Getting the databases
 

@@ -1,6 +1,0 @@
-query	subject	evalue	identity	bitscore	subject_acc	subject_taxid	alignment_length	mismatch	gaps	subject_name
-ASV_1;size=4995	ref|NC_000845.1|	2.62e-39	100.000	143	NC_000845	9823	77	0	0	Sus scrofa mitochondrion, complete genome
-ASV_2;size=4992	ref|NC_006853.1|	1.16e-37	100.000	137	NC_006853	9913	74	0	0	Bos taurus mitochondrion, complete genome
-ASV_2;size=4992	ref|NC_005971.1|	2.52e-34	97.297	126	NC_005971	9915	74	2	0	Bos indicus mitochondrion, complete genome
-ASV_3;size=1997	ref|NC_010195.2|	9.28e-39	100.000	141	NC_010195	9103	76	0	0	Meleagris gallopavo mitochondrion, complete genome
-ASV_4;size=1199	ref|NC_001640.1|	4.67e-42	100.000	152	NC_001640	9796	82	0	0	Equus caballus mitochondrion, complete genome
