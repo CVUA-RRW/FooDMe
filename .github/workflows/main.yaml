@@ -24,17 +24,20 @@ jobs:
       with: 
         activate-conda: true
         update-conda: false
-        python-version: 3.5
         conda-channels: 'defaults,anaconda,r,bioconda'
     
     - name: Setup main env
-      run: conda install -c bioconda -c anaconda snakemake pandas
+      run: conda create snakemake -c bioconda -c anaconda snakemake pandas
     
     - name: Create workflow envs
-      run: snakemake --cores 1 --use-conda --conda-prefix /usr/share/miniconda --conda-create-envs-only --conda-cleanup-pkgs cache
+      run: |
+        conda activate snakemake
+        snakemake --cores 1 --use-conda --conda-prefix /usr/share/miniconda --conda-create-envs-only --conda-cleanup-pkgs cache
     
     - name: Run workflow
-      run: snakemake --cores 1 --use-conda --conda-prefix /usr/share/miniconda --show-failed-logs
+      run: |
+        conda activate snakemake 
+        snakemake --cores 1 --use-conda --conda-prefix /usr/share/miniconda --show-failed-logs
       # uses: snakemake/snakemake-github-action@v1.14.0
       # with:
         # directory: 'tests'
