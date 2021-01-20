@@ -16,7 +16,7 @@ rule get_primer_revcomp:
     params:
         primers = config["trimming"]["primers_fasta"],
     conda:
-        "../envs/cutadapt.yaml"
+        "../envs/seqtk.yaml"
     shell:
         """
         seqtk seq -r {params.primers} > {output.primers_rc}
