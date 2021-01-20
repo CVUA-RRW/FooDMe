@@ -6,3 +6,5 @@ channels:
 dependencies:
   - cutadapt=2.10
   - seqtk=1.3
+  - libgcc-ng=9.1.0
+  - zlib=1.2.11
