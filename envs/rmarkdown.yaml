@@ -1,6 +1,7 @@
 name: rmarkdown
 channels:
   - r
+  - anaconda
   - defaults
 dependencies:
   - r-dt=0.5

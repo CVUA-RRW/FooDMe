@@ -1,5 +1,7 @@
 name: krona
 channels:
   - bioconda
+  - anaconda
+  - defaults
 dependencies:
   - krona=2.7.1
