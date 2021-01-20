@@ -24,7 +24,7 @@ jobs:
       with: 
         activate-conda: true
         update-conda: false
-        conda-channels: 'defaults,conda-forge,bioconda'
+        conda-channels: 'defaults,r,bioconda'
     
     - name: Setup main env
       run: conda install "snakemake>=5.11" pandas
