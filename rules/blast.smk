@@ -232,11 +232,11 @@ rule tax_stats:
         
         if [ $all -ne 0 ]
         then
-            nohits_perc=$(echo "scale=2;(100* $nohits / $all)" | bc)
-            spec_perc=$(echo "scale=2;(100* $spec / $all)" | bc)
-            gen_perc=$(echo "scale=2;(100* $gen / $all)" | bc)
-            fam_perc=$(echo "scale=2;(100* $fam / $all)" | bc)
-            other_perc=$(echo "scale=2;(100* $other / $all)" | bc)
+            nohits_perc=$(printf %.2f "$((10**3 * (100* $nohits / $all)))e-3"
+            spec_perc=$(printf %.2f "$((10**3 * (100* $spec / $all)))e-3"
+            gen_perc=$(printf %.2f "$((10**3 * (100* $gen / $all)))e-3"
+            fam_perc=$(printf %.2f "$((10**3 * (100* $fam / $all)))e-3"
+            other_perc=$(printf %.2f "$((10**3 * (100* $other / $all)))e-3"
             
             echo "{wildcards.sample}\t$all\t$nohits\t$nohits_perc\t$spec\t$spec_perc\t$gen\t$gen_perc\t$fam\t$fam_perc\t$other\t$other_perc" >> {output}
         
