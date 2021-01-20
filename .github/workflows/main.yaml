@@ -27,7 +27,7 @@ jobs:
         conda-channels: 'defaults,anaconda,r,bioconda'
     
     - name: Setup main env
-      run: conda create snakemake -c bioconda -c anaconda snakemake pandas
+      run: conda create -n snakemake -c bioconda -c anaconda snakemake pandas
     
     - name: Create workflow envs
       run: |
