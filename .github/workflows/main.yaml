@@ -26,11 +26,14 @@ jobs:
         update-conda: false
         conda-channels: 'defaults,conda-forge,bioconda'
     
-    - name: Setup env
+    - name: Setup main env
       run: conda install "snakemake>=5.11" pandas
     
+    - name: Create workflow envs
+      run: snakemake --cores 1 --use-conda --conda-prefix /usr/share/miniconda --conda-create-envs-only --conda-cleanup-pkgs cache
+    
     - name: Run workflow
-      run: snakemake --cores 1 --use-conda --show-failed-logs
+      run: snakemake --cores 1 --use-conda --conda-prefix /usr/share/miniconda --show-failed-logs
       # uses: snakemake/snakemake-github-action@v1.14.0
       # with:
         # directory: 'tests'
