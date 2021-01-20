@@ -1,9 +1,6 @@
 name: cutadapt
 channels:
-  - defaults
   - bioconda
-  - conda-forge
-  - r
 dependencies:
   - cutadapt=2.10
   - seqtk=1.3
