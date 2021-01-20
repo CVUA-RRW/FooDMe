@@ -1,7 +1,6 @@
-name: blast
+name: seqtk
 channels:
   - bioconda
-  - anaconda
   - defaults
 dependencies:
-  - blast=2.10.1
+  - seqtk=1.3

@@ -1,7 +1,8 @@
 name: dada2
 channels:
-  - conda-forge
   - bioconda
+  - r
+  - conda-forge
   - defaults
 dependencies:
   - bioconductor-dada2=1.16
