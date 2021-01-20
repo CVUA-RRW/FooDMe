@@ -16,7 +16,7 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Checkout submodule
-      run: git submodules update --init scripts/taxidTools
+      run: git submodule update --init scripts/taxidTools
       # uses: textbook/git-checkout-submodule-action@master
     
     - name: Conda setup
