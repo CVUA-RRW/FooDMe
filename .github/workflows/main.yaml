@@ -24,6 +24,7 @@ jobs:
       with: 
         activate-conda: true
         update-conda: false
+        python-version: 3.5
         conda-channels: 'defaults,anaconda,r,bioconda'
     
     - name: Setup main env
