@@ -1,3 +1,9 @@
+### Version 1.3.3
+
+* Test now runs with just `snakemake --cores 1 --use-conda`
+* Added CI in github actions
+* Reworked environments definition files, environments should build correctly.
+
 ### Version 1.3.2
 
 * Added a very basic test script. This is meant to test the installation - not provide unit testing

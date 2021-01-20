@@ -1,4 +1,6 @@
 ![CI](https://github.com/CVUA-RRW/FooDMe/workflows/CI/badge.svg?branch=master)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/CVUA-RRW/FooDMe)
 
 # FooDMe - A pipeline for Food DNA Metabarcoding
 
