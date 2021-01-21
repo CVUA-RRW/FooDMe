@@ -1,3 +1,5 @@
+* Upgraded dependencies to last (conda) version
+
 ### Version 1.3.3
 
 * Test now runs with just `snakemake --cores 1 --use-conda`

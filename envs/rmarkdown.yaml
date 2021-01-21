@@ -8,4 +8,4 @@ dependencies:
   - r-rmarkdown=1.12
   - r-knitr=1.22
   - r-tidyverse=1.2.1
-  - "pandoc>=2.9"
+  - pandoc=2.11
