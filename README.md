@@ -20,7 +20,7 @@ FooDMe will process demultiplexed Illumina sequencing reads to:
 
 ### Prerequisites
 
-FooDMe runs in a UNIX environment with BASH (tested on Debian GNU/Linux 10 (buster)) and requires conda and an internet 
+FooDMe runs in a UNIX environment with BASH (tested on Debian GNU/Linux 10 (buster), may work on MacOS too) and requires conda and an internet 
 connection (at least for the first run).
 
 ### Installing
