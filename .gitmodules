@@ -4,3 +4,6 @@
 [submodule "foodme-example_output"]
 	path = foodme-example_output
 	url = https://github.com/CVUA-RRW/foodme-example_output
+[submodule "scripts/figaro"]
+	path = scripts/figaro
+	url = https://github.com/CVUA-RRW/figaro.git
