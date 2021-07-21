@@ -265,7 +265,7 @@ Below is a minimal exemple for calling snakemake directly. Consult
 [snakemake's documentation](https://snakemake.readthedocs.io/en/stable/) for more details.
 
 ```bash 
-snakemake -s /path/to/FooDMe/Snakefile --config path/to/config.yaml --use-conda --cores 1
+snakemake -s /path/to/FooDMe/Snakefile --configfile path/to/config.yaml --use-conda --cores 1
 ```
 
 To use the pipeline offline and/or avoid recreating the conda environements use 
