@@ -36,7 +36,7 @@ git clone --recurse-submodules https://github.com/CVUA-RRW/FooDMe.git
 Set up a conda environment containing snakemake, python and the pandas library and activate it:
 
 ```bash
-conda create --name foodme -c bioconda -c anaconda snakemake pandas
+conda create --name foodme -c bioconda -c conda-forge snakemake pandas
 conda activate foodme
 ```
 
