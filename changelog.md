@@ -1,3 +1,23 @@
+### Dev (proposed version 1.4.0)
+
+#### Implementation changes:
+
+* Migrated to TaxidTools version 2. The taxidTools package must now be installed via conda or pip before starting th epipeline (See README.md).
+* Add minimum consensus filter as an alternative to last common ancestor. Use it with the parameter "min_consensus". The value be be in the interval (0.5;1], 1 being a last common ancestro behavior and 0.51 a simple majority vote.
+* Modified default parameters of the config file and python laucher with more sensible values
+
+#### Improvements:
+* Expand disambiguation info with the frequency of each species (#17)
+* (TODO) Blocklist of taxids to mask (#13)
+
+#### Bug fixes
+* (TODO) "No match" reads not counted towards total (#12)
+* (TODO) "No primer found" is always 100%
+
+### Version 1.3.5
+
+* Upgraded Dada2 dependency to version 1.20
+
 ### Version 1.3.4
 
 * Upgraded dependencies to last (conda) version

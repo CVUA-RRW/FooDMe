@@ -58,7 +58,9 @@ taxonomy:
     rankedlineage_dmp: /path/to/rankedlineage.dmp
     # Path to the names.dmp file
     nodes_dmp: /path/to/nodes.dmp
-    
+    # Minimal taxid frequency to reach consensus (1 to use last common ancestor)
+    min_consensus: 0.7
+
 # Options for BLAST search
 blast:
     # Path to the BLAST database, including database basename but no extension
@@ -70,8 +72,8 @@ blast:
     # E-value threshold for blast results
     e_value: 1e-10
     # Minimal identity between the hit and query for blast results (in percent)
-    perc_identity: 90
+    perc_identity: 97
     # Minimal proportion of the query covered by a hit for blast results. A mismatch is still counting as covering (in percent)
-    qcov: 90
+    qcov: 100
     # Maximum bit-score difference with the best hit for a blast result to be included in the taxonomy consensus detemination
-    bit_score_diff: 0 
+    bit_score_diff: 2

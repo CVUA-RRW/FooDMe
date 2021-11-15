@@ -4,59 +4,41 @@ library(ggplot2, quiet=T)
 library(dada2, quiet=T)
 
 # Get parameters from snakemake ---------------------------------------------------------------------------------------------
-if (!exists("snakemake")) {
-    fnFs <- "/home/debian/NGS/spezies_indev/MEL_datasets/2.Metabarcoding_Testlauf/NTC/trimmed/NTC_R1.fastq"
-    fnRs <- "/home/debian/NGS/spezies_indev/MEL_datasets/2.Metabarcoding_Testlauf/NTC/trimmedt/NTC_R2.fastq"
-    filtFs <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R1_filtered.fastq"
-    filtRs <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R2_filtered.fastq"
-    asv_table <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_ASV.fasta"
-    errplotF <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R1_R1_error_plot.tiff"
-    errplotR <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R1_R2_error_plot.tiff"
-    denoising_R1 <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R1_R1_denoise.txt"
-    denoising_R2 <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_R1_R2_denoise.txt"
-    report <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/reports/DNA-M1-1_denoising.tsv"
-    merged <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_merging.txt"
-    chimeras_fasta <- "/home/debian/NGS/spezies_indev/tests_results/test/DNA-M1-1/denoising/DNA-M1-1_chiomeras.fasta"
-    threads <- 6
-    sample.names <- "DNA-M1-1"
-    max_EE <- 1
-    minlength <- 100
-    maxlength <- 120
-    chimera <-TRUE
-} else{
-    # Input
-    fnFs <- snakemake@input[["r1"]]
-    fnRs <- snakemake@input[["r2"]]
+# Input
+fnFs <- snakemake@input[["r1"]]
+fnRs <- snakemake@input[["r2"]]
 
-    # Output
-    filtFs <- snakemake@output[["r1_filt"]]
-    filtRs <- snakemake@output[["r2_filt"]]
-    errplotF <- snakemake@output[["errplotF"]]
-    errplotR <- snakemake@output[["errplotR"]]
-    denoising_R1 <- snakemake@output[["denoiseR1"]]
-    denoising_R2 <- snakemake@output[["denoiseR2"]]
-    merged <- snakemake@output[["merged"]]
-    asv_table <- snakemake@output[["asv"]]
-    report <- snakemake@output[["report"]]
-    chimeras_fasta <- snakemake@output[["chimeras"]]
+# Output
+filtFs <- snakemake@output[["r1_filt"]]
+filtRs <- snakemake@output[["r2_filt"]]
+errplotF <- snakemake@output[["errplotF"]]
+errplotR <- snakemake@output[["errplotR"]]
+denoising_R1 <- snakemake@output[["denoiseR1"]]
+denoising_R2 <- snakemake@output[["denoiseR2"]]
+merged <- snakemake@output[["merged"]]
+asv_table <- snakemake@output[["asv"]]
+report <- snakemake@output[["report"]]
+chimeras_fasta <- snakemake@output[["chimeras"]]
 
-    # Multi-threading
-    threads <- snakemake@threads[[1]]
+# Multi-threading
+threads <- snakemake@threads[[1]]
 
-    # Parameters
-    sample.names <- snakemake@params[["sample"]]
-    max_EE <- snakemake@params[["max_EE"]]
-    minlength <- snakemake@params[["min_length"]]
-    maxlength <- snakemake@params[["max_length"]]
-    chimera <- snakemake@params[["chimera"]]
+# Parameters
+sample.names <- snakemake@params[["sample"]]
+max_EE <- snakemake@params[["max_EE"]]
+minlength <- snakemake@params[["min_length"]]
+maxlength <- snakemake@params[["max_length"]]
+chimera <- snakemake@params[["chimera"]]
 
-    # logging
-    log = file(snakemake@log[[1]], open="wt")
-    sink(log)
-    sink(log, type = "message")
-}
+# logging
+log = file(snakemake@log[[1]], open="wt")
+sink(log)
+sink(log, type = "message")
 
 # DADA Workflow -------------------------------------------------------------------------------------------------------------
+
+# Is there a more elegant solution here to handle no results cases?
+# can't find a way to properly handle exceptions in R1
 
 tryCatch({
     # Filter reads

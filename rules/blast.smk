@@ -12,10 +12,20 @@ def get_mask():
         return "common/taxid_mask.txt"
 
 def concatenate_uniq(entries):
-    s = str(entries.to_list()[0])
-    uniq = list(set(s.split("; ")))
-    uniq_no_zero = ["-" if e=="0" else e for e in uniq]
-    return "; ".join(uniq_no_zero)
+    s = "; ".join(entries.to_list())
+    df = pd.DataFrame([e.rsplit(' (', 1) for e in s.split("; ")], columns=["name", "freq"]) #parenthesis in names
+    df['freq'] = df['freq'].str.replace(')', '').astype(float)
+
+    # Aggreagte, normalize, and sort
+    tot = df['freq'].sum()
+    df = df.groupby("name").apply(lambda x: x.sum()/tot)
+    df = df.sort_values(by = ["freq"], ascending = False)
+    
+    # Format as string
+    uniq = df.to_dict()['freq']
+    uniq = [f"{name} ({round(freq, 2)})" for name, freq in uniq.items()]
+    
+    return "; ".join(uniq)
 
 #  Rules DB Masking ------------------------------------------------------------
 
@@ -134,18 +144,19 @@ rule filter_blast:
 
                 dfout.to_csv(output[0], sep='\t', header=True, index=False)
 
-rule blast2lca:
+rule find_consensus:
     input:
         "{sample}/taxonomy/{sample}_blast_report_filtered.tsv",
     output:
-        "{sample}/taxonomy/{sample}_consensus_table.tsv" ,
+        "{sample}/taxonomy/{sample}_consensus_table.tsv",
     params:
         lineage = config["taxonomy"]["rankedlineage_dmp"],
         nodes = config["taxonomy"]["nodes_dmp"],
+        min_consensus = config["taxonomy"]["min_consensus"]
     message:
-        "Lowest common ancestor determination"
+        "Consensus taxonomy determination"
     script:
-        "../scripts/blast_to_lca.py"
+        "../scripts/min_consensus_filter.py"
 
 # Rules reports ----------------------------------------------------------------
 
@@ -269,7 +280,7 @@ rule summarize_results:
         "Summarizing results for {wildcards.sample}"
     run:
         df = pd.read_csv(input.compo, sep="\t", header=0).fillna(0)
-
+        
         # Empty input case
         if len(df["Query"]) == 1 and  df["Query"].head(1).item() == "-":
             with open(output.report, 'w') as fout:

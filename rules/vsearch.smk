@@ -92,10 +92,8 @@ rule qc_stats:
         """
         # Parsing fasta/fastq files
         merged=$(grep -c "^@" {input.merged} || true)
-        notmerged_fwd=$(grep -c "^>" {input.notmerged_fwd} || true)
-        notmerged_rev=$(grep -c "^@" {input.notmerged_rev} || true)
-        notmerged=$(($notmerged_fwd + $notmerged_rev))
-        total_reads=$(($merged + $merged + $notmerged)) 
+        notmerged=$(grep -c "^>" {input.notmerged_fwd} || true)
+        total_reads=$(($merged + $notmerged)) 
         filtered=$(grep -c "^>" {input.filtered} || true)
         discarded=$(grep -c "^>" {input.discarded} || true)
         dereplicated=$(grep -c "^>" {input.dereplicated} || true)

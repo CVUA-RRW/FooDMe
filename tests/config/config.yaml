@@ -21,11 +21,12 @@ chimera: True
 taxonomy:
     rankedlineage_dmp: data/minitaxdump/minirankedlineage.dmp
     nodes_dmp: data/minitaxdump/mininodes.dmp
+    min_consensus: 0.7
 blast:
     blast_DB: data/miniblast/miniblast
     taxdb: data/miniblast
-    taxid_filter: None
+    taxid_filter: 7742
     e_value: 1e-10
-    perc_identity: 90
-    qcov: 90
-    bit_score_diff: 0
+    perc_identity: 97
+    qcov: 100
+    bit_score_diff: 2
