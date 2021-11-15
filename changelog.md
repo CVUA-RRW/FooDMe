@@ -1,6 +1,6 @@
 ### Dev (proposed version 1.4.0
 
-* (TODO) Move to TaxidTools version 2 
+* Migarated to TaxidTools version 2. The taxidTools package must now be installed via conda or pip before starting th epipeline (See README.md). 
 * (TODO) Expand disambiguation info (#17)
 * (TODO) Blocklist of taxids to mask (#13)
 * (TODO) "No match" reads no counted towards total (#12)
