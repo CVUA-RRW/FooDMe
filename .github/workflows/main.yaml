@@ -42,5 +42,6 @@ jobs:
         path: |
           tests/
           !tests/.snakemake
+          !test/envs
         retention-days: 5
     
