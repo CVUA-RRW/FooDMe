@@ -30,13 +30,13 @@ or using 'git clone':
 
 ```bash
 cd path/to/repo/
-git clone --recurse-submodules https://github.com/CVUA-RRW/FooDMe.git
+git clone https://github.com/CVUA-RRW/FooDMe.git
 ```
 
 Set up a conda environment containing snakemake, python and the pandas library and activate it:
 
 ```bash
-conda create --name foodme -c bioconda -c conda-forge snakemake pandas
+conda create --name foodme -c bioconda -c conda-forge snakemake">=6.6" pandas>"=1.3" taxidtools">=2.2.3"
 conda activate foodme
 ```
 

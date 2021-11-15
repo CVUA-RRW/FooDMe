@@ -1,3 +1,15 @@
+### Dev (proposed version 1.4.0
+
+* (TODO) Move to TaxidTools version 2 
+* (TODO) Expand disambiguation info (#17)
+* (TODO) Blocklist of taxids to mask (#13)
+* (TODO) "No match" reads no counted towards total (#12)
+* (TODO) Add minimum consensus filter
+
+### Version 1.3.5
+
+* Upgraded Dada2 dependency to version 1.20
+
 ### Version 1.3.4
 
 * Upgraded dependencies to last (conda) version

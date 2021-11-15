@@ -14,42 +14,32 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-      
-    - name: Checkout submodule
-      run: git submodule update --init scripts/taxidTools
-      # uses: textbook/git-checkout-submodule-action@master
     
-#    - name: Conda setup
-#      uses: s-weigand/setup-conda@v1.0.5
-#      with: 
-#        activate-conda: true
-#        update-conda: false
-#        conda-channels: 'defaults,anaconda,r,bioconda'
-#    
-#    - name: Setup main env
-#      run: conda create -n snakemake -c bioconda -c anaconda snakemake pandas
-#    
-#    - name: Create workflow envs
-#      run: |
-#        conda activate snakemake
-#        snakemake --cores 1 --use-conda --conda-prefix /usr/share/miniconda --conda-create-envs-only --conda-cleanup-pkgs cache
-#    
-#    - name: Run workflow
-#      run: |
-#        conda activate snakemake 
-#        snakemake --cores 1 --use-conda --conda-prefix /usr/share/miniconda --show-failed-logs
-     
-    - name: Create workflow envs 
-      uses: snakemake/snakemake-github-action@v1.14.0
-      with:
-        directory: 'tests'
-        snakefile: 'Snakefile'
-        args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --conda-create-envs-only"
+    # - name: Checkout submodule
+      # run: git submodule update --init scripts/taxidTools
+    
+    # - name: Create workflow envs # Only creates envs
+      # uses: snakemake/snakemake-github-action@v1
+      # with:
+        # directory: 'tests'
+        # snakefile: 'Snakefile'
+        # args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --conda-create-envs-only"
+        # stagein: "conda install pandas taxidtools"
     
     - name: Run workflow
-      uses: snakemake/snakemake-github-action@v1.14.0
+      uses: snakemake/snakemake-github-action@v1
       with:
         directory: 'tests'
         snakefile: 'Snakefile'
         args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs" 
-      
+        stagein: "conda install pandas'>=1.3' taxidtools'>=2.2.3'"
+    
+    - name: Archive results
+      uses: actions/upload-artifact@v2
+      with:
+        name: foodme-run
+        path: |
+          tests/
+          !tests/.snakemake
+        retention-days: 5
+    
