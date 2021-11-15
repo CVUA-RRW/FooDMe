@@ -40,8 +40,11 @@ jobs:
       with:
         name: foodme-run
         path: |
-          tests/
-          !tests/.snakemake
-          !test/envs
+          tests/reports
+          tests/NTC
+          tests/logs
+          tests/Lasagne_horse
+          tests/Lasagen_clean
+          tests/PIPELINE_STATUS
         retention-days: 5
     
