@@ -73,6 +73,7 @@ def create_config(config_file, args):
         conf.write("taxonomy:\n")
         conf.write("{}rankedlineage_dmp: {}\n".format(indent1, args.rankedlineage_dmp))
         conf.write("{}nodes_dmp: {}\n".format(indent1, args.nodes_dmp))
+        conf.write("{}min_consensus: {}\n".format(indent1, args.min_consensus))
 
         # Blast
         conf.write("blast:\n")
@@ -197,6 +198,8 @@ def main():
                         help="Path to the nodes.dmp file, needed if --taxdump is omitted")
     taxo.add_argument('--rankedlineage_dmp', required=False, default=None, type=os.path.abspath, action = DatabaseType,
                         help="Path to the names.dmp file, needed if --taxdump is omitted")
+    taxo.add_argument('--min_consensus', required=False, default=0.7, type=float, 
+                      help="Minimal taxid frequency for taxonomy consensus determination. Set to 1 to determine the consensus as the last common ancestor.")
 
     # Blast
     blastargs = parser.add_argument_group('Options for BLAST search')
@@ -208,11 +211,11 @@ def main():
                         help="Limit BLAST search to the taxids under the given node")
     blastargs.add_argument('--blast_eval', required=False, default=1e-10, type=float,
                         help="E-value threshold for blast results")
-    blastargs.add_argument('--blast_id', required=False, default=90, type=float, action= PercentType,
+    blastargs.add_argument('--blast_id', required=False, default=97, type=float, action= PercentType,
                         help="Minimal identity between the hit and query for blast results (in percent)")
-    blastargs.add_argument('--blast_cov', required=False, default=90, type=float, action= PercentType,
+    blastargs.add_argument('--blast_cov', required=False, default=100, type=float, action= PercentType,
                         help="Minimal proportion of the query covered by a hit for blast results. A mismatch is still counting as covering (in percent)")
-    blastargs.add_argument('--bitscore', required=False, default=0, type=int,
+    blastargs.add_argument('--bitscore', required=False, default=2, type=int,
                         help="Maximum bit-score difference with the best hit for a blast result to be included in the taxonomy consensus detemination")
     
     args = parser.parse_args()

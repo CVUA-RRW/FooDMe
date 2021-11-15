@@ -27,7 +27,7 @@ jobs:
         # stagein: "conda install pandas taxidtools"
     
     - name: Run workflow
-      uses: snakemake/snakemake-github-action@v1
+      uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: 'tests'
         snakefile: 'Snakefile'

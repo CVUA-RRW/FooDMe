@@ -12,7 +12,7 @@ def get_lineage(taxid, tax):
     elif taxid == "Undetermined":
         return ["Undetermined"]
     else:
-        return [node.name for node in tax.getAncestry(taxid)] # inverting list to have the lineage descending for Krona
+        return [node.name for node in tax.getAncestry(taxid)][::-1] # inverting list to have the lineage descending for Krona
 
 def main(input, output, rankedlineage_dmp, nodes_dmp):
     tax = txd.Taxonomy.from_taxdump(nodes_dmp, rankedlineage_dmp)

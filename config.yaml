@@ -60,6 +60,7 @@ taxonomy:
     nodes_dmp: /path/to/nodes.dmp
     # Minimal taxid frequency to reach consensus (1 to use last common ancestor)
     min_consensus: 0.7
+
 # Options for BLAST search
 blast:
     # Path to the BLAST database, including database basename but no extension
@@ -67,7 +68,7 @@ blast:
     # Path to the BLAST taxonomy database (folder)
     taxdb: /path/to/taxdb_folder
     # Limit BLAST search to the taxids under the given node
-    taxid_filter: 7742
+    taxid_filter: None
     # E-value threshold for blast results
     e_value: 1e-10
     # Minimal identity between the hit and query for blast results (in percent)

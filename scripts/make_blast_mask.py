@@ -6,6 +6,7 @@ import taxidTools as txd
 
 
 def main(taxid_file, parent, output, rankedlineage_dmp, nodes_dmp):
+    
     tax = txd.Taxonomy.from_taxdump(nodes_dmp, rankedlineage_dmp)
     
     with open(taxid_file, "r") as fin:
