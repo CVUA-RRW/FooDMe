@@ -108,7 +108,7 @@ rule primer_trimming_stats:
         
         if [ $after -ne 0 ] 
         then
-            perc_discarded=$(printf %.2f "$((10**3 * (100* (1- $after/$before))))e-3")
+            perc_discarded=$( python -c "print(f'{{round(100*(1-${{after}}/${{before}}),2)}}')" )
         else
             perc_discarded=0.00
         fi

@@ -111,6 +111,12 @@ def main():
                 parser.error("Invalid value: '" + self.dest + "' must be between 0 and 1.")
             setattr(namespace, self.dest, values)
     
+    class FractionType(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            if values <= 0.5 or values > 1:
+                parser.error("Invalid value: '" + self.dest + "' must be between in range (0.5, 1]")
+            setattr(namespace, self.dest, values)
+    
     class PercentType(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
             if values < 0 or values > 100:
@@ -198,7 +204,7 @@ def main():
                         help="Path to the nodes.dmp file, needed if --taxdump is omitted")
     taxo.add_argument('--rankedlineage_dmp', required=False, default=None, type=os.path.abspath, action = DatabaseType,
                         help="Path to the names.dmp file, needed if --taxdump is omitted")
-    taxo.add_argument('--min_consensus', required=False, default=0.7, type=float, 
+    taxo.add_argument('--min_consensus', required=False, default=0.7, type=float,  action= FractionType2, 
                       help="Minimal taxid frequency for taxonomy consensus determination. Set to 1 to determine the consensus as the last common ancestor.")
 
     # Blast
