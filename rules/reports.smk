@@ -84,7 +84,7 @@ rule summary_report:
             gen=$(tail -n +2 {input.tax} | cut -d'\t' -f7)
             high=$(($(tail -n +2 {input.tax} | cut -d'\t' -f9) + $(tail -n +2 {input.tax} | cut -d'\t' -f11)))
             none=$(tail -n +2 {input.tax} | cut -d'\t' -f3)
-
+        
             echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$assigned\t$spec\t$gen\t$high\t$none" >> {output}
         else
             echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in ASV\tASV number\tAssigned reads\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
