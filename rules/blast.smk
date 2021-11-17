@@ -15,7 +15,7 @@ def concatenate_uniq(entries):
     s = "; ".join(entries.to_list())
     df = pd.DataFrame([e.rsplit(' (', 1) for e in s.split("; ")], columns=["name", "freq"]) #parenthesis in names
     df['freq'] = df['freq'].str.replace(')', '').astype(float)
-
+    
     # Aggreagte, normalize, and sort
     tot = df['freq'].sum()
     df = df.groupby("name").apply(lambda x: x.sum()/tot)
@@ -286,9 +286,13 @@ rule summarize_results:
             with open(output.report, 'w') as fout:
                 fout.write("Sample\tConsensus\tRank\tTaxid\tCount\tDisambiguation\tPercent of total")
         else:
+            # <stdin>:4: FutureWarning: The default value of regex will change from True to False in a future version. In addition, single character regular expressions will *not* be treated as literal strings when regex=True.
             groups = df.groupby(['Consensus', 'Rank', 'Taxid']).agg({'Count': 'sum', 'Disambiguation': concatenate_uniq})
             groups = groups.sort_values("Count", ascending = False).reset_index()
-            groups['perc'] = round(groups['Count']/groups['Count'].sum() *100, 2)
+            assigned, notassigned = groups[groups["Consensus"]!="No match"], groups[groups["Consensus"]=="No match"]
+            assigned['perc'] = round(groups['Count']/groups['Count'].sum() *100, 2)
+            notassigned['perc'] = "-"
+            groups = pd.concat([assigned, notassigned])
             groups.insert(0, 'Sample', wildcards.sample)
             groups.rename(columns = {"perc":"Percent of total"},inplace = True)
             groups["Consensus"].replace({"-": "No match"}, inplace = True)
