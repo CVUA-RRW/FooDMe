@@ -36,7 +36,7 @@ git clone https://github.com/CVUA-RRW/FooDMe.git
 Set up a conda environment containing snakemake, python and the pandas library and activate it:
 
 ```bash
-conda create --name foodme -c bioconda -c conda-forge snakemake">=6.6" pandas>"=1.3" taxidtools">=2.2.3"
+conda create --name foodme -c bioconda -c conda-forge snakemake">=6.6" pandas">=1.3" taxidtools
 conda activate foodme
 ```
 
@@ -122,10 +122,11 @@ usage: FooDMe [-h] [-v] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
               [--merge_maxns MERGE_MAXNS] [--denoise]
               [--cluster_id CLUSTER_ID] [--cluster_minsize CLUSTER_MINSIZE]
               [--skip_chimera] [--taxdump TAXDUMP] [--nodes_dmp NODES_DMP]
-              [--rankedlineage_dmp RANKEDLINEAGE_DMP] --blastdb BLASTDB
-              --taxdb TAXDB [--taxid_filter TAXID_FILTER]
-              [--blast_eval BLAST_EVAL] [--blast_id BLAST_ID]
-              [--blast_cov BLAST_COV] [--bitscore BITSCORE]
+              [--rankedlineage_dmp RANKEDLINEAGE_DMP]
+              [--min_consensus MIN_CONSENSUS] --blastdb BLASTDB --taxdb TAXDB
+              [--taxid_filter TAXID_FILTER] [--blast_eval BLAST_EVAL]
+              [--blast_id BLAST_ID] [--blast_cov BLAST_COV]
+              [--bitscore BITSCORE]
 
 Another pipeline for (Food) DNA metabarcoding
 
@@ -218,6 +219,10 @@ Taxonomic assignement files:
   --rankedlineage_dmp RANKEDLINEAGE_DMP
                         Path to the names.dmp file, needed if --taxdump is
                         omitted (default: None)
+  --min_consensus MIN_CONSENSUS
+                        Minimal taxid frequency for taxonomy consensus
+                        determination. Set to 1 to determine the consensus as
+                        the last common ancestor. (default: 0.7)
 
 Options for BLAST search:
   --blastdb BLASTDB     Path to the BLAST database, including database
@@ -231,14 +236,14 @@ Options for BLAST search:
   --blast_eval BLAST_EVAL
                         E-value threshold for blast results (default: 1e-10)
   --blast_id BLAST_ID   Minimal identity between the hit and query for blast
-                        results (in percent) (default: 90)
+                        results (in percent) (default: 97)
   --blast_cov BLAST_COV
                         Minimal proportion of the query covered by a hit for
                         blast results. A mismatch is still counting as
-                        covering (in percent) (default: 90)
+                        covering (in percent) (default: 100)
   --bitscore BITSCORE   Maximum bit-score difference with the best hit for a
                         blast result to be included in the taxonomy consensus
-                        detemination (default: 0)
+                        detemination (default: 2)
 ```
 
 Below is a minimal exemple for using the python wrapper:
@@ -315,11 +320,13 @@ limit the search to Mammals.
 
 ### Taxonomic consensus determination
 
-Consensus determination will return the lowest common node of all retrieved BLAST hits for a sequence. You should expect most 
-sequences to be determined at the species or genus level. 
-Additionaly a summary of the the BLAST hits will be shown in the disambiguation column. 
-THis could allow you to refine the consensus determination or identify spurious BLAST results.
-
+Taxonomic consensus determination for each cluster can be determined either conservatively by determining the last common 
+ancestor or through a majority vote. This behaviour can be tweaked by the `--min_consensus` argument, whereby a value of 1
+is equivalent to a last common ancestor determination, a value of 0.51 is a majority vote and any value in between applies a 
+minimal consensus threshold. If no consensus with as least as many sequences as specified by the threshold is found at the 
+minimal taxonomic rank, the consensus will be evaluated at the above rank, until a consensus is reached.
+Additionaly a summary of the the BLAST hits and the frequency corresponding to each taxonomic node will be shown in the 
+disambiguation column. This could allow you to refine the consensus determination or identify spurious BLAST results.
 
 ## Related tools
 

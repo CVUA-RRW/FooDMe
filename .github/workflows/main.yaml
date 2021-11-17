@@ -33,7 +33,7 @@ jobs:
         snakefile: 'Snakefile'
         args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs" 
         # stagein: "conda install pandas'>=1.3' taxidtools'>=2.2.3'"
-        stagein: "pip install pandas'>=1.3' taxidtools'>=2.2.3'"
+        stagein: "conda install pandas'>=1.3' taxidtools'>=2.2.3'"
     
     - name: Archive results
       uses: actions/upload-artifact@v2
