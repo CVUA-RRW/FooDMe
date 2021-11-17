@@ -12,7 +12,7 @@
 
 #### Bug fixes
 * (TODO) "No match" reads not counted towards total (#12)
-* (TODO) "No primer found" is always 100%
+* Fixed the calculation of the "No primer found" field under the triming statistics (#19)
 
 ### Version 1.3.5
 
