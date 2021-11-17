@@ -14,7 +14,7 @@ def get_mask():
 def concatenate_uniq(entries):
     s = "; ".join(entries.to_list())
     df = pd.DataFrame([e.rsplit(' (', 1) for e in s.split("; ")], columns=["name", "freq"]) #parenthesis in names
-    df['freq'] = df['freq'].str.replace(', regex = False)', '').astype(float)
+    df['freq'] = df['freq'].str.replace(')', '', regex=False).astype(float)
     
     # Aggreagte, normalize, and sort
     tot = df['freq'].sum()
