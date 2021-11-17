@@ -14,7 +14,7 @@ def get_mask():
 def concatenate_uniq(entries):
     s = "; ".join(entries.to_list())
     df = pd.DataFrame([e.rsplit(' (', 1) for e in s.split("; ")], columns=["name", "freq"]) #parenthesis in names
-    df['freq'] = df['freq'].str.replace(')', '').astype(float)
+    df['freq'] = df['freq'].str.replace(', regex = False)', '').astype(float)
     
     # Aggreagte, normalize, and sort
     tot = df['freq'].sum()
@@ -286,7 +286,6 @@ rule summarize_results:
             with open(output.report, 'w') as fout:
                 fout.write("Sample\tConsensus\tRank\tTaxid\tCount\tDisambiguation\tPercent of total")
         else:
-            # <stdin>:4: FutureWarning: The default value of regex will change from True to False in a future version. In addition, single character regular expressions will *not* be treated as literal strings when regex=True.
             groups = df.groupby(['Consensus', 'Rank', 'Taxid']).agg({'Count': 'sum', 'Disambiguation': concatenate_uniq})
             groups = groups.sort_values("Count", ascending = False).reset_index()
             assigned, notassigned = groups[groups["Consensus"]!="No match"], groups[groups["Consensus"]=="No match"]
