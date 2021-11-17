@@ -60,6 +60,7 @@ rule summary_report:
         merging = "{sample}/reports/{sample}_merging.tsv" if config["cluster"]["method"] == "otu" else "{sample}/reports/{sample}_denoising.tsv",
         clustering = "{sample}/reports/{sample}_clustering.tsv" if config["cluster"]["method"] == "otu" else "{sample}/reports/{sample}_denoising.tsv",
         tax = "{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
+        compo = "{sample}/reports/{sample}_composition.tsv"
     output:
         "{sample}/reports/{sample}_summary.tsv",
     message:
@@ -70,7 +71,7 @@ rule summary_report:
         """
         if [[ {params.method} == "otu" ]] 
         then
-            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in OTU\tOTU number\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
+            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in OTU\tOTU number\tAssigned reads\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
             
             Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
             size=$(tail -n +2 {input.fastp} | cut -d'\t' -f11)
@@ -78,14 +79,15 @@ rule summary_report:
             pseudo=$(tail -n +2 {input.merging} | cut -d'\t' -f5)
             clustered=$(tail -n +2 {input.clustering} | cut -d'\t' -f10)
             otu=$(tail -n +2 {input.tax} | cut -d'\t' -f2)
+            assigned=$(tail -n +2 {input.compo} | awk '$2 != "No match"' | cut -d'\t' -f5 | awk '{{s+=$1}}END{{print s}}')
             spec=$(tail -n +2 {input.tax} | cut -d'\t' -f5)
             gen=$(tail -n +2 {input.tax} | cut -d'\t' -f7)
             high=$(($(tail -n +2 {input.tax} | cut -d'\t' -f9) + $(tail -n +2 {input.tax} | cut -d'\t' -f11)))
             none=$(tail -n +2 {input.tax} | cut -d'\t' -f3)
-
-            echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$spec\t$gen\t$high\t$none" >> {output}
+        
+            echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$assigned\t$spec\t$gen\t$high\t$none" >> {output}
         else
-            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in ASV\tASV number\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
+            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in ASV\tASV number\tAssigned reads\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
         
             Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
             size=$(tail -n +2 {input.fastp} | cut -d'\t' -f11)
@@ -93,12 +95,13 @@ rule summary_report:
             pseudo=$(tail -n +2 {input.clustering} | cut -d'\t' -f6)
             clustered=$(tail -n +2 {input.clustering} | cut -d'\t' -f16)
             otu=$(tail -n +2 {input.tax} | cut -d'\t' -f2)
+            assigned=$(tail -n +2 {input.compo} | awk '$2 != "No match"' | cut -d'\t' -f5 | awk '{{s+=$1}}END{{print s}}')
             spec=$(tail -n +2 {input.tax} | cut -d'\t' -f5)
             gen=$(tail -n +2 {input.tax} | cut -d'\t' -f7)
             high=$(($(tail -n +2 {input.tax} | cut -d'\t' -f9) + $(tail -n +2 {input.tax} | cut -d'\t' -f11)))
             none=$(tail -n +2 {input.tax} | cut -d'\t' -f3)
             
-            echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$spec\t$gen\t$high\t$none" >> {output}
+            echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$assigned\t$spec\t$gen\t$high\t$none" >> {output}
         fi
         """
 

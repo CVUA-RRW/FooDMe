@@ -11,7 +11,7 @@
 * (TODO) Blocklist of taxids to mask (#13)
 
 #### Bug fixes
-* (TODO) "No match" reads not counted towards total (#12)
+* Cluster that do not find a matching reference in BLAST are not counted towards the compoisiton total anymore. Additionnaly the number of assigned reads is now visible in the summary report(#12)
 * Fixed the calculation of the "No primer found" field under the triming statistics (#19)
 
 ### Version 1.3.5
