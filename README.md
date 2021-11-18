@@ -285,6 +285,11 @@ It can be advisable to limit the BLAST search to the descendant of a node of int
 parent node to the `--taxid_filter` option. For example providing `32524` will limit the search to Amniota and `40674` will 
 limit the search to Mammals.
 
+It is additionaly possible to specify taxids to exclude from the analysis ("blocklist). By default a list
+of extinct taxids is provided with the distribution (Under `data/blocklist.txt`). You can copy this list
+and add your own list to it, or create a new list from scratch and provide the path to your own blocklist 
+to the argument `--blocklist`. Alternatively you can skip this filtering by specifying `None` for the argument `--blocklist`.
+
 ### Taxonomic consensus determination
 
 Taxonomic consensus determination for each cluster can be determined either conservatively by determining the last common 

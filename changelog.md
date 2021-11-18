@@ -7,8 +7,8 @@
 
 #### Improvements:
 * Expand disambiguation info with the frequency of each species (#17)
-* Add minimum consensus filter as an alternative to last common ancestor. Use it with the parameter "min_consensus". The value be be in the interval (0.5;1], 1 being a last common ancestro behavior and 0.51 a simple majority vote.
-* (TODO) Blocklist of taxids to mask (#13)
+* Add minimum consensus filter as an alternative to last common ancestor. Use it with the parameter `--min_consensus`. The value be be in the interval (0.5;1], 1 being a last common ancestro behavior and 0.51 a simple majority vote.
+* Added blocklist of taxids to mask (#13). Default behaviour is to mask extinct taxids. Users can skip this steps or provide their own blocklist with the `--blocklist` parameter.
 
 #### Bug fixes
 * Cluster that do not find a matching reference in BLAST are not counted towards the compoisiton total anymore. Additionnaly the number of assigned reads is now visible in the summary report(#12)
