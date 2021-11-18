@@ -110,23 +110,15 @@ run the pipeline with fixed parameters.
 #### Using the python wrapper
 
 ```
-usage: FooDMe [-h] [-v] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n]
-              [-T THREADS] [-t THREADS_SAMPLE] [-c CONDAPREFIX] [-s SNAKEFILE]
-              [--keep_temp] [--fastp_length FASTP_LENGTH]
-              [--fastp_min_phred FASTP_MIN_PHRED]
-              [--fastp_window FASTP_WINDOW] [--fastp_meanq FASTP_MEANQ]
-              --primers_fasta PRIMERS_FASTA [--trim_3end]
-              [--primer_error_rate PRIMER_ERROR_RATE]
-              [--merge_minlength MERGE_MINLENGTH]
-              [--merge_maxlength MERGE_MAXLENGTH] [--merge_maxee MERGE_MAXEE]
-              [--merge_maxns MERGE_MAXNS] [--denoise]
-              [--cluster_id CLUSTER_ID] [--cluster_minsize CLUSTER_MINSIZE]
-              [--skip_chimera] [--taxdump TAXDUMP] [--nodes_dmp NODES_DMP]
-              [--rankedlineage_dmp RANKEDLINEAGE_DMP]
-              [--min_consensus MIN_CONSENSUS] --blastdb BLASTDB --taxdb TAXDB
-              [--taxid_filter TAXID_FILTER] [--blast_eval BLAST_EVAL]
-              [--blast_id BLAST_ID] [--blast_cov BLAST_COV]
-              [--bitscore BITSCORE]
+usage: FooDMe [-h] [-v] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n] [-T THREADS] [-t THREADS_SAMPLE] [-c CONDAPREFIX]
+              [-s SNAKEFILE] [--keep_temp] [--fastp_length FASTP_LENGTH] [--fastp_min_phred FASTP_MIN_PHRED]
+              [--fastp_window FASTP_WINDOW] [--fastp_meanq FASTP_MEANQ] --primers_fasta PRIMERS_FASTA [--trim_3end]
+              [--primer_error_rate PRIMER_ERROR_RATE] [--merge_minlength MERGE_MINLENGTH] [--merge_maxlength MERGE_MAXLENGTH]
+              [--merge_maxee MERGE_MAXEE] [--merge_maxns MERGE_MAXNS] [--denoise] [--cluster_id CLUSTER_ID]
+              [--cluster_minsize CLUSTER_MINSIZE] [--skip_chimera] [--taxdump TAXDUMP] [--nodes_dmp NODES_DMP]
+              [--rankedlineage_dmp RANKEDLINEAGE_DMP] [--min_consensus MIN_CONSENSUS] --blastdb BLASTDB --taxdb TAXDB
+              [--taxid_filter TAXID_FILTER] [--blocklist BLOCKLIST] [--blast_eval BLAST_EVAL] [--blast_id BLAST_ID]
+              [--blast_cov BLAST_COV] [--bitscore BITSCORE]
 
 Another pipeline for (Food) DNA metabarcoding
 
@@ -136,52 +128,39 @@ optional arguments:
 
 I/O path arguments:
   -l SAMPLE_LIST, --sample_list SAMPLE_LIST
-                        Tab-delimited list of samples and paths to read files.
-                        Must contain one line of header, each further line
-                        contains sample_name, read1_path, read2_path (default:
-                        None)
+                        Tab-delimited list of samples and paths to read files. Must contain one line of header, each further line
+                        contains sample_name, read1_path, read2_path (default: None)
   -d WORKING_DIRECTORY, --working_directory WORKING_DIRECTORY
                         Directory to create output files (default: None)
 
 Snakemake arguments:
   --forceall            Force the recalculation of all files (default: False)
-  -n, --dryrun          Dryrun. Create config file and calculate the DAG but
-                        do not execute anything (default: False)
+  -n, --dryrun          Dryrun. Create config file and calculate the DAG but do not execute anything (default: False)
   -T THREADS, --threads THREADS
                         Maximum number of threads to use (default: 8)
   -t THREADS_SAMPLE, --threads_sample THREADS_SAMPLE
-                        Number of threads to use per concurent job (default:
-                        1)
+                        Number of threads to use per concurent job (default: 1)
   -c CONDAPREFIX, --condaprefix CONDAPREFIX
-                        Location of stored conda environment. Allows snakemake
-                        to reuse environments. (default: False)
+                        Location of stored conda environment. Allows snakemake to reuse environments. (default: False)
   -s SNAKEFILE, --snakefile SNAKEFILE
-                        Path to the Snkefile in the FOodMe repo (default:
-                        /home/debian/NGS/spezies_indev/FooDMe/Snakefile)
-  --keep_temp           Keep large fasta and fastq files, mostly for debug
-                        purposes (default: False)
+                        Path to the Snkefile in the FOodMe repo (default: /home/debian/NGS/spezies_indev/FooDMe/Snakefile)
+  --keep_temp           Keep large fasta and fastq files, mostly for debug purposes (default: False)
 
 Trimming options:
   --fastp_length FASTP_LENGTH
-                        Minimum length of input reads (after primer trimming)
-                        to keep (default: 50)
+                        Minimum length of input reads (after primer trimming) to keep (default: 50)
   --fastp_min_phred FASTP_MIN_PHRED
                         Minimal quality value per base (default: 20)
   --fastp_window FASTP_WINDOW
-                        Size of the sliding window for tail quality trimming
-                        (default: 4)
+                        Size of the sliding window for tail quality trimming (default: 4)
   --fastp_meanq FASTP_MEANQ
-                        Minimum mean Phred-score in the sliding window for
-                        tail quality trimming (default: 25)
+                        Minimum mean Phred-score in the sliding window for tail quality trimming (default: 25)
   --primers_fasta PRIMERS_FASTA
-                        Fasta file with primers sequences for primer trimming
-                        (default: None)
-  --trim_3end           Should primers be trimmed on the 3' end of reads? Only
-                        relevant if sequencing through the amplicons.
+                        Fasta file with primers sequences for primer trimming (default: None)
+  --trim_3end           Should primers be trimmed on the 3' end of reads? Only relevant if sequencing through the amplicons.
                         (default: False)
   --primer_error_rate PRIMER_ERROR_RATE
-                        Maximum error-rate allowed for primer matching
-                        (default: 0.1)
+                        Maximum error-rate allowed for primer matching (default: 0.1)
 
 Merged reads filtering options:
   --merge_minlength MERGE_MINLENGTH
@@ -189,61 +168,49 @@ Merged reads filtering options:
   --merge_maxlength MERGE_MAXLENGTH
                         Maximum length merged reads to keep (default: 100)
   --merge_maxee MERGE_MAXEE
-                        Maximum expected errors in merged reads to keep. Note
-                        that for the denoising procedure this filter is
+                        Maximum expected errors in merged reads to keep. Note that for the denoising procedure this filter is
                         applied on the reads BEFORE merging. (default: 2)
   --merge_maxns MERGE_MAXNS
-                        Maximum number of 'N' base in merged reads. If using
-                        denoising procedure this will be automatically reset
+                        Maximum number of 'N' base in merged reads. If using denoising procedure this will be automatically reset
                         to 0 (default: 0)
 
 Clustering options:
-  --denoise             Use denoising instead of identity clustering (default:
-                        False)
+  --denoise             Use denoising instead of identity clustering (default: False)
   --cluster_id CLUSTER_ID
-                        Minimum identity for clustering sequences in OTUs
-                        (between 0 and 1). Will be ignored if using denoising
+                        Minimum identity for clustering sequences in OTUs (between 0 and 1). Will be ignored if using denoising
                         (default: 0.97)
   --cluster_minsize CLUSTER_MINSIZE
-                        Minimal size cutoff for OTUs. Will be ignored if using
-                        denoising (default: 2)
-  --skip_chimera        Skip de novo chimera detection and filtering step
-                        (default: False)
+                        Minimal size cutoff for OTUs. Will be ignored if using denoising (default: 2)
+  --skip_chimera        Skip de novo chimera detection and filtering step (default: False)
 
 Taxonomic assignement files:
-  --taxdump TAXDUMP     Path to the taxump folder containing nodes.dmp and
-                        rankedlineages.dmp (default: None)
+  --taxdump TAXDUMP     Path to the taxump folder containing nodes.dmp and rankedlineages.dmp (default: None)
   --nodes_dmp NODES_DMP
-                        Path to the nodes.dmp file, needed if --taxdump is
-                        omitted (default: None)
+                        Path to the nodes.dmp file, needed if --taxdump is omitted (default: None)
   --rankedlineage_dmp RANKEDLINEAGE_DMP
-                        Path to the names.dmp file, needed if --taxdump is
-                        omitted (default: None)
+                        Path to the names.dmp file, needed if --taxdump is omitted (default: None)
   --min_consensus MIN_CONSENSUS
-                        Minimal taxid frequency for taxonomy consensus
-                        determination. Set to 1 to determine the consensus as
-                        the last common ancestor. (default: 0.7)
+                        Minimal taxid frequency for taxonomy consensus determination. Set to 1 to determine the consensus as the
+                        last common ancestor. (default: 0.7)
 
 Options for BLAST search:
-  --blastdb BLASTDB     Path to the BLAST database, including database
-                        basename but no extension (e.g. '/path/to/db/nt')
+  --blastdb BLASTDB     Path to the BLAST database, including database basename but no extension (e.g. '/path/to/db/nt')
                         (default: None)
-  --taxdb TAXDB         Path to the BLAST taxonomy database (folder) (default:
-                        None)
+  --taxdb TAXDB         Path to the BLAST taxonomy database (folder) (default: None)
   --taxid_filter TAXID_FILTER
-                        Limit BLAST search to the taxids under the given node
-                        (default: None)
+                        Limit BLAST search to the taxids under the given node (default: None)
+  --blocklist BLOCKLIST
+                        Provides a list of taxids to exclude from the analysis. 'extinct' uses the distributed list of extinct
+                        taxids, 'None' skips this filtering step, or provide a file path to use a custom taxid list (default:
+                        extinct)
   --blast_eval BLAST_EVAL
                         E-value threshold for blast results (default: 1e-10)
-  --blast_id BLAST_ID   Minimal identity between the hit and query for blast
-                        results (in percent) (default: 97)
+  --blast_id BLAST_ID   Minimal identity between the hit and query for blast results (in percent) (default: 97)
   --blast_cov BLAST_COV
-                        Minimal proportion of the query covered by a hit for
-                        blast results. A mismatch is still counting as
+                        Minimal proportion of the query covered by a hit for blast results. A mismatch is still counting as
                         covering (in percent) (default: 100)
-  --bitscore BITSCORE   Maximum bit-score difference with the best hit for a
-                        blast result to be included in the taxonomy consensus
-                        detemination (default: 2)
+  --bitscore BITSCORE   Maximum bit-score difference with the best hit for a blast result to be included in the taxonomy
+                        consensus detemination (default: 2)
 ```
 
 Below is a minimal exemple for using the python wrapper:

@@ -80,6 +80,7 @@ def create_config(config_file, args):
         conf.write("{}blast_DB: {}\n".format(indent1, args.blastdb))
         conf.write("{}taxdb: {}\n".format(indent1, args.taxdb))
         conf.write("{}taxid_filter: {}\n".format(indent1, args.taxid_filter))
+        conf.write("{}blocklist: {]\n".format(indent1, args.blocklist))
         conf.write("{}e_value: {}\n".format(indent1, args.blast_eval))
         conf.write("{}perc_identity: {}\n".format(indent1, args.blast_id))
         conf.write("{}qcov: {}\n".format(indent1, args.blast_cov))
@@ -111,7 +112,7 @@ def main():
                 parser.error("Invalid value: '" + self.dest + "' must be between 0 and 1.")
             setattr(namespace, self.dest, values)
     
-    class FractionType(argparse.Action):
+    class FractionType2(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
             if values <= 0.5 or values > 1:
                 parser.error("Invalid value: '" + self.dest + "' must be between in range (0.5, 1]")
@@ -215,6 +216,8 @@ def main():
                         help="Path to the BLAST taxonomy database (folder)")
     blastargs.add_argument('--taxid_filter', required=False, type=str, default=None,
                         help="Limit BLAST search to the taxids under the given node")
+    blastargs.add_argument('--blocklist', required=False, type=str, default="extinct", action= DatabaseType,
+                        help="Provides a list of taxids to exclude from the analysis. 'extinct' uses the distributed list of extinct taxids, 'None' skips this filtering step, or provide a file path to use a custom taxid list")
     blastargs.add_argument('--blast_eval', required=False, default=1e-10, type=float,
                         help="E-value threshold for blast results")
     blastargs.add_argument('--blast_id', required=False, default=97, type=float, action= PercentType,
