@@ -1,5 +1,6 @@
 import pandas as pd
 from os import stat
+import os.path
 
 shell.executable("bash")
 
@@ -10,6 +11,14 @@ def get_mask():
         return "common/nomask"
     else:
         return "common/taxid_mask.txt"
+
+def get_blocklist():
+    if config["blast"]["blocklist"] == "None":
+        return "common/noblock"
+    elif config["blast"]["blocklist"] == "extinct":
+        return os.path.join(workflow.basedir, "data", "blocklist.txt")
+    else:
+        return config["blast"]["blocklist"]
 
 def concatenate_uniq(entries):
     s = "; ".join(entries.to_list())
@@ -46,9 +55,11 @@ rule get_taxid_from_db:
 
 rule create_blast_mask:
     input:
-        "common/taxid_list.txt",
+        taxlist = "common/taxid_list.txt",
     output:
         "common/taxid_mask.txt",
+    message:
+        "Masking phylogeny"
     params:
         taxid = config["blast"]["taxid_filter"],
         lineage = config["taxonomy"]["rankedlineage_dmp"],
@@ -58,9 +69,28 @@ rule create_blast_mask:
     script:
         "../scripts/make_blast_mask.py"
 
+rule apply_blocklist:
+    input:
+        taxids = get_mask(),
+        blocklist = get_blocklist(),
+    output:
+        "common/blast_mask.txt",
+    message:
+        "Applying blocklist"
+    script:
+        "../scripts/apply_blocklist.py"
+
 rule no_masking:
     output:
         temp("common/nomask"),
+    shell:
+        """
+        touch {output}
+        """
+
+rule no_blocklist:
+    output:
+        temp("common/noblock")
     shell:
         """
         touch {output}
@@ -71,7 +101,7 @@ rule no_masking:
 rule blast_otus:
     input: 
         query = "{sample}/clustering/{sample}_OTUs.fasta" if config["cluster"]["method"] == "otu" else "{sample}/denoising/{sample}_ASVs.fasta",
-        mask = get_mask(),
+        mask = "common/blast_mask.txt",
     output:
         "{sample}/taxonomy/{sample}_blast_report.tsv",
     params:
@@ -92,9 +122,9 @@ rule blast_otus:
         """
         export BLASTDB={params.taxdb}
         
-        if [ {input.mask} = "common/taxid_mask.txt" ]
+        if [ {input.mask} = "common/blast_mask.txt" ]
         then
-            masking="-taxidlist common/taxid_mask.txt"
+            masking="-taxidlist common/blast_mask.txt"
         else
             masking=""
         fi
@@ -186,7 +216,7 @@ rule blast_stats:
                 if [ $bhits -eq 0 ]
                 then
                     # When there is no blast hit
-                    echo "{wildcards.sample}\t$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-\t-" >> {output}
+                    echo "{wildcards.sample}\t$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-\t- (1.0)\t../{input.blast}\t../{input.filtered}" >> {output}
                 else
                     # Otherwise collect and print stats to file
                     bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -rn | head -n1)
@@ -203,7 +233,7 @@ rule blast_stats:
             sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
 
         else
-            echo "{wildcards.sample}\t-\t-\t0\t0\t0\t0\t0\t-\t-\t-\t-" > {output}
+            echo "{wildcards.sample}\t-\t-\t0\t0\t0\t0\t0\t-\t-\t-\t-\t../{input.blast}\t../{input.filtered}" > {output}
             sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
         fi
         """
@@ -282,13 +312,13 @@ rule summarize_results:
         df = pd.read_csv(input.compo, sep="\t", header=0).fillna(0)
         
         # Empty input case
-        if len(df["Query"]) == 1 and  df["Query"].head(1).item() == "-":
+        if len(df["Query"]) == 1 and df["Query"].head(1).item() == "-":
             with open(output.report, 'w') as fout:
                 fout.write("Sample\tConsensus\tRank\tTaxid\tCount\tDisambiguation\tPercent of total")
         else:
             groups = df.groupby(['Consensus', 'Rank', 'Taxid']).agg({'Count': 'sum', 'Disambiguation': concatenate_uniq})
             groups = groups.sort_values("Count", ascending = False).reset_index()
-            assigned, notassigned = groups[groups["Consensus"]!="No match"], groups[groups["Consensus"]=="No match"]
+            assigned, notassigned = groups[groups["Consensus"]!="-"], groups[groups["Consensus"]=="-"]
             assigned['perc'] = round(groups['Count']/groups['Count'].sum() *100, 2)
             notassigned['perc'] = "-"
             groups = pd.concat([assigned, notassigned])

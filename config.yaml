@@ -69,6 +69,10 @@ blast:
     taxdb: /path/to/taxdb_folder
     # Limit BLAST search to the taxids under the given node
     taxid_filter: None
+    # Use a Blocklist to prevent some taxid from appearing in the results?
+    # "extinct" will use the distributed list of extinct species
+    # Provide a path for a custom list or use None to skip filtering
+    blocklist: extinct
     # E-value threshold for blast results
     e_value: 1e-10
     # Minimal identity between the hit and query for blast results (in percent)
