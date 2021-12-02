@@ -20,17 +20,20 @@ rule prep_taxonomy:
 
 rule get_taxid_from_db:
     output:
-        "common/taxid_list.txt",
+        taxlist = "common/taxid_list.txt",
     params:
         blast_DB = config["blast"]["blast_DB"],
         taxdb = config["blast"]["taxdb"],
+    message:
+        "Collecting BLAST database entries"
     conda:
         "../envs/blast.yaml"
     shell:
         """
         export BLASTDB={params.taxdb}
         
-        blastdbcmd -db {params.blast_DB} -tax_info -outfmt %T > {output}
+        blastdbcmd -db {params.blast_DB} -tax_info -outfmt %T \
+        > {output.taxlist}
         """
 
 rule create_blast_mask:
@@ -40,7 +43,7 @@ rule create_blast_mask:
     output:
         mask = "common/taxid_mask.txt",
     message:
-        "Masking phylogeny"
+        "Masking BLAST Database"
     params:
         taxid = config["blast"]["taxid_filter"],
     message:
@@ -53,36 +56,42 @@ rule apply_blocklist:
         taxids = get_mask(),
         blocklist = get_blocklist(),
     output:
-        "common/blast_mask.txt",
+        mask = "common/blast_mask.txt",
     message:
-        "Applying blocklist"
+        "Applying taxid blocklist"
     script:
         "../scripts/apply_blocklist.py"
 
 rule no_masking:
     output:
-        temp("common/nomask"),
+        mask = temp("common/nomask"),
+    message:
+        "Skipping BLAST database masking"
     shell:
         """
-        touch {output}
+        touch {output.mask}
         """
 
 rule no_blocklist:
     output:
-        temp("common/noblock")
+        block = temp("common/noblock")
+    message:
+        "Skipping taxid blocklist cration"
     shell:
         """
-        touch {output}
+        touch {output.block}
         """
 
-# Rules Blast ------------------------------------------------------------------
+# Rules Blast -----------------------------------------------------------------
 
 rule blast_otus:
     input: 
-        query = "{sample}/clustering/{sample}_OTUs.fasta" if config["cluster"]["method"] == "otu" else "{sample}/denoising/{sample}_ASVs.fasta",
+        query = "{sample}/clustering/{sample}_OTUs.fasta" 
+                    if config["cluster"]["method"] == "otu" 
+                    else "{sample}/denoising/{sample}_ASVs.fasta",
         mask = "common/blast_mask.txt",
     output:
-        "{sample}/taxonomy/{sample}_blast_report.tsv",
+        report = "{sample}/taxonomy/{sample}_blast_report.tsv",
     params:
         blast_DB = config["blast"]["blast_DB"],
         taxdb = config["blast"]["taxdb"],
@@ -110,7 +119,7 @@ rule blast_otus:
         
         blastn -db {params.blast_DB} \
             -query {input.query} \
-            -out {output} \
+            -out {output.report} \
             -task 'megablast' \
             -evalue {params.e_value} \
             -perc_identity {params.perc_identity} \
@@ -119,27 +128,27 @@ rule blast_otus:
             -num_threads {threads} \
         > logs/blast.log 2>&1
         
-        sed -i '1 i\query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\tsubject_taxid\talignment_length\tmismatch\tgaps\tsubject_name' {output}
+        sed -i '1 i\query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\tsubject_taxid\talignment_length\tmismatch\tgaps\tsubject_name' {output.report}
         """
 
 rule filter_blast:
     input:
-        "{sample}/taxonomy/{sample}_blast_report.tsv",
+        report = "{sample}/taxonomy/{sample}_blast_report.tsv",
     output:
-        "{sample}/taxonomy/{sample}_blast_report_filtered.tsv",
+        filtered = "{sample}/taxonomy/{sample}_blast_report_filtered.tsv",
     params:
         bit_diff= config["blast"]["bit_score_diff"],
     message:
         "Filtering BLAST results for {wildcards.sample}"
     run:
-        if stat(input[0]).st_size == 0:
-            with open(output[0], 'w') as fout:
+        if stat(input['report']).st_size == 0:
+            with open(output['filtered'], 'w') as fout:
                 fout.write("query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\tsubject_taxid\talignment_length\tmismatch\tgaps\tsubject_name")
         else:
-            df = pd.read_csv(input[0], sep = '\t', header= 0)
+            df = pd.read_csv(input['report'], sep = '\t', header= 0)
             
             if df.empty:
-                df.to_csv(output[0], sep='\t', header=True, index=False)
+                df.to_csv(output['filtered'], sep='\t', header=True, index=False)
             
             else:
                 sd = dict(tuple(df.groupby('query')))
@@ -151,7 +160,7 @@ rule filter_blast:
                 
                 dfout['query'] = dfout['query'].str.split(';').str[0]
 
-                dfout.to_csv(output[0], sep='\t', header=True, index=False)
+                dfout.to_csv(output['filtered'], sep='\t', header=True, index=False)
 
 rule find_consensus:
     input:
@@ -218,16 +227,17 @@ rule blast_stats:
 
 rule collect_blast_stats:
     input:
-        expand("{sample}/reports/{sample}_blast_stats.tsv", sample = samples.index),
+        report = expand("{sample}/reports/{sample}_blast_stats.tsv", 
+                        sample = samples.index),
     output:
-        "reports/blast_stats.tsv",
+        agg = "reports/blast_stats.tsv",
     message:
-        "Collecting BLAST stats"
+        "Aggregating BLAST stats"
     shell:
         """
-        cat {input[0]} | head -n 1 > {output}
-        for i in {input}; do 
-            cat ${{i}} | tail -n +2 >> {output}
+        cat {input.report[0]} | head -n 1 > {output.agg}
+        for i in {input.report}; do 
+            cat ${{i}} | tail -n +2 >> {output.agg}
         done
         """
 
@@ -266,16 +276,17 @@ rule tax_stats:
 
 rule collect_tax_stats:
     input:
-       expand("{sample}/reports/{sample}_taxonomy_assignement_stats.tsv", sample = samples.index),
+       report = expand("{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
+                        sample = samples.index),
     output:
-        "reports/taxonomy_assignement_stats.tsv",
+        agg = "reports/taxonomy_assignement_stats.tsv",
     message:
         "Collecting taxonomy assignement stats"
     shell:
         """
-        cat {input[0]} | head -n 1 > {output}
-        for i in {input}; do 
-            cat ${{i}} | tail -n +2 >> {output}
+        cat {input.report[0]} | head -n 1 > {output.agg}
+        for i in {input.report}; do 
+            cat ${{i}} | tail -n +2 >> {output.agg}
         done
         """
 
@@ -308,15 +319,17 @@ rule summarize_results:
         
 rule collect_results:
     input:
-        expand("{sample}/reports/{sample}_composition.tsv", sample = samples.index),
+        report = expand("{sample}/reports/{sample}_composition.tsv", 
+                        sample = samples.index),
     output:
-        "reports/composition_summary.tsv",
+        agg = "reports/composition_summary.tsv",
     message:
-        "Collecting results"
+        "Aggregating compositions"
     shell:
         """
-        cat {input[0]} | head -n 1 > {output}
-        for i in {input}; do 
-            cat ${{i}} | tail -n +2 >> {output}
+        cat {input.report[0]} | head -n 1 > {output.agg}
+        for i in {input.report}; do 
+            cat ${{i}} | tail -n +2 >> {output.agg}
         done
         """
+

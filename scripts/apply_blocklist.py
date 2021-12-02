@@ -19,4 +19,4 @@ def main(taxids, blocklist, output):
 if __name__ == '__main__':
     main(snakemake.input["taxids"],
          snakemake.input["blocklist"],
-         snakemake.output[0])
+         snakemake.output['mask'])

@@ -2,7 +2,7 @@ import pandas as pd
 
 shell.executable("bash")
 
-# Krona rules ---------------------------------------------------------------------------------------------------------------
+# Krona rules -----------------------------------------------------------------
 
 rule krona_table:
     input:
@@ -17,21 +17,22 @@ rule krona_table:
 
 rule krona:
     input:
-        "{sample}/krona/{sample}_krona_table.txt",
+        table = "{sample}/krona/{sample}_krona_table.txt",
     output:
-        "{sample}/reports/{sample}_krona_chart.html",
+        graph = "{sample}/reports/{sample}_krona_chart.html",
     message:
-        "producing graphical summary for {wildcards.sample}"
+        "Producing graphical summary for {wildcards.sample}"
     conda:
         "../envs/krona.yaml"
     shell:
-        "ktImportText -o {output} {input}"
+        "ktImportText -o {output.graph} {input.table}"
 
 rule krona_all:
     input:
-        expand("{sample}/krona/{sample}_krona_table.txt", sample = samples.index),
+        report = expand("{sample}/krona/{sample}_krona_table.txt", 
+                sample = samples.index),
     output:
-        "reports/krona_chart.html",
+        agg = "reports/krona_chart.html",
     params:
         samples.index,
     message:
@@ -41,26 +42,30 @@ rule krona_all:
     shell:
         """
         i=0
-        for file in {input}
+        for file in {input.report}
         do
             file_list[$i]="${{file}},$(echo ${{file}} | cut -d"/" -f1)"
             ((i+=1))
         done
         
-        ktImportText -o {output} ${{file_list[@]}}
+        ktImportText -o {output.agg} ${{file_list[@]}}
         """
 
-# Summary report rules ------------------------------------------------------------------------------------------------------
+# Summary report rules --------------------------------------------------------
 
 rule summary_report:
     input:
         fastp = "{sample}/reports/{sample}_trimmed.tsv",
-        merging = "{sample}/reports/{sample}_merging.tsv" if config["cluster"]["method"] == "otu" else "{sample}/reports/{sample}_denoising.tsv",
-        clustering = "{sample}/reports/{sample}_clustering.tsv" if config["cluster"]["method"] == "otu" else "{sample}/reports/{sample}_denoising.tsv",
+        merging = "{sample}/reports/{sample}_merging.tsv" 
+                    if config["cluster"]["method"] == "otu" 
+                    else "{sample}/reports/{sample}_denoising.tsv",
+        clustering = "{sample}/reports/{sample}_clustering.tsv" 
+                     if config["cluster"]["method"] == "otu" 
+                     else "{sample}/reports/{sample}_denoising.tsv",
         tax = "{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
         compo = "{sample}/reports/{sample}_composition.tsv"
     output:
-        "{sample}/reports/{sample}_summary.tsv",
+        report = "{sample}/reports/{sample}_summary.tsv",
     message:
         "Summarizing statistics for {wildcards.sample}"
     params:
@@ -69,7 +74,7 @@ rule summary_report:
         """
         if [[ {params.method} == "otu" ]] 
         then
-            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in OTU\tOTU number\tAssigned reads\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
+            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in OTU\tOTU number\tAssigned reads\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output.report}
             
             Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
             size=$(tail -n +2 {input.fastp} | cut -d'\t' -f11)
@@ -83,9 +88,9 @@ rule summary_report:
             high=$(($(tail -n +2 {input.tax} | cut -d'\t' -f9) + $(tail -n +2 {input.tax} | cut -d'\t' -f11)))
             none=$(tail -n +2 {input.tax} | cut -d'\t' -f3)
         
-            echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$assigned\t$spec\t$gen\t$high\t$none" >> {output}
+            echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$assigned\t$spec\t$gen\t$high\t$none" >> {output.report}
         else
-            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in ASV\tASV number\tAssigned reads\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output}
+            echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in ASV\tASV number\tAssigned reads\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output.report}
         
             Q30=$(tail -n +2 {input.fastp} | cut -d'\t' -f9)
             size=$(tail -n +2 {input.fastp} | cut -d'\t' -f11)
@@ -99,33 +104,38 @@ rule summary_report:
             high=$(($(tail -n +2 {input.tax} | cut -d'\t' -f9) + $(tail -n +2 {input.tax} | cut -d'\t' -f11)))
             none=$(tail -n +2 {input.tax} | cut -d'\t' -f3)
             
-            echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$assigned\t$spec\t$gen\t$high\t$none" >> {output}
+            echo "{wildcards.sample}\t$Q30\t$size\t$reads\t$pseudo\t$clustered\t$otu\t$assigned\t$spec\t$gen\t$high\t$none" >> {output.report}
         fi
         """
 
 rule collect_summaries:
     input:
-        expand("{sample}/reports/{sample}_summary.tsv", sample= samples.index),
+        report = expand("{sample}/reports/{sample}_summary.tsv", 
+                        sample= samples.index),
     output:
-        "reports/summary.tsv",
+        agg = "reports/summary.tsv",
     message:
-        "Collecting summary reports"
+        "Aggregating summary reports"
     shell:
         """
-        cat {input[0]} | head -n 1 > {output}
-        for i in {input}; do 
-            cat ${{i}} | tail -n +2 >> {output}
+        cat {input.report[0]} | head -n 1 > {output.agg}
+        for i in {input.report}; do 
+            cat ${{i}} | tail -n +2 >> {output.agg}
         done
         """
         
-# Rmarkdown reports rules ---------------------------------------------------------------------------------------------------
+# Rmarkdown reports rules -----------------------------------------------------
 
 rule report_sample: 
     input:
         summary = "{sample}/reports/{sample}_summary.tsv",
         fastp = "{sample}/reports/{sample}_trimmed.tsv",
-        qc_filtering = "{sample}/reports/{sample}_merging.tsv" if config["cluster"]["method"] == "otu" else "{sample}/reports/{sample}_denoising.tsv",
-        clustering = "{sample}/reports/{sample}_clustering.tsv" if config["cluster"]["method"] == "otu" else "{sample}/reports/{sample}_denoising.tsv",
+        qc_filtering = "{sample}/reports/{sample}_merging.tsv" 
+                        if config["cluster"]["method"] == "otu" 
+                        else "{sample}/reports/{sample}_denoising.tsv",
+        clustering = "{sample}/reports/{sample}_clustering.tsv" 
+                        if config["cluster"]["method"] == "otu" 
+                        else "{sample}/reports/{sample}_denoising.tsv",
         blast_rep = "{sample}/reports/{sample}_blast_stats.tsv",
         taxonomy = "{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
         result = "{sample}/reports/{sample}_composition.tsv",
@@ -138,7 +148,7 @@ rule report_sample:
         version = git_version(),
         sample = "{sample}",
     output:
-        "{sample}/reports/{sample}_report.html",
+        report = "{sample}/reports/{sample}_report.html",
     conda:
         "../envs/rmarkdown.yaml"
     message:
@@ -150,8 +160,12 @@ rule report_all:
     input:
         summary = "reports/summary.tsv",
         fastp = "reports/fastp_stats.tsv",
-        qc_filtering = "reports/merging_stats.tsv" if config["cluster"]["method"] == "otu" else "reports/denoising.tsv",
-        clustering = "reports/clustering_stats.tsv" if config["cluster"]["method"] == "otu" else "reports/denoising.tsv",
+        qc_filtering = "reports/merging_stats.tsv" 
+                        if config["cluster"]["method"] == "otu" 
+                        else "reports/denoising.tsv",
+        clustering = "reports/clustering_stats.tsv" 
+                        if config["cluster"]["method"] == "otu" 
+                        else "reports/denoising.tsv",
         blast_rep = "reports/blast_stats.tsv",
         taxonomy = "reports/taxonomy_assignement_stats.tsv",
         result = "reports/composition_summary.tsv",
@@ -164,7 +178,7 @@ rule report_all:
         version = git_version(),
         sample = "all",
     output:
-        "reports/report.html",
+        report = "reports/report.html",
     conda:
         "../envs/rmarkdown.yaml"
     message:
@@ -172,36 +186,56 @@ rule report_all:
     script:
         "../scripts/write_report.Rmd"
 
-# Version reports -----------------------------------------------------------------------------------------------------------
+# Version reports -------------------------------------------------------------
 
 rule software_versions:
     output:
-        "reports/software_versions.tsv",
+        report = "reports/software_versions.tsv",
     message:
         "Collecting software versions"
     params:
         method = config["cluster"]["method"],
+        dir = {workflow.basedir},
     shell:
         """
-        echo "Software\tVersion" > {output}
+        echo "Software\tVersion" \
+            > {output.report}
         
-        paste <(echo "fastp") <(grep fastp= {workflow.basedir}/envs/fastp.yaml | cut -d "=" -f2) >> {output}
+        paste <(echo "fastp") \
+            <(grep fastp= {params.dir}/envs/fastp.yaml \
+                | cut -d "=" -f2) \
+            >> {output.report}
         
-        paste <(echo "cutadapt") <(grep cutadapt= {workflow.basedir}/envs/cutadapt.yaml | cut -d "=" -f2) >> {output}
+        paste <(echo "cutadapt") \
+            <(grep cutadapt= {params.dir}/envs/cutadapt.yaml \
+                | cut -d "=" -f2) \
+            >> {output.report}
         
         if [[ {params.method} == "otu" ]] 
         then
-            paste <(echo "vsearch") <(grep vsearch= {workflow.basedir}/envs/vsearch.yaml | cut -d "=" -f2) >> {output}
+            paste \
+                <(echo "vsearch") \
+                <(grep vsearch= {params.dir}/envs/vsearch.yaml \
+                    | cut -d "=" -f2) \
+                >> {output.report}
         else
-            paste <(echo "dada2") <(grep bioconductor-dada2= {workflow.basedir}/envs/dada2.yaml | cut -d "=" -f2) >> {output}
+            paste \
+                <(echo "dada2") \
+                <(grep bioconductor-dada2= {params.dir}/envs/dada2.yaml \
+                    | cut -d "=" -f2) \
+                >> {output.report}
         fi
         
-        paste <(echo "blast") <(grep blast= {workflow.basedir}/envs/blast.yaml | cut -d "=" -f2) >> {output}
+        paste \
+            <(echo "blast") \
+            <(grep blast= {params.dir}/envs/blast.yaml \
+                | cut -d "=" -f2) \
+        >> {output.report}
         """
 
 rule database_version:
     output:
-        "reports/db_versions.tsv",
+        report = "reports/db_versions.tsv",
     message:
         "Collecting databases versions"
     params:
@@ -211,13 +245,36 @@ rule database_version:
         taxdump_lin = config["taxonomy"]["rankedlineage_dmp"],
     shell:
         """
-        echo "Database\tLast modified\tFull path" > {output}      
+        echo "Database\tLast modified\tFull path" \
+            > {output.report}
         
-        paste <(echo "BLAST") <(date +%F -r {params.blast}.nto) <(echo {params.blast}) >> {output}
+        paste \
+            <(echo "BLAST") \
+            <(date +%F -r {params.blast}.nto) \
+            <(echo {params.blast}) \
+            >> {output.report}
         
-        paste <(echo "taxdb.bti") <(date +%F -r {params.taxdb}/taxdb.bti) <(echo {params.taxdb}/taxdb.bti) >> {output}
-        paste <(echo "taxdb.btd") <(date +%F -r {params.taxdb}/taxdb.btd) <(echo {params.taxdb}/taxdb.btd) >> {output}
+        paste \
+            <(echo "taxdb.bti") \
+            <(date +%F -r {params.taxdb}/taxdb.bti) \
+            <(echo {params.taxdb}/taxdb.bti) \
+            >> {output.report}
+            
+        paste \
+            <(echo "taxdb.btd") \
+            <(date +%F -r {params.taxdb}/taxdb.btd) \
+            <(echo {params.taxdb}/taxdb.btd) \
+            >> {output.report}
         
-        paste <(echo "taxdump lineages") <(date +%F -r {params.taxdump_lin}) <(echo {params.taxdump_lin}) >> {output}
-        paste <(echo "taxdump nodes") <(date +%F -r {params.taxdump_nodes}) <(echo {params.taxdump_nodes}) >> {output}
+        paste \
+            <(echo "taxdump lineages") \
+            <(date +%F -r {params.taxdump_lin}) \
+            <(echo {params.taxdump_lin}) \
+            >> {output.report}
+        
+        paste \
+            <(echo "taxdump nodes") \
+            <(date +%F -r {params.taxdump_nodes}) \
+            <(echo {params.taxdump_nodes}) \
+            >> {output.report}
         """
