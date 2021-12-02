@@ -3,10 +3,6 @@ import os, json, csv, subprocess
 
 shell.executable("bash")
 
-# Sample getter ----------------------------------------------------------------
-
-def _get_fastq(wildcards,read_pair='fq1'):
-    return samples.loc[(wildcards.sample), [read_pair]].dropna()[0]
 
 # Rules primers trimming
 
@@ -117,7 +113,7 @@ rule primer_trimming_stats:
         echo "{wildcards.sample}\t$before\t$after\t$perc_discarded" >> {output.report}
         """
 
-# Rules quality trimming -------------------------------------------------------
+# Rules quality trimming ------------------------------------------------------
 
 rule run_fastp:
     input:
@@ -180,11 +176,11 @@ rule parse_fastp:
                     link_path]
                     
         with open (output.tsv,"w") as outfile:
-            outfile.write(header+"\n")
+            outfile.write(f"{header}\n")
             writer=csv.writer(outfile, delimiter='\t')
-            writer.writerow(datalist) 
+            writer.writerow(datalist)
 
-# Reporting rules --------------------------------------------------------------
+# Reporting rules -------------------------------------------------------------
 
 rule trimming_stats:
     input:

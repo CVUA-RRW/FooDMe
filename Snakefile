@@ -1,11 +1,11 @@
-import os 
+import os
 import shutil
 from snakemake.utils import min_version
 
 
-# Settings ---------------------------------------------------------------------
+# Settings --------------------------------------------------------------------
 
-min_version('6.0') # Update
+min_version('6.0')
 
 
 shell.executable('bash')
@@ -17,25 +17,25 @@ configfile: os.path.join(workflow.basedir, 'tests', 'config', 'config.yaml')
 workdir: config['workdir']
 
 
-# Input rule -------------------------------------------------------------------
- 
+# Input rule ------------------------------------------------------------------
+
 rule all:
     input:
         "reports/report.html",
 
 
-# Includes ---------------------------------------------------------------------
+# Includes --------------------------------------------------------------------
 
 include: "rules/common.smk"
 include: "rules/trimming.smk"
-include: "rules/vsearch.smk" 
-            if config['cluster']['method'] == 'otu' 
-            else "rules/dada2.smk" 
+include: "rules/vsearch.smk"
+            if config['cluster']['method'] == 'otu'
+            else "rules/dada2.smk"
 include: "rules/blast.smk"
 include: "rules/reports.smk"
 
 
-# Workflow ---------------------------------------------------------------------
+# Workflow --------------------------------------------------------------------
 
 onstart:
     print(f"\nYou are using FooDMe version: {git_version()}")
@@ -50,7 +50,7 @@ onsuccess:
         shutil.rmtree('.snakemake', ignore_errors=True)
     
     except:
-        # if not executing .snakemake from workdir, 
+        # if not executing .snakemake from workdir,
         # the log file will be in execution directory
         # as far as I know, there is now way to access this form here
         pass
