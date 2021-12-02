@@ -68,12 +68,11 @@ def main(blast_report, output, min_consensus, taxonomy):
                     consensus = tax.consensus(taxid_list, min_consensus)
 
             finally:
-                # Get consensus Info
-                try:
+                if consensus != "Undetermined":
                     rank = consensus.rank
                     name = consensus.name
                     taxid = consensus.taxid
-                except KeyError:
+                else:
                     taxid = "Undetermined"
                     rank = "Undetermined"
                     name = "Undetermined"
