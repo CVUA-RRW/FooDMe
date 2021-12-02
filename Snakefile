@@ -34,7 +34,7 @@ pipe_log = os.path.join(os.getcwd(), "PIPELINE_STATUS")
 
 def git_version():
     try:
-        __version__ = subprocess.check_output(["git", "describe", "--always"], cwd= workflow.basedir).strip().decode("utf-8")
+        __version__ = subprocess.check_output(["git", "describe", "--always --tags"], cwd= workflow.basedir).strip().decode("utf-8")
     except subprocess.CalledProcessError:
         __version__ = "Unknown"
     finally:

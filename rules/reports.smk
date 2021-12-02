@@ -6,12 +6,10 @@ shell.executable("bash")
 
 rule krona_table:
     input:
-        "{sample}/reports/{sample}_composition.tsv",
+        compo = "{sample}/reports/{sample}_composition.tsv",
+        tax = "common/taxonomy.json"
     output:
-        "{sample}/krona/{sample}_krona_table.txt",
-    params:
-        lineage = config["taxonomy"]["rankedlineage_dmp"],
-        nodes = config["taxonomy"]["nodes_dmp"],
+        krt = "{sample}/krona/{sample}_krona_table.txt",
     message:
         "Exporting {wildcards.sample} in Krona input format"
     script:

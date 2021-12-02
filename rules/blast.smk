@@ -38,6 +38,18 @@ def concatenate_uniq(entries):
 
 #  Rules DB Masking ------------------------------------------------------------
 
+rule prep_taxonomy:
+    output:
+        tax = "common/taxonomy.json"
+    params:
+        nodes = config["taxonomy"]["nodes_dmp"],
+        rankedlineage = config["taxonomy"]["rankedlineage_dmp"],
+        taxid = config["blast"]["taxid_filter"],
+    message:
+        "Preparing taxonomy definitions"
+    script:
+        "../scripts/filter_taxonomy.py"
+
 rule get_taxid_from_db:
     output:
         "common/taxid_list.txt",
@@ -56,14 +68,13 @@ rule get_taxid_from_db:
 rule create_blast_mask:
     input:
         taxlist = "common/taxid_list.txt",
+        tax = "common/taxonomy.json"
     output:
-        "common/taxid_mask.txt",
+        mask = "common/taxid_mask.txt",
     message:
         "Masking phylogeny"
     params:
         taxid = config["blast"]["taxid_filter"],
-        lineage = config["taxonomy"]["rankedlineage_dmp"],
-        nodes = config["taxonomy"]["nodes_dmp"],
     message:
         "Preparing list of searchable taxids"
     script:
@@ -176,12 +187,11 @@ rule filter_blast:
 
 rule find_consensus:
     input:
-        "{sample}/taxonomy/{sample}_blast_report_filtered.tsv",
+        blast = "{sample}/taxonomy/{sample}_blast_report_filtered.tsv",
+        tax = "common/taxonomy.json"
     output:
-        "{sample}/taxonomy/{sample}_consensus_table.tsv",
+        consensus= "{sample}/taxonomy/{sample}_consensus_table.tsv",
     params:
-        lineage = config["taxonomy"]["rankedlineage_dmp"],
-        nodes = config["taxonomy"]["nodes_dmp"],
         min_consensus = config["taxonomy"]["min_consensus"]
     message:
         "Consensus taxonomy determination"
