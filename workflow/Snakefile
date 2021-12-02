@@ -5,19 +5,20 @@ from snakemake.utils import min_version
 
 # Settings --------------------------------------------------------------------
 
-min_version('6.0')
+min_version("6.0")
 
 
-shell.executable('bash')
+shell.executable("bash")
 
 
-configfile: os.path.join(workflow.basedir, '..', 'tests', 'config', 'config.yaml')
+configfile: os.path.join(workflow.basedir, "..", "tests", "config", "config.yaml")
 
 
-workdir: config['workdir']
+workdir: config["workdir"]
 
 
 # Input rule ------------------------------------------------------------------
+
 
 rule all:
     input:
@@ -26,49 +27,51 @@ rule all:
 
 # Includes --------------------------------------------------------------------
 
+
 include: "rules/common.smk"
 include: "rules/trimming.smk"
-include: "rules/vsearch.smk"
-            if config['cluster']['method'] == 'otu'
-            else "rules/dada2.smk"
+include: "rules/vsearch.smk" if config["cluster"]["method"] == "otu" else "rules/dada2.smk"
 include: "rules/blast.smk"
 include: "rules/reports.smk"
 
 
 # Workflow --------------------------------------------------------------------
 
+
 onstart:
     print(f"\nYou are using FooDMe version: {__version__}")
-    with open(pipe_log, 'a') as f:
+    with open(pipe_log, "a") as f:
         f.write(f"[{get_local_time()}]: Pipeline started\n")
 
 
 onsuccess:
     try:
         for logfile in os.listdir(".snakemake/log/"):
-            shutil.move(os.path.join('.snakemake/log', logfile), 'logs')
-        shutil.rmtree('.snakemake', ignore_errors=True)
-    
+            shutil.move(os.path.join(".snakemake/log", logfile), "logs")
+        shutil.rmtree(".snakemake", ignore_errors=True)
+
     except:
         # if not executing .snakemake from workdir,
         # the log file will be in execution directory
         # as far as I know, there is now way to access this form here
         pass
-    
+
     print("\nWorkflow finished, no error")
-    
-    with open(pipe_log, 'a') as f:
+
+    with open(pipe_log, "a") as f:
         f.write("[{get_local_time()}]: Pipeline succesfully finished\n")
 
 
 onerror:
     for logfile in os.listdir(".snakemake/log/"):
-        shutil.move(os.path.join('.snakemake/log', logfile), 'logs')
-    
-    shutil.rmtree('.snakemake', ignore_errors=True)
-    
-    print(f"\nAn error occured, please consult the latest log file in"
-          f"{os.path.join(config['workdir'], '.snakemake', 'log')}")
-    
-    with open(pipe_log, 'a') as f:
+        shutil.move(os.path.join(".snakemake/log", logfile), "logs")
+
+    shutil.rmtree(".snakemake", ignore_errors=True)
+
+    print(
+        f"\nAn error occured, please consult the latest log file in"
+        f"{os.path.join(config['workdir'], '.snakemake', 'log')}"
+    )
+
+    with open(pipe_log, "a") as f:
         f.write("[{get_local_time()}]: Pipeline stopped on error\n")
