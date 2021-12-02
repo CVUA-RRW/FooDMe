@@ -14,12 +14,12 @@ def get_lineage(taxid, tax):
     else:
         return [node.name for node in tax.getAncestry(taxid)][::-1] # inverting list to have the lineage descending for Krona
 
-def main(input, output, rankedlineage_dmp, nodes_dmp):
-    tax = txd.Taxonomy.from_taxdump(nodes_dmp, rankedlineage_dmp)
+def main(input, output, taxonomy):
+    tax = txd.load(taxonomy)
     df = pd.read_csv(input, sep='\t', header=0)
     with open(output, "w") as out:
         for index, row in df.iterrows():
             out.write("\t".join([str(row["Count"])] + get_lineage(row['Taxid'], tax)) + "\n")
     
 if __name__ == '__main__':  
-    main(snakemake.input[0], snakemake.output[0], snakemake.params["lineage"], snakemake.params["nodes"])
+    main(snakemake.input['compo'], snakemake.output['krt'], snakemake.input['tax'])

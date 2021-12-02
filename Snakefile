@@ -34,7 +34,7 @@ pipe_log = os.path.join(os.getcwd(), "PIPELINE_STATUS")
 
 def git_version():
     try:
-        __version__ = subprocess.check_output(["git", "describe", "--always"], cwd= workflow.basedir).strip().decode("utf-8")
+        __version__ = subprocess.check_output(["git", "describe", "--always --tags"], cwd= workflow.basedir).strip().decode("utf-8")
     except subprocess.CalledProcessError:
         __version__ = "Unknown"
     finally:
@@ -48,7 +48,6 @@ rule all:
         "reports/report.html",
 
 # Includes ------------------------------------------------------------------------------------------------------------------
-
 
 include: "rules/trimming.smk"
 include: "rules/vsearch.smk" if config["cluster"]["method"] == "otu" else "rules/dada2.smk" 

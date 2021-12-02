@@ -30,11 +30,11 @@ def parse_blast(blast_file):
     
     return dictout
 
-def main(blast_report, output, min_consensus, rankedlineage_dmp, nodes_dmp):
+def main(blast_report, output, min_consensus, taxonomy):
     if min_consensus <= 0.5 or min_consensus >1:
         raise ValueError("'min_consensus' must be in the interval (0.5 , 1]")
     
-    tax = txd.Taxonomy.from_taxdump(nodes_dmp, rankedlineage_dmp)
+    tax = txd.load(taxonomy)
     otu_dict = parse_blast(blast_report)
     with open(output, 'w') as out:
         out.write("queryID\tConsensus\tRank\tTaxid\tDisambiguation\n")
@@ -83,4 +83,4 @@ def main(blast_report, output, min_consensus, rankedlineage_dmp, nodes_dmp):
                 out.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(queryID, name, rank, taxid, names))
 
 if __name__ == '__main__':
-    main(snakemake.input[0], snakemake.output[0], snakemake.params["min_consensus"], snakemake.params["lineage"], snakemake.params["nodes"])
+    main(snakemake.input['blast'], snakemake.output['consensus'], snakemake.params["min_consensus"], snakemake.input['tax'])
