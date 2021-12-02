@@ -1,0 +1,33 @@
+workdir: tests/
+samples: config/samples.tsv
+threads_sample: 1
+threads: 1
+trimming:
+    length_required: 50
+    qualified_quality_phred: 20
+    window_size: 4
+    mean_quality: 25
+    primers_fasta: data/primers/16S.fa
+    primers_3end: True
+    primer_error_rate: 0.1
+read_filter:
+    min_length: 70
+    max_length: 100
+    max_expected_errors: 2
+    max_ns: 0
+cluster:
+    method: asv
+chimera: True
+taxonomy:
+    rankedlineage_dmp: data/minitaxdump/minirankedlineage.dmp
+    nodes_dmp: data/minitaxdump/mininodes.dmp
+    min_consensus: 0.7
+blast:
+    blast_DB: data/miniblast/miniblast
+    taxdb: data/miniblast
+    taxid_filter: 7742
+    blocklist: extinct
+    e_value: 1e-10
+    perc_identity: 97
+    qcov: 100
+    bit_score_diff: 2

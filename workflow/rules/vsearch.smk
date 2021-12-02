@@ -22,8 +22,10 @@ rule merge_reads:
         "logs/{sample}_merge.log"
     shell:
         """
-        vsearch --fastq_mergepairs {input.r1} --reverse {input.r2} --threads {threads} --fastqout {output.merged} \
-            --fastq_eeout --fastaout_notmerged_fwd {output.notmerged_fwd} --fastaout_notmerged_rev {output.notmerged_rev} \
+        vsearch --fastq_mergepairs {input.r1} --reverse {input.r2} \
+            --threads {threads} --fastqout {output.merged} \
+            --fastq_eeout --fastaout_notmerged_fwd {output.notmerged_fwd} \
+            --fastaout_notmerged_rev {output.notmerged_rev} \
             --fastq_allowmergestagger > {log} 2>&1
         """
 
@@ -58,8 +60,11 @@ rule quality_filter:
         "logs/{sample}_filter.log"
     shell:
         """
-        vsearch --fastq_filter {input.merged} --fastq_maxee {params.maxee} --fastq_minlen {params.minlen} \
-        --fastq_maxlen {params.maxlen} --fastq_maxns {params.maxns} --fastaout {output.filtered} --fasta_width 0 \
+        vsearch --fastq_filter {input.merged} \
+        --fastq_maxee {params.maxee} --fastq_minlen {params.minlen} \
+        --fastq_maxlen {params.maxlen} --fastq_maxns {params.maxns} \
+        --fastaout {output.filtered} \
+        --fasta_width 0 \
         --fastaout_discarded {output.discarded} --log {log}
         """
 
@@ -73,7 +78,8 @@ rule dereplicate:
     log:
         "logs/{sample}_derep.log"
     shell:
-        "vsearch --derep_fulllength {input.filtered} --strand plus --output {output.derep} --sizeout \
+        "vsearch --derep_fulllength {input.filtered} --strand plus \
+        --output {output.derep} --sizeout \
         --relabel {wildcards.sample}_seq --fasta_width 0 --log {log}"
 
 rule qc_stats: 
@@ -85,7 +91,7 @@ rule qc_stats:
         discarded = "{sample}/pseudo_reads/{sample}_discarded.fasta",
         dereplicated = "{sample}/pseudo_reads/{sample}_derep.fasta",
     output:
-        "{sample}/reports/{sample}_merging.tsv",
+        mergeing = "{sample}/reports/{sample}_merging.tsv",
     message:
         "Collecting quality filtering summary for {wildcards.sample}"
     shell:
@@ -102,22 +108,23 @@ rule qc_stats:
         discarded_perc=$(echo "scale=2;(100* $discarded / $merged)" | bc)
         duplicate_perc=$(echo "scale=2;(100* $dereplicated / $filtered)" | bc)
         # Writing report
-        echo "Sample\tTotal reads\tPseudo-reads\tMerging failures [%]\tPseudo-reads PF\tDiscarded reads [%]\tUnique sequences\tUnique sequences [%]" > {output}
-        echo "{wildcards.sample}\t$total_reads\t$merged\t$notmerged_perc\t$filtered\t$discarded_perc\t$dereplicated\t$duplicate_perc" >> {output}
+        echo "Sample\tTotal reads\tPseudo-reads\tMerging failures [%]\tPseudo-reads PF\tDiscarded reads [%]\tUnique sequences\tUnique sequences [%]" > {output.merging}
+        echo "{wildcards.sample}\t$total_reads\t$merged\t$notmerged_perc\t$filtered\t$discarded_perc\t$dereplicated\t$duplicate_perc" >> {output.merging}
         """
 
 rule collect_qc_stats:
     input:
-        expand("{sample}/reports/{sample}_merging.tsv", sample = samples.index),
+        report = expand("{sample}/reports/{sample}_merging.tsv", 
+            sample = samples.index),
     output:
-        "reports/merging_stats.tsv",
+        agg = "reports/merging_stats.tsv",
     message:
         "Collecting quality filtering stats"
     shell:
         """
-        cat {input[0]} | head -n 1 > {output}
-        for i in {input}; do 
-            cat ${{i}} | tail -n +2 >> {output}
+        cat {input.report[0]} | head -n 1 > {output.agg}
+        for i in {input.report}; do 
+            cat ${{i}} | tail -n +2 >> {output.agg}
         done
         """
 
@@ -149,9 +156,9 @@ rule cluster:
 
 rule sort_otu:
     input: 
-        "{sample}/clustering/{sample}_clusters.fasta",
+        fasta = "{sample}/clustering/{sample}_clusters.fasta",
     output:
-        "{sample}/clustering/{sample}_clusters_sorted.fasta",
+        sorted = "{sample}/clustering/{sample}_clusters_sorted.fasta",
     params:
         min_size= config["cluster"]["cluster_minsize"],
     conda:
@@ -164,8 +171,9 @@ rule sort_otu:
         "logs/{sample}_sort_otu.log"
     shell:
         """
-        vsearch --sortbysize {input} --threads {threads} --sizein --sizeout \
-        --fasta_width 0 --minsize {params.min_size} --output {output} \
+        vsearch --sortbysize {input.fasta} --threads {threads} \
+        --sizein --sizeout \
+        --fasta_width 0 --minsize {params.min_size} --output {output.sorted} \
         --log {log}
         """
 
@@ -174,7 +182,7 @@ rule sort_otu:
 rule chimera_denovo:
     # should be skipped if config["chimera"] is False
     input:
-        "{sample}/clustering/{sample}_clusters_sorted.fasta",
+        sorted = "{sample}/clustering/{sample}_clusters_sorted.fasta",
     output:
         nonchim = "{sample}/clustering/{sample}_clusters_nonchimera.fasta",
         chimera = "{sample}/clustering/{sample}_clusters_chimeras.txt",
@@ -186,16 +194,19 @@ rule chimera_denovo:
         "logs/{sample}_denovo_chimera.log"
     shell:
         """
-        vsearch --uchime_denovo {input} --sizein --sizeout --fasta_width 0 \
+        vsearch --uchime_denovo {input.sorted} \
+        --sizein --sizeout --fasta_width 0 \
         --qmask none --nonchimeras {output.nonchim} \
         --uchimeout {output.chimera} | tee {log} 2>&1
         """
 
 rule relabel_otu:
     input:
-        "{sample}/clustering/{sample}_clusters_nonchimera.fasta" if config["chimera"] else "{sample}/clustering/{sample}_clusters_sorted.fasta",
+        fasta = "{sample}/clustering/{sample}_clusters_nonchimera.fasta" 
+            if config["chimera"] 
+            else "{sample}/clustering/{sample}_clusters_sorted.fasta",
     output:
-        "{sample}/clustering/{sample}_OTUs.fasta",
+        renamed = "{sample}/clustering/{sample}_OTUs.fasta",
     conda:
         "../envs/vsearch.yaml"
     message:
@@ -204,20 +215,23 @@ rule relabel_otu:
         "logs/{sample}_relabel_otus.log"
     shell:
         """
-        vsearch --fastx_filter {input} --sizein --sizeout --fasta_width 0 \
-        --relabel OTU_ --fastaout {output}
+        vsearch --fastx_filter {input.fasta} \
+        --sizein --sizeout --fasta_width 0 \
+        --relabel OTU_ --fastaout {output.renamed}
         """
         
 rule create_otu_tab:
     input:
-        "{sample}/clustering/{sample}_OTUs.fasta",
+        fasta = "{sample}/clustering/{sample}_OTUs.fasta",
     output:
-        "{sample}/clustering/{sample}_OTUs.txt",
+        tab = "{sample}/clustering/{sample}_OTUs.txt",
     message:
         "Export OTU table  for {wildcards.sample}"
     shell:
         """
-        grep "^>" {input} | sed -e 's/;size=/\t/' | tr -d '>' > {output}
+        grep "^>" {input.fasta} \
+            | sed -e 's/;size=/\t/' \
+            | tr -d '>' > {output.tab}
         """
 
 rule clustering_stats: 
@@ -227,7 +241,7 @@ rule clustering_stats:
         sizefilt = "{sample}/clustering/{sample}_clusters_sorted.fasta",
         non_chimera = "{sample}/clustering/{sample}_OTUs.fasta",
     output:
-        "{sample}/reports/{sample}_clustering.tsv",
+        report = "{sample}/reports/{sample}_clustering.tsv",
     message:
         "Collecting clustering stats  for {wildcards.sample}"
     shell:
@@ -259,21 +273,22 @@ rule clustering_stats:
         clustered_perc=$(echo "sclae=2;(100* $non_chimera_reads / $uniques_reads)" | bc)
         
         # Writting report
-        echo "Sample\tUnique sequences\tClusters\tClusters above size filter\tDiscarded clusters[% of clusters]\tDiscarded clusters[% of reads]\tNon-chimeric clusters (OTU)\tChimeras [% of clusters]\tChimeras [% of reads]\tPseudo-reads clustered\tPseudo-reads clustered [%]" > {output}
-        echo "{wildcards.sample}\t$uniques_seq\t$clusters_seq\t$size_filt_seq\t$discarded_perc_clust\t$discarded_perc_reads\t$non_chimera_seq\t$chim_seq_perc\t$chim_reads_perc\t$non_chimera_reads\t$clustered_perc" >> {output}
+        echo "Sample\tUnique sequences\tClusters\tClusters above size filter\tDiscarded clusters[% of clusters]\tDiscarded clusters[% of reads]\tNon-chimeric clusters (OTU)\tChimeras [% of clusters]\tChimeras [% of reads]\tPseudo-reads clustered\tPseudo-reads clustered [%]" > {output.report}
+        echo "{wildcards.sample}\t$uniques_seq\t$clusters_seq\t$size_filt_seq\t$discarded_perc_clust\t$discarded_perc_reads\t$non_chimera_seq\t$chim_seq_perc\t$chim_reads_perc\t$non_chimera_reads\t$clustered_perc" >> {output.report}
         """
 
 rule collect_clustering_stats:
     input:
-        expand("{sample}/reports/{sample}_clustering.tsv", sample = samples.index),
+        report = expand("{sample}/reports/{sample}_clustering.tsv", 
+            sample = samples.index),
     output:
-        "reports/clustering_stats.tsv",
+        agg = "reports/clustering_stats.tsv",
     message:
         "collecting clustering stats"
     shell:
         """
-        cat {input[0]} | head -n 1 > {output}
-        for i in {input}; do 
-            cat ${{i}} | tail -n +2 >> {output}
+        cat {input.report[0]} | head -n 1 > {output.agg}
+        for i in {input.report}; do 
+            cat ${{i}} | tail -n +2 >> {output.agg}
         done
         """
