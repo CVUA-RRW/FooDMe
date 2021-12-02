@@ -12,14 +12,22 @@ def get_lineage(taxid, tax):
     elif taxid == "Undetermined":
         return ["Undetermined"]
     else:
-        return [node.name for node in tax.getAncestry(taxid)][::-1] # inverting list to have the lineage descending for Krona
+        return [node.name for node in tax.getAncestry(taxid)][::-1]
+        # inverting list to have the lineage descending for Krona
+
 
 def main(input, output, taxonomy):
     tax = txd.load(taxonomy)
     df = pd.read_csv(input, sep='\t', header=0)
     with open(output, "w") as out:
         for index, row in df.iterrows():
-            out.write("\t".join([str(row["Count"])] + get_lineage(row['Taxid'], tax)) + "\n")
-    
-if __name__ == '__main__':  
-    main(snakemake.input['compo'], snakemake.output['krt'], snakemake.input['tax'])
+            out.write(
+                "\t".join(
+                    [str(row["Count"])] + get_lineage(row['Taxid'], tax)
+                ) + "\n")
+
+
+if __name__ == '__main__':
+    main(snakemake.input['compo'],
+         snakemake.output['krt'],
+         snakemake.input['tax'])
