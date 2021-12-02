@@ -11,11 +11,15 @@ rule get_primer_revcomp:
         primers_rc = temp("common/primer_revcomp.fa"),
     params:
         primers = config["trimming"]["primers_fasta"],
+    message:
+        "Reverse-complementing primers"
     conda:
         "../envs/seqtk.yaml"
+    log:
+        "logs/common_primer_revcomp.log"
     shell:
         """
-        seqtk seq -r {params.primers} > {output.primers_rc}
+        seqtk seq -r {params.primers} > {output.primers_rc} 2>&1 > {log}
         """
 
 rule cutadapt:
@@ -201,7 +205,7 @@ rule collect_trimming_stats:
     output:
         "reports/fastp_stats.tsv",
     message:
-        "Collecting fastp stats"
+        "Collecting fastp stats for {wildcards.sample}"
     shell:
         """
         cat {input[0]} | head -n 1 > {output}
