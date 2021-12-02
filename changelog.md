@@ -1,4 +1,4 @@
-### Dev (proposed 1.4.1)
+### 1.4.1
 
 #### Improvements:
 * Moderate performance improvements due to saving taxonomy as a filtered JSON file. Expect the workflow to be about 1 min faster per sample.

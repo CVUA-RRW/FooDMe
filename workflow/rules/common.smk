@@ -35,7 +35,7 @@ def get_blocklist():
     if config["blast"]["blocklist"] == "None":
         return "common/noblock"
     elif config["blast"]["blocklist"] == "extinct":
-        return os.path.join(workflow.basedir, "data", "blocklist.txt")
+        return os.path.join(workflow.basedir, "..", "data", "blocklist.txt")
     else:
         return config["blast"]["blocklist"]
 
