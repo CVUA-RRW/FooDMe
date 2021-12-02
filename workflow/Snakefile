@@ -39,7 +39,7 @@ include: "rules/reports.smk"
 
 
 onstart:
-    print(f"\nYou are using FooDMe version: {__version__}")
+    print(f"\nYou are using FooDMe version: {version}")
     with open(pipe_log, "a") as f:
         f.write(f"[{get_local_time()}]: Pipeline started\n")
 

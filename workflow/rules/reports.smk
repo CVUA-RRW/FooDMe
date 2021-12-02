@@ -36,7 +36,7 @@ rule krona_all:
     output:
         agg="reports/krona_chart.html",
     params:
-        samples.index,
+        index=samples.index,
     message:
         "Producing graphical summary result"
     conda:
@@ -46,11 +46,11 @@ rule krona_all:
         i=0
         for file in {input.report}
         do
+            echo ${{file}}
+            echo ${{file}} | cut -d"/" -f1
             file_list[$i]="${{file}},$(echo ${{file}} | cut -d"/" -f1)"
             ((i+=1))
         done
-
-        ktImportText -o {output.agg} ${{file_list[@]}}
         """
 
 
@@ -151,7 +151,7 @@ rule report_sample:
     params:
         method=config["cluster"]["method"],
         workdir=config["workdir"],
-        version=__version__,
+        version=version,
         sample="{sample}",
     output:
         report="{sample}/reports/{sample}_report.html",
@@ -182,7 +182,7 @@ rule report_all:
     params:
         method=config["cluster"]["method"],
         workdir=config["workdir"],
-        version=__version__,
+        version=version,
         sample="all",
     output:
         report="reports/report.html",
