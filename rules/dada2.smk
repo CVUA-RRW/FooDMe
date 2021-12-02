@@ -2,15 +2,19 @@ import pandas as pd
 
 shell.executable("bash")
 
-# Rules ------------------------------------------------------------------------
+# Rules -----------------------------------------------------------------------
 
 rule unpack_fastq:
     input: 
-        r1 = expand("{sample}/trimmed/{sample}_R1.fastq.gz", sample = samples.index),
-        r2 = expand("{sample}/trimmed/{sample}_R2.fastq.gz", sample = samples.index),
+        r1 = expand("{sample}/trimmed/{sample}_R1.fastq.gz", 
+                    sample = samples.index),
+        r2 = expand("{sample}/trimmed/{sample}_R2.fastq.gz", 
+                    sample = samples.index),
     output: 
-        r1 = temp(expand("{sample}/trimmed/{sample}_R1.fastq", sample = samples.index)),
-        r2 = temp(expand("{sample}/trimmed/{sample}_R2.fastq", sample = samples.index)),
+        r1 = temp(expand("{sample}/trimmed/{sample}_R1.fastq", 
+                    sample = samples.index)),
+        r2 = temp(expand("{sample}/trimmed/{sample}_R2.fastq", 
+                    sample = samples.index)),
     message:
         "Unpacking fastq files"
     shell:
@@ -41,7 +45,7 @@ rule denoise:
     conda:
         "../envs/dada2.yaml"
     params:
-        sample = "{sample}",
+        sample_name = "{sample}",
         max_EE = config["read_filter"]["max_expected_errors"],
         min_length = config["read_filter"]["min_length"],
         max_length = config["read_filter"]["max_length"],
@@ -53,15 +57,16 @@ rule denoise:
 
 rule collect_denoising_stats:
     input:
-        expand("{sample}/reports/{sample}_denoising.tsv", sample = samples.index),
+        report = expand("{sample}/reports/{sample}_denoising.tsv", 
+                sample = samples.index),
     output:
-        "reports/denoising.tsv",
+        agg = "reports/denoising.tsv",
     message:
-        "collecting denoising stats"
+        "Aggregating denoising stats"
     shell:
         """
-        cat {input[0]} | head -n 1 > {output}
-        for i in {input}; do 
-            cat ${{i}} | tail -n +2 >> {output}
+        cat {input.report[0]} | head -n 1 > {output.agg}
+        for i in {input.report}; do 
+            cat ${{i}} | tail -n +2 >> {output.agg}
         done
         """

@@ -201,15 +201,16 @@ rule trimming_stats:
 
 rule collect_trimming_stats:
     input:
-        expand("{sample}/reports/{sample}_trimmed.tsv", sample=samples.index),
+        report = expand("{sample}/reports/{sample}_trimmed.tsv",
+                        sample=samples.index),
     output:
-        "reports/fastp_stats.tsv",
+        agg = "reports/fastp_stats.tsv",
     message:
-        "Collecting fastp stats for {wildcards.sample}"
+        "Aggregating fastp stats"
     shell:
         """
-        cat {input[0]} | head -n 1 > {output}
-        for i in {input}; do 
-            cat ${{i}} | tail -n +2 >> {output}
+        cat {input.report[0]} | head -n 1 > {output.agg}
+        for i in {input.report}; do 
+            cat ${{i}} | tail -n +2 >> {output.agg}
         done
         """
