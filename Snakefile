@@ -49,7 +49,6 @@ rule all:
 
 # Includes ------------------------------------------------------------------------------------------------------------------
 
-include: "rules/common.smk"
 include: "rules/trimming.smk"
 include: "rules/vsearch.smk" if config["cluster"]["method"] == "otu" else "rules/dada2.smk" 
 include: "rules/blast.smk"
