@@ -145,7 +145,7 @@ rule report_sample:
     params:
         method = config["cluster"]["method"],
         workdir = config["workdir"],
-        version = git_version(),
+        version = __version__,
         sample = "{sample}",
     output:
         report = "{sample}/reports/{sample}_report.html",
@@ -175,7 +175,7 @@ rule report_all:
     params:
         method = config["cluster"]["method"],
         workdir = config["workdir"],
-        version = git_version(),
+        version = __version__,
         sample = "all",
     output:
         report = "reports/report.html",

@@ -2,10 +2,12 @@
 
 #### Improvements:
 * Moderate performance improvements due to saving taxonomy as a filtered JSON file. Expect the workflow to be about 1 min faster per sample.
-* Linting to be closer to the Snakemake distribution standards
 
 #### Bug fixes:
 * Fixed Github version paring for lightweight tags. 
+
+### Standardization
+* Linting and reorganize workflow to match be closer to snakemake standards
 
 ### Version 1.4.0
 

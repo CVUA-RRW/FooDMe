@@ -38,7 +38,7 @@ include: "rules/reports.smk"
 # Workflow --------------------------------------------------------------------
 
 onstart:
-    print(f"\nYou are using FooDMe version: {git_version()}")
+    print(f"\nYou are using FooDMe version: {__version__}")
     with open(pipe_log, 'a') as f:
         f.write(f"[{get_local_time()}]: Pipeline started\n")
 
