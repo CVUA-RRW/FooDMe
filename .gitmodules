@@ -1,6 +1,3 @@
-[submodule "scripts/taxidTools"]
-	path = scripts/taxidTools
-	url = https://github.com/CVUA-RRW/taxidTools.git
 [submodule "foodme-example_output"]
 	path = foodme-example_output
 	url = https://github.com/CVUA-RRW/foodme-example_output
