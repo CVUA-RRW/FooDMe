@@ -1,5 +1,6 @@
-import pandas as pd
-import os, json, csv, subprocess
+import os
+import json
+import csv
 
 shell.executable("bash")
 
@@ -16,11 +17,9 @@ rule get_primer_revcomp:
         "Reverse-complementing primers"
     conda:
         "../envs/seqtk.yaml"
-    log:
-        "logs/common_primer_revcomp.log",
     shell:
         """
-        seqtk seq -r {params.primers} > {output.primers_rc} 2>&1 > {log}
+        seqtk seq -r {params.primers} > {output.primers_rc}
         """
 
 
@@ -173,7 +172,6 @@ rule parse_fastp:
     run:
         with open(input.json, "r") as handle:
             data = json.load(handle)
-
         link_path = os.path.join("..", input.html)
         header = "Total bases before quality trim\tTotal reads after quality trim\tTotal bases after quality trim\tQ20 rate after\tQ30 rate after\tDuplication rate\tInsert size peak\tlink_to_report"
         datalist = [
@@ -186,7 +184,6 @@ rule parse_fastp:
             data["insert_size"]["peak"],
             link_path,
         ]
-
         with open(output.tsv, "w") as outfile:
             outfile.write(f"{header}\n")
             writer = csv.writer(outfile, delimiter="\t")
