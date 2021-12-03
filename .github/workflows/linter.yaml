@@ -7,11 +7,12 @@ on:
   workflow_dispatch:
 
 jobs:
+  Linting:
     runs-on: ubuntu-latest
     steps:
     
-      - name: Checkout Code
-        uses: actions/checkout@v2
+    - name: Checkout Code
+      uses: actions/checkout@v2
     
     - name: Linting snakemake
       uses: snakemake/snakemake-github-action@v1.23.0
@@ -19,13 +20,12 @@ jobs:
         directory: 'tests'
         snakefile: 'workflow/Snakefile'
         args: '--lint'
-    
-      - name: Format snakemake
-        uses: github/super-linter@v3
-        env:
-          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          VALIDATE_SNAKEMAKE_SNAKEFMT: true
+    - name: Format snakemake
+      uses: github/super-linter@v3
+      env:
+        VALIDATE_ALL_CODEBASE: false
+        DEFAULT_BRANCH: master
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VALIDATE_SNAKEMAKE_SNAKEFMT: true
 
