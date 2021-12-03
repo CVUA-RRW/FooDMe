@@ -7,7 +7,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  Linting:
     runs-on: ubuntu-latest
     steps:
     
