@@ -25,6 +25,7 @@ jobs:
         stagein: "pip install pandas taxidtools"
     
     - name: Archive results
+      if: ${{ failure() }}
       uses: actions/upload-artifact@v2
       with:
         name: foodme-run
