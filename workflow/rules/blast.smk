@@ -247,7 +247,9 @@ rule collect_blast_stats:
     input:
         report=expand("{sample}/reports/{sample}_blast_stats.tsv", sample=samples.index),
     output:
-        agg="reports/blast_stats.tsv",
+        agg=report("reports/blast_stats.tsv",
+                   caption="../report/blast_stats.rst",
+                   category="Quality controls"),
     message:
         "Aggregating BLAST stats"
     shell:
@@ -300,7 +302,9 @@ rule collect_tax_stats:
             sample=samples.index,
         ),
     output:
-        agg="reports/taxonomy_assignement_stats.tsv",
+        agg=report("reports/taxonomy_assignement_stats.tsv",
+                   caption="../report/taxonomic_ass_stats.rst",
+                   category="Quality controls")
     message:
         "Collecting taxonomy assignement stats"
     shell:
@@ -316,7 +320,10 @@ rule summarize_results:
     input:
         compo="{sample}/reports/{sample}_blast_stats.tsv",
     output:
-        report="{sample}/reports/{sample}_composition.tsv",
+        report=report("{sample}/reports/{sample}_composition.tsv",
+                      caption="../report/compo_sample.rst",
+                      category="Results",
+                      subcategory="{wildcards.sample}"),
     message:
         "Summarizing results for {wildcards.sample}"
     run:
@@ -351,7 +358,10 @@ rule collect_results:
     input:
         report=expand("{sample}/reports/{sample}_composition.tsv", sample=samples.index),
     output:
-        agg="reports/composition_summary.tsv",
+        agg=report("reports/composition_summary.tsv",
+                   caption="../report/compo_glob.rst",
+                   category="Results",
+                   subcategory="Global")
     message:
         "Aggregating compositions"
     shell:

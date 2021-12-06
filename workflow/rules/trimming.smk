@@ -211,7 +211,9 @@ rule collect_trimming_stats:
     input:
         report=expand("{sample}/reports/{sample}_trimmed.tsv", sample=samples.index),
     output:
-        agg="reports/fastp_stats.tsv",
+        agg=report("reports/fastp_stats.tsv",
+                   caption="../report/trimming_stats.rst",
+                   category="Quality controls"),
     message:
         "Aggregating fastp stats"
     shell:

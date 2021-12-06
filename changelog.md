@@ -7,7 +7,9 @@
 * Fixed Github version paring for lightweight tags. 
 
 ### Standardization
+* `tests` was renamed `.tests`
 * Linting and reorganize workflow to match be closer to snakemake standards
+* Added JSON-Schema validation for the config and sample sheet files
 
 ### Version 1.4.0
 

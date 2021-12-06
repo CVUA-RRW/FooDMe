@@ -21,7 +21,10 @@ rule krona:
     input:
         table="{sample}/krona/{sample}_krona_table.txt",
     output:
-        graph="{sample}/reports/{sample}_krona_chart.html",
+        graph=report("{sample}/reports/{sample}_krona_chart.html",
+                     caption="../report/krona.rst",
+                     category="Results",
+                     subcategory="{wildcards.sample}"),
     message:
         "Producing graphical summary for {wildcards.sample}"
     conda:
@@ -34,7 +37,10 @@ rule krona_all:
     input:
         report=expand("{sample}/krona/{sample}_krona_table.txt", sample=samples.index),
     output:
-        agg="reports/krona_chart.html",
+        agg=report("reports/krona_chart.html",
+                   caption="../report/krona_glob.rst",
+                   category="Results",
+                   subcategory="Global"),
     params:
         samples.index,
     message:
@@ -117,7 +123,9 @@ rule collect_summaries:
     input:
         report=expand("{sample}/reports/{sample}_summary.tsv", sample=samples.index),
     output:
-        agg="reports/summary.tsv",
+        agg=report("reports/summary.tsv",
+                   caption="../report/summary.rst",
+                   category="Quality controls"),
     message:
         "Aggregating summary reports"
     shell:
@@ -154,7 +162,10 @@ rule report_sample:
         version=version,
         sample="{sample}",
     output:
-        report="{sample}/reports/{sample}_report.html",
+        report=report("{sample}/reports/{sample}_report.html",,
+                      caption="../report/markdown_sample.rst",
+                      category="Results",
+                      subcategory="{wildcards.sample}"),
     conda:
         "../envs/rmarkdown.yaml"
     message:
@@ -185,7 +196,10 @@ rule report_all:
         version=version,
         sample="all",
     output:
-        report="reports/report.html",
+        report=report("reports/report.html",
+                      caption="../report/markdown_glob.rst",
+                      category="Results",
+                      subcategory="Global"),
     conda:
         "../envs/rmarkdown.yaml"
     message:
