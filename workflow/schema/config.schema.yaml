@@ -1,0 +1,177 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: Config File Schema
+
+properties:
+  
+  workdir:
+    type: string
+    description: Output directory
+  
+  samples:
+    type: string
+    description: Sample sheet location
+  
+  threads_sample:
+    type: integer
+    description: Maximum number of threads to assign for jobs on single samples
+  
+  threads:
+    type: integer
+    description: Maximum number of threads to use simultaneously
+  
+  trimming:
+    description: Trimming parameters
+    type: object
+    properties:
+      length_required:
+        type: integer
+        description: Minimum length of input reads (after primer trimming) to keep
+      qualified_quality_phred:
+        type: integer
+        description: Minimal quality value per base
+      window_size:
+        type: integer
+        description: Size of the sliding window for tail quality trimming
+      mean_quality:
+        type: number
+        description: Minimum mean Phred-score in the sliding window for tail quality trimming
+      primers_fasta:
+        type: string
+        description: /path/to/primer/fasta
+      primers_3end:
+        type: boolean
+        description: Should primers be trimmed on the 3' end of reads? Only relevant if sequencing through the amplicons
+      primer_error_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+    required:
+      - length_required
+      - qualified_quality_phred
+      - window_size
+      - mean_quality
+      - primers_fasta
+      - primers_3end
+      - primer_error_rate
+  
+  read_filter:
+    description: Merged reads filtering options
+    type: object
+    properties:
+      min_length:
+        type: number
+        description: Minimum length merged reads to keep
+      max_length:
+        type: number
+        description: Maximum length merged reads to keep
+      max_expected_errors:
+        type: number
+        description: Maximum expected errors in merged reads to keep
+      max_ns:
+        type: number
+        description: Maximum number of 'N' base in merged reads. If using denoising procedure this will be automatically reset to 0
+    required:
+      - min_length
+      - max_length
+      - max_expected_errors
+      - max_ns
+  
+  cluster:
+    description: Clustering options
+    type: object
+    properties:
+      method:
+        type: string
+        description: Clustering method. Choose betwen 'otu' and 'asv'
+      cluster_identity:
+        type: number
+        description: Minimum identity for clustering sequences in OTUs (between 0 and 1). Will be ignored if using ASVs
+        minimum: 0
+        maximum: 1
+      cluster_minsize:
+        type: number
+        description: Minimal size cutoff for OTUs. Will be ignored if using ASVs
+        minimum: 1
+    required:
+      - method
+      - cluster_identity
+      - cluster_minsize
+  
+  chimera:
+    type: boolean
+    description: Perform Chimera detection and filtering?
+ 
+  taxonomy:
+    description: Taxonomic assignement options
+    type: object
+    properties:
+      rankedlineage_dmp:
+        type: string
+        description: Path to the nodes.dmp file
+      nodes_dmp:
+        type: string
+        description: Path to the names.dmp file
+      min_consensus:
+        type: number
+        description: Minimal taxid frequency to reach consensus (1 to use last common ancestor)
+        exclusiveMinimum: 0.5
+        maximum: 1
+    required:
+      - rankedlineage_dmp
+      - nodes_dmp
+      - min_consensus
+  
+  blast:
+    description: Options for BLAST search
+    type: object
+    properties:
+      blast_DB:
+        type: string
+        description: Path to the BLAST database, including database basename but no extension
+      taxdb:
+        type: string
+        description: Path to the BLAST taxonomy database (folder)
+      taxid_filter:
+        type: 
+          - number
+          - string
+        description: Limit BLAST search to the taxids under the given node
+      blocklist:
+        type: string
+        description: Exclude some accessions form the results. "extinct" will use the distributed list of extinct species, provide a path for a custom list, or use None to skip filtering
+      e_value:
+        type: 
+          - number
+          - string
+        description:  E-value threshold for blast results
+      perc_identity:
+        type: number
+        description: Minimal identity between the hit and query for blast results (in percent)
+      qcov:
+        type: number
+        description: Minimal proportion of the query covered by a hit for blast results. A mismatch is still counting as covering (in percent)
+      bit_score_diff:
+        type: number
+        description: Maximum bit-score difference with the best hit for a blast result to be included in the taxonomy consensus detemination
+    required:
+      - blast_DB
+      - taxdb
+      - taxid_filter
+      - blocklist
+      - e_value
+      - perc_identity
+      - qcov
+      - bit_score_diff
+  
+  required:
+    - workdir
+    - samples
+    - threads_sample
+    - threads
+    - trimming
+    - read_filter
+    - cluster
+    - chimera
+    - taxonomy
+    - blast

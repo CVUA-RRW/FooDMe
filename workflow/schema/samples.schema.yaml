@@ -1,0 +1,19 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: Sample File Schema
+
+properties:
+  fields:
+    - sample:
+      type: string
+      description: sample name or identifier
+    - fq1:
+      type: string
+      description: path to R1 fastq file
+    - fq2:
+      type: string
+      description: path to R2 fastq file
+  required:
+    - sample
+    - fq1
+    - fq2

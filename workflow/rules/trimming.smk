@@ -25,8 +25,8 @@ rule get_primer_revcomp:
 
 rule cutadapt:
     input:
-        r1=lambda wildcards: _get_fastq(wildcards, "fq1"),
-        r2=lambda wildcards: _get_fastq(wildcards, "fq2"),
+        r1=lambda wildcards: get_fastq(wildcards, "fq1"),
+        r2=lambda wildcards: get_fastq(wildcards, "fq2"),
         primers_rc="common/primer_revcomp.fa",
     output:
         r1=temp("{sample}/trimmed/{sample}_primertrimmed_R1.fastq.gz"),
