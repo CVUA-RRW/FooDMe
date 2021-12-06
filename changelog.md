@@ -10,6 +10,7 @@
 * `tests` was renamed `.tests`
 * Linting and reorganize workflow to match be closer to snakemake standards
 * Added JSON-Schema validation for the config and sample sheet files
+* Added the possibility to export a Snakemake report containing QC summaries and results as well as the workflow runtime and DAG using the `--report` argument (snakemake CLI only)
 
 ### Version 1.4.0
 

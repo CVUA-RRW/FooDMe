@@ -21,20 +21,29 @@ jobs:
       with:
         directory: 'tests'
         snakefile: 'workflow/Snakefile'
-        args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs" 
+        args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --report snkmk_report.html" 
         stagein: "pip install pandas taxidtools"
     
-    - name: Archive results
+    - name: Archive rport for checks
+      uses: actions/upload-artifact@v2
+      if: ${{ success() }}
+      with:
+        name: foodme-reports
+        path: |
+          .tests/reports/report.html
+          .tests/snkmk_report.html
+        retention-days: 7
+    
+    - name: Archive all results on fail
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
       with:
-        name: foodme-run
+        name: foodme-fail
         path: |
-          tests/reports
-          tests/NTC
-          tests/logs
-          tests/Lasagne_horse
-          tests/Lasagen_clean
-          tests/PIPELINE_STATUS
+          .tests/reports
+          .tests/NTC
+          .tests/logs
+          .tests/Lasagne_horse
+          .tests/Lasagen_clean
+          .tests/PIPELINE_STATUS
         retention-days: 7
-    
