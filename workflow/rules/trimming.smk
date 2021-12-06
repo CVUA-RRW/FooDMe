@@ -90,9 +90,9 @@ rule cutadapt:
 
 rule primer_trimming_stats:
     input:
-        before_r1=lambda wildcards: _get_fastq(wildcards, "fq1"),
+        before_r1=lambda wildcards: get_fastq(wildcards, "fq1"),
         after_r1="{sample}/trimmed/{sample}_primertrimmed_R1.fastq.gz",
-        before_r2=lambda wildcards: _get_fastq(wildcards, "fq2"),
+        before_r2=lambda wildcards: get_fastq(wildcards, "fq2"),
         after_r2="{sample}/trimmed/{sample}_primertrimmed_R2.fastq.gz",
     output:
         report=temp("{sample}/trimmed/{sample}_primer_trimming.tsv"),

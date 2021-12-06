@@ -162,7 +162,7 @@ rule report_sample:
         version=version,
         sample="{sample}",
     output:
-        report=report("{sample}/reports/{sample}_report.html",,
+        report=report("{sample}/reports/{sample}_report.html",
                       caption="../report/markdown_sample.rst",
                       category="Results",
                       subcategory="{wildcards.sample}"),
