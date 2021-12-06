@@ -16,6 +16,8 @@ validate(config, schema="../schema/config.schema.yaml")
 
 # Loading and validation samples ---------------------
 sample_path = config["samples"]
+print(os.getcwd())
+print(sample_path)
 samples = pd.read_csv(sample_path, index_col="sample", sep="\t", engine="python")
 validate(samples, schema="../schema/samples.schema.yaml")
 samples.index = samples.index.astype("str", copy=False)
