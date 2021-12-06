@@ -21,6 +21,9 @@ configfile: os.path.join(workflow.basedir, "..", ".tests", "config", "config.yam
 workdir: config["workdir"]
 
 
+report: "report/workflow.rst"
+
+
 # Input rule ------------------------------------------------------------------
 
 

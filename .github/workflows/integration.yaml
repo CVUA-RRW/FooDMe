@@ -21,10 +21,17 @@ jobs:
       with:
         directory: '.tests'
         snakefile: 'workflow/Snakefile'
-        args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --report snkmk_report.html" 
+        args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs" 
         stagein: "pip install pandas taxidtools"
     
-    - name: Archive rport for checks
+    - name: Report
+      uses: snakemake/snakemake-github-action@v1.23.0
+      with:
+        directory: '.tests'
+        snakefile: 'workflow/Snakefile'
+        args: "--report snkmk_report.html" 
+    
+    - name: Archive report for checks
       uses: actions/upload-artifact@v2
       if: ${{ success() }}
       with:

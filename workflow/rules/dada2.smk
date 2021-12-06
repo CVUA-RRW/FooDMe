@@ -58,7 +58,7 @@ rule collect_denoising_stats:
         report=expand("{sample}/reports/{sample}_denoising.tsv", sample=samples.index),
     output:
         agg=report("reports/denoising.tsv",
-                   caption="..report/denoising_stats.rst",
+                   caption="../report/denoising_stats.rst",
                    category="Quality controls"),
     message:
         "Aggregating denoising stats"
