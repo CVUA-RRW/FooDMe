@@ -19,7 +19,7 @@ jobs:
     - name: Run workflow
       uses: snakemake/snakemake-github-action@v1.23.0
       with:
-        directory: 'tests'
+        directory: '.tests'
         snakefile: 'workflow/Snakefile'
         args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --report snkmk_report.html" 
         stagein: "pip install pandas taxidtools"
