@@ -1,4 +1,4 @@
-workdir: .tests/
+workdir: '.tests/'
 samples: config/samples.tsv
 threads_sample: 1
 threads: 1
