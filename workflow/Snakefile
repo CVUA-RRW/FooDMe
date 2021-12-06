@@ -1,0 +1,78 @@
+import os
+import shutil
+from snakemake.utils import min_version
+from snakemake.utils import validate
+
+
+# Settings --------------------------------------------------------------------
+
+min_version("6.0")
+
+
+shell.executable("bash")
+
+
+configfile: os.path.join(workflow.basedir, "..", ".tests", "config", "config.yaml")
+
+
+# Validating samples in rules/common
+
+
+workdir: config["workdir"]
+
+
+report: "report/workflow.rst"
+
+
+# Input rule ------------------------------------------------------------------
+
+
+rule all:
+    input:
+        "reports/report.html",
+
+
+# Includes --------------------------------------------------------------------
+
+
+include: "rules/common.smk"
+include: "rules/trimming.smk"
+include: "rules/vsearch.smk" if config["cluster"]["method"] == "otu" else "rules/dada2.smk"
+include: "rules/blast.smk"
+include: "rules/reports.smk"
+
+
+# Workflow --------------------------------------------------------------------
+
+
+onstart:
+    print(f"\nYou are using FooDMe version: {version}")
+    with open(pipe_log, "a") as f:
+        f.write(f"[{get_local_time()}]: Pipeline started\n")
+
+
+onsuccess:
+    try:
+        for logfile in os.listdir(".snakemake/log/"):
+            shutil.move(os.path.join(".snakemake/log", logfile), "logs")
+        shutil.rmtree(".snakemake", ignore_errors=True)
+    except:
+        # if not executing .snakemake from workdir,
+        # the log file will be in execution directory
+        # as far as I know, there is now way to access this form here
+        pass
+    print("\nWorkflow finished, no error")
+    with open(pipe_log, "a") as f:
+        f.write("[{get_local_time()}]: Pipeline succesfully finished\n")
+
+
+onerror:
+    for logfile in os.listdir(".snakemake/log/"):
+        shutil.move(os.path.join(".snakemake/log", logfile), "logs")
+    shutil.rmtree(".snakemake", ignore_errors=True)
+    print(
+        f"\nAn error occured, please consult the latest log file in"
+        f"{os.path.join(config['workdir'], '.snakemake', 'log')}"
+    )
+    with open(pipe_log, "a") as f:
+        f.write("[{get_local_time()}]: Pipeline stopped on error\n")

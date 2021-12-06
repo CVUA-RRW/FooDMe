@@ -52,7 +52,7 @@ cluster:
 # Perform Chimera detection and filtering?
 chimera: True
 
-# Taxonomic assignement files
+# Taxonomic assignement options
 taxonomy:
     # Path to the nodes.dmp file
     rankedlineage_dmp: /path/to/rankedlineage.dmp

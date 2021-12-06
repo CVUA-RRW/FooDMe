@@ -1,0 +1,1 @@
+Complete report for sample {{ snakemake.wildcards.sample }}

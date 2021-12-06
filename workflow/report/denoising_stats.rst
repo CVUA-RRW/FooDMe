@@ -1,0 +1,1 @@
+Global denoising statistics

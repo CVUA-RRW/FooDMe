@@ -1,0 +1,1 @@
+Graphical composition summary for {{ snakemake.wildcards.sample }}

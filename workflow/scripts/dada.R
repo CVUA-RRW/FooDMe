@@ -24,7 +24,7 @@ chimeras_fasta <- snakemake@output[["chimeras"]]
 threads <- snakemake@threads[[1]]
 
 # Parameters
-sample.names <- snakemake@params[["sample"]]
+sample.names <- snakemake@params[["sample_name"]]
 max_EE <- snakemake@params[["max_EE"]]
 minlength <- snakemake@params[["min_length"]]
 maxlength <- snakemake@params[["max_length"]]

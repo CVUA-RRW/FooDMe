@@ -1,10 +1,16 @@
-### Dev (proposed 1.4.1)
+### 1.4.1
 
 #### Improvements:
 * Moderate performance improvements due to saving taxonomy as a filtered JSON file. Expect the workflow to be about 1 min faster per sample.
 
 #### Bug fixes:
 * Fixed Github version paring for lightweight tags. 
+
+### Standardization
+* `tests` was renamed `.tests`
+* Linting and reorganize workflow to match be closer to snakemake standards
+* Added JSON-Schema validation for the config and sample sheet files
+* Added the possibility to export a Snakemake report containing QC summaries and results as well as the workflow runtime and DAG using the `--report` argument (snakemake CLI only)
 
 ### Version 1.4.0
 
