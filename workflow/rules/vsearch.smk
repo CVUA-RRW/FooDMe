@@ -97,7 +97,7 @@ rule qc_stats:
         discarded="{sample}/pseudo_reads/{sample}_discarded.fasta",
         dereplicated="{sample}/pseudo_reads/{sample}_derep.fasta",
     output:
-        mergeing="{sample}/reports/{sample}_merging.tsv",
+        merging="{sample}/reports/{sample}_merging.tsv",
     message:
         "Collecting quality filtering summary for {wildcards.sample}"
     shell:
