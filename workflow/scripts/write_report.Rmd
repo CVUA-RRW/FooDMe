@@ -329,7 +329,7 @@ soft_table <- read.csv(file = soft, sep = "\t", check.names=FALSE)
 knitr::kable(soft_table)
 ```
 
-### Help
+## Help
 
 [Link to the repository](https://github.com/CVUA-RRW/FooDMe)
 [Report a bug or ask a question](https://github.com/CVUA-RRW/FooDMe/issues/new)
