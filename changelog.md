@@ -1,3 +1,8 @@
+### 1.4.2
+
+#### Bug Fix
+* Fixed wrapper
+
 ### 1.4.1
 
 #### Improvements:
@@ -6,7 +11,7 @@
 #### Bug fixes:
 * Fixed Github version paring for lightweight tags. 
 
-### Standardization
+#### Standardization
 * `tests` was renamed `.tests`
 * Linting and reorganize workflow to match be closer to snakemake standards
 * Added JSON-Schema validation for the config and sample sheet files
