@@ -63,7 +63,7 @@ onsuccess:
         pass
     print("\nWorkflow finished, no error")
     with open(pipe_log, "a") as f:
-        f.write("[{get_local_time()}]: Pipeline succesfully finished\n")
+        f.write(f"[{get_local_time()}]: Pipeline succesfully finished\n")
 
 
 onerror:
@@ -75,4 +75,4 @@ onerror:
         f"{os.path.join(config['workdir'], '.snakemake', 'log')}"
     )
     with open(pipe_log, "a") as f:
-        f.write("[{get_local_time()}]: Pipeline stopped on error\n")
+        f.write(f"[{get_local_time()}]: Pipeline stopped on error\n")

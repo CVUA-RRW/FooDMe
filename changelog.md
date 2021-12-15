@@ -1,3 +1,9 @@
+### 1.4.3
+
+#### Bug Fix
+* Fixed a variable refernece breaking Vsearch pipeline
+* Fixed time display upon pipeline completion on success or error
+
 ### 1.4.2
 
 #### Bug Fix
