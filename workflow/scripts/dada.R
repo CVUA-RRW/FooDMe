@@ -28,6 +28,7 @@ sample.names <- snakemake@params[["sample_name"]]
 max_EE <- snakemake@params[["max_EE"]]
 minlength <- snakemake@params[["min_length"]]
 maxlength <- snakemake@params[["max_length"]]
+max_mismatch <- snakemake@params[["max_mismatch"]]
 chimera <- snakemake@params[["chimera"]]
 
 # logging
@@ -55,9 +56,14 @@ tryCatch({
     # Sample inference
     dadaFs <- dada(filtFs, err=errF, multithread=threads, verbose=TRUE)
     dadaRs <- dada(filtRs, err=errR, multithread=threads, verbose=TRUE)
-     
+
     # Merge Reads
-    mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs, verbose=TRUE)
+    mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs, 
+                            maxMismatch=max_mismatch, 
+                            returnRejects=TRUE,
+                            verbose=TRUE)
+
+    filt_mergers <- mergers[mergers$accept==TRUE]
 
     # ASV table
     seqtab <- makeSequenceTable(mergers)

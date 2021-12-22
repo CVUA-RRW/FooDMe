@@ -48,6 +48,8 @@ cluster:
     cluster_identity: 0.97
     # Minimal size cutoff for OTUs. Will be ignored if using ASVs
     cluster_minsize: 2
+    # Maximal number of mismatch in allowed in the read overlap. Use by Dada only
+    max_mismatch: 0
     
 # Perform Chimera detection and filtering?
 chimera: True

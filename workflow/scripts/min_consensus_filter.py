@@ -52,8 +52,10 @@ def main(blast_report, output, min_consensus, taxonomy):
                 taxid_list_new = []
                 for taxid in taxid_list:
                     if taxid not in tax.keys():
-                        print(f"WARNING: taxid {taxid} missing from Taxonomy "
-                              f"reference, it will be ignored")
+                        pass  # This is most likely the result of active filtering by the user
+                        # No need ot be over verbose with this
+                        #print(f"WARNING: taxid {taxid} missing from Taxonomy "
+                        #      f"reference, it will be ignored")
                     else:
                         taxid_list_new.append(taxid)
 

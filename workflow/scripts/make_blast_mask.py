@@ -20,8 +20,8 @@ def main(taxid_file, parent, output, taxonomy):
                 else:
                     pass
             except KeyError:
-                print(f"WARNING: taxid {taxid} missing from Taxonomy reference"
-                      f", it will be ignored")
+                pass  # Ignoring missing taxids as they are either not in the 
+                # taxdumps or actively filtered by the user.
 
 
 if __name__ == '__main__':

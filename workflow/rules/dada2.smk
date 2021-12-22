@@ -47,6 +47,7 @@ rule denoise:
         min_length=config["read_filter"]["min_length"],
         max_length=config["read_filter"]["max_length"],
         chimera=config["chimera"],
+        max_mismatch=config["cluster"]["max_mismatch"],
     log:
         "logs/{sample}_denoising.log",
     script:

@@ -63,8 +63,9 @@ def create_config(config_file, args):
             conf.write("{}method: {}\n".format(indent1, "asv"))
         else:
             conf.write("{}method: {}\n".format(indent1, "otu"))
-            conf.write("{}cluster_identity: {}\n".format(indent1, args.cluster_id))
-            conf.write("{}cluster_minsize: {}\n".format(indent1, args.cluster_minsize))
+        conf.write("{}cluster_identity: {}\n".format(indent1, args.cluster_id))
+        conf.write("{}cluster_minsize: {}\n".format(indent1, args.cluster_minsize))
+        conf.write("{}max_mismatch: {}\n".format(indent1, args.max_mismatch))
         
         # Chimera
         conf.write("chimera: {}\n".format(not args.skip_chimera))
@@ -194,6 +195,8 @@ def main():
                         help="Minimum identity for clustering sequences in OTUs (between 0 and 1). Will be ignored if using denoising")
     clsargs.add_argument('--cluster_minsize', required=False, default=2, type=int,
                         help="Minimal size cutoff for OTUs. Will be ignored if using denoising")
+    clsargs.add_argument('--max_mismatch', required=False, default=0, type=int,
+                        help=" Maximal number of mismatch in allowed in the read overlap. Use by Dada only.")
     clsargs.add_argument('--skip_chimera', required=False, default=False, action='store_true',
                         help="Skip de novo chimera detection and filtering step")
 

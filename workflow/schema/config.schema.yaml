@@ -93,10 +93,15 @@ properties:
         type: number
         description: Minimal size cutoff for OTUs. Will be ignored if using ASVs
         minimum: 1
+      max_mismatch:
+        type: number
+        description: Maximal number of mismatch in allowed in the read overlap. Use by Dada only
+        minimum: 0
     required:
       - method
       - cluster_identity
       - cluster_minsize
+      - max_mismatch
   
   chimera:
     type: boolean

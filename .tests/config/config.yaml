@@ -19,6 +19,7 @@ cluster:
     method: asv
     cluster_identity: 1
     cluster_minsize: 2
+    max_mismatch: 0
 chimera: True
 taxonomy:
     rankedlineage_dmp: data/minitaxdump/minirankedlineage.dmp
