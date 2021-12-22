@@ -60,10 +60,7 @@ tryCatch({
     # Merge Reads
     mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs, 
                             maxMismatch=max_mismatch, 
-                            returnRejects=TRUE,
                             verbose=TRUE)
-
-    filt_mergers <- mergers[mergers$accept==TRUE]
 
     # ASV table
     seqtab <- makeSequenceTable(mergers)
@@ -121,8 +118,8 @@ tryCatch({
                     round((out[1]-out[2])/out[1]*100, 2),
                     getN(dadaFs),
                     getN(dadaRs),
-                    getN(filt_mergers),
-                    round((1-getN(filt_mergers)/out[2])*100, 2),
+                    getN(mergers),
+                    round((1-getN(mergers)/out[2])*100, 2),
                     length(seqtab),
                     length(seqtab2),
                     round((length(seqtab)-length(seqtab2))/length(seqtab)*100, 2),
