@@ -7,13 +7,13 @@ shell.executable("bash")
 
 rule unpack_fastq:
     input:
-        r1=expand("{sample}/trimmed/{sample}_R1.fastq.gz", sample=samples.index),
-        r2=expand("{sample}/trimmed/{sample}_R2.fastq.gz", sample=samples.index),
+        r1="{sample}/trimmed/{sample}_R1.fastq.gz",
+        r2="{sample}/trimmed/{sample}_R2.fastq.gz",
     output:
-        r1=temp(expand("{sample}/trimmed/{sample}_R1.fastq", sample=samples.index)),
-        r2=temp(expand("{sample}/trimmed/{sample}_R2.fastq", sample=samples.index)),
+        r1=temp("{sample}/trimmed/{sample}_R1.fastq"),
+        r2=temp("{sample}/trimmed/{sample}_R2.fastq"),
     message:
-        "Unpacking fastq files"
+        "Unpacking fastq files for sample {wildcards.sample}"
     shell:
         """
         gzip -kd {input.r1}
