@@ -1,3 +1,8 @@
+### Dev
+
+#### Improvements
+* Now unpacks trimmed read files on a sample wise fashion prior to Dada2 denoising instead of unpacking all samples at once. This should reduce the memory use during the analysis.
+
 ### 1.4.3
 
 #### Bug Fix
