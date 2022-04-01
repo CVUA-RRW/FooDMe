@@ -166,7 +166,7 @@ rule filter_blast:
                 dfout = pd.DataFrame()
 
                 for key, val in sd.items():
-                    dfout = dfout.append(
+                    dfout = pd.concat(dfout, 
                         val[val["bitscore"] >= max(val["bitscore"]) - params.bit_diff]
                     )
 
