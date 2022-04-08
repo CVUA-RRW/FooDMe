@@ -16,6 +16,8 @@ rule prep_taxonomy:
         taxid=config["blast"]["taxid_filter"],
     message:
         "Preparing taxonomy definitions"
+    conda:
+        "../envs/taxidtools.yaml"
     script:
         "../scripts/filter_taxonomy.py"
 
@@ -51,6 +53,8 @@ rule create_blast_mask:
         taxid=config["blast"]["taxid_filter"],
     message:
         "Preparing list of searchable taxids"
+    conda:
+        "../envs/taxidtools.yaml"
     script:
         "../scripts/make_blast_mask.py"
 
@@ -185,6 +189,8 @@ rule find_consensus:
         min_consensus=config["taxonomy"]["min_consensus"],
     message:
         "Consensus taxonomy determination"
+    conda:
+        "../envs/taxidtools.yaml"
     script:
         "../scripts/min_consensus_filter.py"
 

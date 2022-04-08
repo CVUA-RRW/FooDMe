@@ -4,4 +4,4 @@ channels:
   - anaconda
   - defaults
 dependencies:
-  - vsearch=2.15.1
+  - vsearch=2.21.1

@@ -1,7 +1,7 @@
-name: cutadapt
+name: taxidtools
 channels:
-  - bioconda
   - conda-forge
+  - bioconda
   - defaults
 dependencies:
-  - cutadapt=3.7
+  - taxidtools=2.2.3

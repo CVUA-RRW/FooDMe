@@ -4,4 +4,4 @@ channels:
   - anaconda
   - defaults
 dependencies:
-  - krona=2.7.1
+  - krona=2.8.1

@@ -13,6 +13,8 @@ rule krona_table:
         krt="{sample}/krona/{sample}_krona_table.txt",
     message:
         "Exporting {wildcards.sample} in Krona input format"
+    conda:
+        "../envs/taxidtools.yaml"
     script:
         "../scripts/krona_table.py"
 

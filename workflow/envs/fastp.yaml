@@ -4,4 +4,4 @@ channels:
   - anaconda
   - defaults
 dependencies:
-  - fastp=0.20.1
+  - fastp=0.23.2
