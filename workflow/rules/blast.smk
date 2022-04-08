@@ -16,7 +16,7 @@ rule prep_taxonomy:
     conda:
         "../envs/taxidtools.yaml"
     log:
-        "logs/common/taxonomy_prep.log"
+        "logs/common/taxonomy_prep.log",
     script:
         "../scripts/filter_taxonomy.py"
 
@@ -32,7 +32,7 @@ rule get_taxid_from_db:
     conda:
         "../envs/blast.yaml"
     log:
-        "logs/common/taxid_form_db.log"
+        "logs/common/taxid_form_db.log",
     shell:
         """
         exec 2> {log}
@@ -59,7 +59,7 @@ rule create_blast_mask:
     conda:
         "../envs/taxidtools.yaml"
     log:
-        "logs/common/blast_mask.log"
+        "logs/common/blast_mask.log",
     script:
         "../scripts/make_blast_mask.py"
 
@@ -75,7 +75,7 @@ rule apply_blocklist:
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/common/blocklist.log"
+        "logs/common/blocklist.log",
     script:
         "../scripts/apply_blocklist.py"
 
@@ -88,7 +88,7 @@ rule no_masking:
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/common/blocklist.log"
+        "logs/common/blocklist.log",
     shell:
         """
         touch {output.mask} 2> {log}
@@ -103,7 +103,7 @@ rule no_blocklist:
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/common/blocklist.log"
+        "logs/common/blocklist.log",
     shell:
         """
         touch {output.block} > {log}
@@ -172,7 +172,7 @@ rule filter_blast:
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/{sample}/filter_blast.log"
+        "logs/{sample}/filter_blast.log",
     script:
         "../scripts/filter_blast.py"
 
@@ -188,7 +188,7 @@ rule find_consensus:
     message:
         "Consensus taxonomy determination"
     log:
-        "logs/{sample}/find_consensus.log"
+        "logs/{sample}/find_consensus.log",
     conda:
         "../envs/taxidtools.yaml"
     script:
@@ -215,7 +215,7 @@ rule blast_stats:
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/{sample}/blast_stats.log"
+        "logs/{sample}/blast_stats.log",
     shell:
         """
         exec 2> {log}
