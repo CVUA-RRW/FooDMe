@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
+import sys
+
+
+sys.stderr = open(snakemake.log[0], "w")
+
+
 def main(taxids, blocklist, output):
     with open(taxids, 'r') as fi:
         taxs = set([line.strip() for line in fi.readlines()])

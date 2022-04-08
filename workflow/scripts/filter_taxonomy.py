@@ -1,4 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
+import sys
 import taxidTools as txd
+
+
+sys.stderr = open(snakemake.log[0], "w")
 
 
 def main(nodes, lineage, taxid, out):

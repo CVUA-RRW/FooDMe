@@ -1,6 +1,3 @@
-import pandas as pd
-from os import stat
-
 shell.executable("bash")
 
 
@@ -18,6 +15,8 @@ rule prep_taxonomy:
         "Preparing taxonomy definitions"
     conda:
         "../envs/taxidtools.yaml"
+    log:
+        "logs/common/taxonomy_prep.log",
     script:
         "../scripts/filter_taxonomy.py"
 
@@ -32,8 +31,12 @@ rule get_taxid_from_db:
         "Collecting BLAST database entries"
     conda:
         "../envs/blast.yaml"
+    log:
+        "logs/common/taxid_form_db.log",
     shell:
         """
+        exec 2> {log}
+
         export BLASTDB={params.taxdb}
 
         blastdbcmd -db {params.blast_DB} -tax_info -outfmt %T \
@@ -55,6 +58,8 @@ rule create_blast_mask:
         "Preparing list of searchable taxids"
     conda:
         "../envs/taxidtools.yaml"
+    log:
+        "logs/common/blast_mask.log",
     script:
         "../scripts/make_blast_mask.py"
 
@@ -67,6 +72,10 @@ rule apply_blocklist:
         mask="common/blast_mask.txt",
     message:
         "Applying taxid blocklist"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/common/blocklist.log",
     script:
         "../scripts/apply_blocklist.py"
 
@@ -76,9 +85,13 @@ rule no_masking:
         mask=temp("common/nomask"),
     message:
         "Skipping BLAST database masking"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/common/blocklist.log",
     shell:
         """
-        touch {output.mask}
+        touch {output.mask} 2> {log}
         """
 
 
@@ -87,9 +100,13 @@ rule no_blocklist:
         block=temp("common/noblock"),
     message:
         "Skipping taxid blocklist cration"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/common/blocklist.log",
     shell:
         """
-        touch {output.block}
+        touch {output.block} > {log}
         """
 
 
@@ -116,7 +133,7 @@ rule blast_otus:
     conda:
         "../envs/blast.yaml"
     log:
-        "logs/{sample}_blast.log",
+        "logs/{sample}/blast.log",
     shell:
         """
         export BLASTDB={params.taxdb}
@@ -137,7 +154,7 @@ rule blast_otus:
             -qcov_hsp_perc {params.qcov} $masking \
             -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxid length mismatch gaps stitle' \
             -num_threads {threads} \
-        > logs/blast.log 2>&1
+        2> {log} 
 
         sed -i '1 i\query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\tsubject_taxid\talignment_length\tmismatch\tgaps\tsubject_name' {output.report}
         """
@@ -152,31 +169,12 @@ rule filter_blast:
         bit_diff=config["blast"]["bit_score_diff"],
     message:
         "Filtering BLAST results for {wildcards.sample}"
-    run:
-        if stat(input["report"]).st_size == 0:
-            with open(output["filtered"], "w") as fout:
-                fout.write(
-                    "query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\tsubject_taxid\talignment_length\tmismatch\tgaps\tsubject_name"
-                )
-        else:
-            df = pd.read_csv(input["report"], sep="\t", header=0)
-
-            if df.empty:
-                df.to_csv(output["filtered"], sep="\t", header=True, index=False)
-
-            else:
-                sd = dict(tuple(df.groupby("query")))
-
-                dfout = pd.DataFrame()
-
-                for key, val in sd.items():
-                    dfout = pd.concat([dfout, 
-                                       val[val["bitscore"] >= max(val["bitscore"]) - params.bit_diff]]
-                    )
-
-                dfout["query"] = dfout["query"].str.split(";").str[0]
-
-                dfout.to_csv(output["filtered"], sep="\t", header=True, index=False)
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/{sample}/filter_blast.log",
+    script:
+        "../scripts/filter_blast.py"
 
 
 rule find_consensus:
@@ -189,6 +187,8 @@ rule find_consensus:
         min_consensus=config["taxonomy"]["min_consensus"],
     message:
         "Consensus taxonomy determination"
+    log:
+        "logs/{sample}/find_consensus.log",
     conda:
         "../envs/taxidtools.yaml"
     script:
@@ -212,8 +212,14 @@ rule blast_stats:
         bit_diff=config["blast"]["bit_score_diff"],
     message:
         "Collecting BLAST stats for {wildcards.sample}"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/{sample}/blast_stats.log",
     shell:
         """
+        exec 2> {log}
+
         if [ -s {input.blast} ]
         then
             # Get list of all OTUs
@@ -253,13 +259,20 @@ rule collect_blast_stats:
     input:
         report=expand("{sample}/reports/{sample}_blast_stats.tsv", sample=samples.index),
     output:
-        agg=report("reports/blast_stats.tsv",
-                   caption="../report/blast_stats.rst",
-                   category="Quality controls"),
+        agg=report(
+            "reports/blast_stats.tsv",
+            caption="../report/blast_stats.rst",
+            category="Quality controls",
+        ),
     message:
         "Aggregating BLAST stats"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/all/blast_stats.log",
     shell:
         """
+        exec 2> {log}
         cat {input.report[0]} | head -n 1 > {output.agg}
         for i in {input.report}; do 
             cat ${{i}} | tail -n +2 >> {output.agg}
@@ -274,8 +287,14 @@ rule tax_stats:
         "{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
     message:
         "Collecting taxonomy assignement stats for {wildcards.sample}"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/{sample}/taxonomy_stats.log",
     shell:
         """
+        exec 2> {log}
+
         echo "Sample\tQuery\tUnknown sequences\tUnknown sequences [%]\t(Sub-)Species consensus\t(Sub-)Species consensus [%]\tGenus consensus\tGenus consensus [%]\tFamily consensus\tFamily consensus [%]\tHigher rank consensus\tHigher rank consensus [%]" > {output}
 
         all=$(grep -c -E "OTU_|ASV_" <(tail -n +2 {input}) || true)
@@ -308,13 +327,20 @@ rule collect_tax_stats:
             sample=samples.index,
         ),
     output:
-        agg=report("reports/taxonomy_assignement_stats.tsv",
-                   caption="../report/taxonomic_ass_stats.rst",
-                   category="Quality controls")
+        agg=report(
+            "reports/taxonomy_assignement_stats.tsv",
+            caption="../report/taxonomic_ass_stats.rst",
+            category="Quality controls",
+        ),
     message:
         "Collecting taxonomy assignement stats"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/all/taxonomy_stats.log",
     shell:
         """
+        exec 2> {log}
         cat {input.report[0]} | head -n 1 > {output.agg}
         for i in {input.report}; do 
             cat ${{i}} | tail -n +2 >> {output.agg}
@@ -326,52 +352,44 @@ rule summarize_results:
     input:
         compo="{sample}/reports/{sample}_blast_stats.tsv",
     output:
-        report=report("{sample}/reports/{sample}_composition.tsv",
-                      caption="../report/compo_sample.rst",
-                      category="Results",
-                      subcategory="{wildcards.sample}"),
+        report=report(
+            "{sample}/reports/{sample}_composition.tsv",
+            caption="../report/compo_sample.rst",
+            category="Results",
+            subcategory="{wildcards.sample}",
+        ),
+    params:
+        sample_name=lambda w, input: w.sample,
     message:
         "Summarizing results for {wildcards.sample}"
-    run:
-        df = pd.read_csv(input.compo, sep="\t", header=0).fillna(0)
-
-        # Empty input case
-        if len(df["Query"]) == 1 and df["Query"].head(1).item() == "-":
-            with open(output.report, "w") as fout:
-                fout.write(
-                    "Sample\tConsensus\tRank\tTaxid\tCount\tDisambiguation\tPercent of total"
-                )
-        else:
-            groups = df.groupby(["Consensus", "Rank", "Taxid"]).agg(
-                {"Count": "sum", "Disambiguation": concatenate_uniq}
-            )
-            groups = groups.sort_values("Count", ascending=False).reset_index()
-            assigned, notassigned = (
-                groups[groups["Consensus"] != "-"],
-                groups[groups["Consensus"] == "-"],
-            )
-            assigned["perc"] = round(groups["Count"] / groups["Count"].sum() * 100, 2)
-            notassigned["perc"] = "-"
-            groups = pd.concat([assigned, notassigned])
-            groups.insert(0, "Sample", wildcards.sample)
-            groups.rename(columns={"perc": "Percent of total"}, inplace=True)
-            groups["Consensus"].replace({"-": "No match"}, inplace=True)
-            groups["Taxid"].replace({0: "-"}, inplace=True)
-            groups.to_csv(output.report, sep="\t", index=False)
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/{sample}/summarize_results.log",
+    script:
+        "../scripts/summarize_results.py"
 
 
 rule collect_results:
     input:
         report=expand("{sample}/reports/{sample}_composition.tsv", sample=samples.index),
     output:
-        agg=report("reports/composition_summary.tsv",
-                   caption="../report/compo_glob.rst",
-                   category="Results",
-                   subcategory="Global")
+        agg=report(
+            "reports/composition_summary.tsv",
+            caption="../report/compo_glob.rst",
+            category="Results",
+            subcategory="Global",
+        ),
     message:
         "Aggregating compositions"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/all/collect_results.log",
     shell:
         """
+        exec 2> {log}
+
         cat {input.report[0]} | head -n 1 > {output.agg}
         for i in {input.report}; do 
             cat ${{i}} | tail -n +2 >> {output.agg}

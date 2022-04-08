@@ -3,9 +3,11 @@
 #### Improvements
 * Now unpacks trimmed read files on a sample wise fashion prior to Dada2 denoising instead of unpacking all samples at once. This should reduce the memory use during the analysis.
 * Preventively fixed a pandas CopyWarning (#31) and FutureWarning
-* Updated dependencies to newer versions. NCBI's upcoming new identifier definitions should be supported.
-* Check compatibility with snakemake v7
-* Dependency taxidTools now handled through conda environment and therefore not needed in the base environment anymore. 
+* Updated dependencies to newer versions. NCBI's upcoming new identifier definitions should be supported (#33).
+* Check compatibility with snakemake v7 (#34)
+* Dependency taxidTools now handled through conda environment and therefore not needed in the base environment anymore (#36). 
+* Reorganised logging (#27)
+* Fully linted and formatted (#28)
 
 ### 1.4.3
 

@@ -294,9 +294,11 @@ rule collect_clustering_stats:
     input:
         report=expand("{sample}/reports/{sample}_clustering.tsv", sample=samples.index),
     output:
-        agg=report("reports/clustering_stats.tsv",
-                   caption="../report/clustering_stats.rst",
-                   category="Quality controls"),
+        agg=report(
+            "reports/clustering_stats.tsv",
+            caption="../report/clustering_stats.rst",
+            category="Quality controls",
+        ),
     message:
         "collecting clustering stats"
     shell:
