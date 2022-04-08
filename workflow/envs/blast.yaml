@@ -4,4 +4,4 @@ channels:
   - anaconda
   - defaults
 dependencies:
-  - blast=2.10.1
+  - blast=2.12.0

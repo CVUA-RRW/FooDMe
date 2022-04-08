@@ -36,7 +36,7 @@ git clone https://github.com/CVUA-RRW/FooDMe.git
 Set up a conda environment containing snakemake, python and the pandas library and activate it:
 
 ```bash
-conda create --name foodme -c bioconda -c conda-forge snakemake">=6.6" pandas">=1.3" taxidtools
+conda create --name foodme -c bioconda -c conda-forge snakemake">=6.6" 
 conda activate foodme
 ```
 
