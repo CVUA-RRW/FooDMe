@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Linting:
+  formatting:
     runs-on: ubuntu-latest
     steps:
     
