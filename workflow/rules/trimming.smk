@@ -1,7 +1,3 @@
-import os
-import json
-import csv
-
 shell.executable("bash")
 
 
@@ -17,9 +13,11 @@ rule get_primer_revcomp:
         "Reverse-complementing primers"
     conda:
         "../envs/seqtk.yaml"
+    log:
+        "logs/common/primer_revcomp.log",
     shell:
         """
-        seqtk seq -r {params.primers} > {output.primers_rc}
+        seqtk seq -r {params.primers} 1> {output.primers_rc} 2> {log}
         """
 
 
@@ -44,7 +42,7 @@ rule cutadapt:
     conda:
         "../envs/cutadapt.yaml"
     log:
-        "logs/{sample}_cutadapt.log",
+        "logs/{sample}/cutadapt.log",
     shell:
         """
         # Simple case only 5p trimming
@@ -98,8 +96,14 @@ rule primer_trimming_stats:
         report=temp("{sample}/trimmed/{sample}_primer_trimming.tsv"),
     message:
         "Collecting primer trimming statisctics for {wildcards.sample}"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/{sample}/primer_trimming_stats.log",
     shell:
         """
+        exec 2> {log}
+        
         before_r1=$(zcat {input.before_r1} | echo $((`wc -l`/4)))
         after_r1=$(zcat {input.after_r1} | echo $((`wc -l`/4)))
         before_r2=$(zcat {input.before_r2} | echo $((`wc -l`/4)))
@@ -143,7 +147,7 @@ rule run_fastp:
     conda:
         "../envs/fastp.yaml"
     log:
-        "logs/{sample}_fastp.log",
+        "logs/{sample}/fastp.log",
     shell:
         """
         fastp -i {input.r1} -I {input.r2} \
@@ -169,25 +173,12 @@ rule parse_fastp:
         tsv=temp("{sample}/trimmed/{sample}_fastp.tsv"),
     message:
         "Parsing fastp json report for {wildcards.sample}"
-    run:
-        with open(input.json, "r") as handle:
-            data = json.load(handle)
-        link_path = os.path.join("..", input.html)
-        header = "Total bases before quality trim\tTotal reads after quality trim\tTotal bases after quality trim\tQ20 rate after\tQ30 rate after\tDuplication rate\tInsert size peak\tlink_to_report"
-        datalist = [
-            data["summary"]["before_filtering"]["total_bases"],
-            data["summary"]["after_filtering"]["total_reads"],
-            data["summary"]["after_filtering"]["total_bases"],
-            data["summary"]["after_filtering"]["q20_rate"],
-            data["summary"]["after_filtering"]["q30_rate"],
-            data["duplication"]["rate"],
-            data["insert_size"]["peak"],
-            link_path,
-        ]
-        with open(output.tsv, "w") as outfile:
-            outfile.write(f"{header}\n")
-            writer = csv.writer(outfile, delimiter="\t")
-            writer.writerow(datalist)
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/{sample}/parse_fatsp.log"
+    script:
+        "../scripts/parse_fastp.py"
 
 
 # Reporting rules -------------------------------------------------------------
@@ -201,9 +192,13 @@ rule trimming_stats:
         report="{sample}/reports/{sample}_trimmed.tsv",
     message:
         "Merging trimming stats for {wildcards.sample}"
+    log:
+        "logs/{sample}/trimming_stats.log"
+    conda:
+        "../envs/pandas.yaml"
     shell:
         """
-        paste {input.cutadapt} {input.fastp} > {output.report}
+        paste {input.cutadapt} {input.fastp} 1> {output.report} 2> {log}
         """
 
 
@@ -216,8 +211,14 @@ rule collect_trimming_stats:
                    category="Quality controls"),
     message:
         "Aggregating fastp stats"
+    log:
+        "logs/all/trimming_stats.log"
+    conda:
+        "../envs/pandas.yaml"
     shell:
         """
+        exec 2> {log}
+        
         cat {input.report[0]} | head -n 1 > {output.agg}
         for i in {input.report}; do 
             cat ${{i}} | tail -n +2 >> {output.agg}

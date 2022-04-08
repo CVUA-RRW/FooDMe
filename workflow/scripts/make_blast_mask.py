@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 
 
+import sys
 import taxidTools as txd
+
+
+sys.stderr = open(snakemake.log[0], "w")
 
 
 def main(taxid_file, parent, output, taxonomy):
