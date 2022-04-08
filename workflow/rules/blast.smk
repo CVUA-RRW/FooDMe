@@ -36,7 +36,7 @@ rule get_taxid_from_db:
     shell:
         """
         exec 2> {log}
-        
+
         export BLASTDB={params.taxdb}
 
         blastdbcmd -db {params.blast_DB} -tax_info -outfmt %T \
@@ -219,7 +219,7 @@ rule blast_stats:
     shell:
         """
         exec 2> {log}
-        
+
         if [ -s {input.blast} ]
         then
             # Get list of all OTUs
@@ -259,9 +259,11 @@ rule collect_blast_stats:
     input:
         report=expand("{sample}/reports/{sample}_blast_stats.tsv", sample=samples.index),
     output:
-        agg=report("reports/blast_stats.tsv",
-                   caption="../report/blast_stats.rst",
-                   category="Quality controls"),
+        agg=report(
+            "reports/blast_stats.tsv",
+            caption="../report/blast_stats.rst",
+            category="Quality controls",
+        ),
     message:
         "Aggregating BLAST stats"
     conda:
@@ -292,7 +294,7 @@ rule tax_stats:
     shell:
         """
         exec 2> {log}
-        
+
         echo "Sample\tQuery\tUnknown sequences\tUnknown sequences [%]\t(Sub-)Species consensus\t(Sub-)Species consensus [%]\tGenus consensus\tGenus consensus [%]\tFamily consensus\tFamily consensus [%]\tHigher rank consensus\tHigher rank consensus [%]" > {output}
 
         all=$(grep -c -E "OTU_|ASV_" <(tail -n +2 {input}) || true)
@@ -325,9 +327,11 @@ rule collect_tax_stats:
             sample=samples.index,
         ),
     output:
-        agg=report("reports/taxonomy_assignement_stats.tsv",
-                   caption="../report/taxonomic_ass_stats.rst",
-                   category="Quality controls")
+        agg=report(
+            "reports/taxonomy_assignement_stats.tsv",
+            caption="../report/taxonomic_ass_stats.rst",
+            category="Quality controls",
+        ),
     message:
         "Collecting taxonomy assignement stats"
     conda:
@@ -348,10 +352,12 @@ rule summarize_results:
     input:
         compo="{sample}/reports/{sample}_blast_stats.tsv",
     output:
-        report=report("{sample}/reports/{sample}_composition.tsv",
-                      caption="../report/compo_sample.rst",
-                      category="Results",
-                      subcategory="{wildcards.sample}"),
+        report=report(
+            "{sample}/reports/{sample}_composition.tsv",
+            caption="../report/compo_sample.rst",
+            category="Results",
+            subcategory="{wildcards.sample}",
+        ),
     params:
         sample_name=lambda w, input: w.sample,
     message:
@@ -368,10 +374,12 @@ rule collect_results:
     input:
         report=expand("{sample}/reports/{sample}_composition.tsv", sample=samples.index),
     output:
-        agg=report("reports/composition_summary.tsv",
-                   caption="../report/compo_glob.rst",
-                   category="Results",
-                   subcategory="Global")
+        agg=report(
+            "reports/composition_summary.tsv",
+            caption="../report/compo_glob.rst",
+            category="Results",
+            subcategory="Global",
+        ),
     message:
         "Aggregating compositions"
     conda:
@@ -381,7 +389,7 @@ rule collect_results:
     shell:
         """
         exec 2> {log}
-        
+
         cat {input.report[0]} | head -n 1 > {output.agg}
         for i in {input.report}; do 
             cat ${{i}} | tail -n +2 >> {output.agg}
