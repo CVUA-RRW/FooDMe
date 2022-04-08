@@ -16,7 +16,7 @@ rule krona_table:
     conda:
         "../envs/taxidtools.yaml"
     log:
-        "logs/{sample}/krona_table.log"
+        "logs/{sample}/krona_table.log",
     script:
         "../scripts/krona_table.py"
 
@@ -25,16 +25,18 @@ rule krona:
     input:
         table="{sample}/krona/{sample}_krona_table.txt",
     output:
-        graph=report("{sample}/reports/{sample}_krona_chart.html",
-                     caption="../report/krona.rst",
-                     category="Results",
-                     subcategory="{wildcards.sample}"),
+        graph=report(
+            "{sample}/reports/{sample}_krona_chart.html",
+            caption="../report/krona.rst",
+            category="Results",
+            subcategory="{wildcards.sample}",
+        ),
     message:
         "Producing graphical summary for {wildcards.sample}"
     conda:
         "../envs/krona.yaml"
     log:
-        "logs/{sample}/krona.log"
+        "logs/{sample}/krona.log",
     shell:
         "ktImportText -o {output.graph} {input.table} 2> {log}"
 
@@ -43,10 +45,12 @@ rule krona_all:
     input:
         report=expand("{sample}/krona/{sample}_krona_table.txt", sample=samples.index),
     output:
-        agg=report("reports/krona_chart.html",
-                   caption="../report/krona_glob.rst",
-                   category="Results",
-                   subcategory="Global"),
+        agg=report(
+            "reports/krona_chart.html",
+            caption="../report/krona_glob.rst",
+            category="Results",
+            subcategory="Global",
+        ),
     params:
         samples.index,
     message:
@@ -54,7 +58,7 @@ rule krona_all:
     conda:
         "../envs/krona.yaml"
     log:
-        "logs/all/krona.log"
+        "logs/all/krona.log",
     shell:
         """
         exec 2> {log}
@@ -92,11 +96,11 @@ rule summary_report:
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/{sample}/summary_report.log"
+        "logs/{sample}/summary_report.log",
     shell:
         """
         exec 2> {log}
-        
+
         if [[ {params.method} == "otu" ]] 
         then
             echo "Sample\tQ30 rate\tInsert size peak\tRead number\tPseudo-reads\tReads in OTU\tOTU number\tAssigned reads\t(Sub-)Species consensus\tGenus consensus\tHigher rank consensus\tNo match" > {output.report}
@@ -138,15 +142,17 @@ rule collect_summaries:
     input:
         report=expand("{sample}/reports/{sample}_summary.tsv", sample=samples.index),
     output:
-        agg=report("reports/summary.tsv",
-                   caption="../report/summary.rst",
-                   category="Quality controls"),
+        agg=report(
+            "reports/summary.tsv",
+            caption="../report/summary.rst",
+            category="Quality controls",
+        ),
     message:
-        "Aggregating summary reports",
+        "Aggregating summary reports"
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/all/collect_summaries.log"
+        "logs/all/collect_summaries.log",
     shell:
         """
         exec 2> {log}
@@ -182,14 +188,16 @@ rule report_sample:
         version=version,
         sample=lambda w, input: w.sample,
     output:
-        report=report("{sample}/reports/{sample}_report.html",
-                      caption="../report/markdown_sample.rst",
-                      category="Results",
-                      subcategory="{wildcards.sample}"),
+        report=report(
+            "{sample}/reports/{sample}_report.html",
+            caption="../report/markdown_sample.rst",
+            category="Results",
+            subcategory="{wildcards.sample}",
+        ),
     conda:
         "../envs/rmarkdown.yaml"
     log:
-        "logs/{sample}/report.log"
+        "logs/{sample}/report.log",
     message:
         "Generating html report for {wildcards.sample}"
     script:
@@ -218,14 +226,16 @@ rule report_all:
         version=version,
         sample="all",
     output:
-        report=report("reports/report.html",
-                      caption="../report/markdown_glob.rst",
-                      category="Results",
-                      subcategory="Global"),
+        report=report(
+            "reports/report.html",
+            caption="../report/markdown_glob.rst",
+            category="Results",
+            subcategory="Global",
+        ),
     conda:
         "../envs/rmarkdown.yaml"
     log:
-        "logs/all/report.log"
+        "logs/all/report.log",
     message:
         "Generating global html report"
     script:
@@ -246,11 +256,11 @@ rule software_versions:
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/common/software_version.log"
+        "logs/common/software_version.log",
     shell:
         """
         exec 2> {log}
-        
+
         echo "Software\tVersion" \
             > {output.report}
 
@@ -300,11 +310,11 @@ rule database_version:
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/common/db_versions.log"
+        "logs/common/db_versions.log",
     shell:
         """
         exec 2> {log}
-        
+
         echo "Database\tLast modified\tFull path" \
             > {output.report}
 

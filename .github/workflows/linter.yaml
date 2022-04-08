@@ -5,9 +5,9 @@ on:
 # - conda env warning
 # - log warning
 # snakefmt will fail until update to 0.4.4
-  # push:
-  # pull_request:
-    # branches: [master]
+  push:
+  pull_request:
+    branches: [master]
   workflow_dispatch:
 
 jobs:

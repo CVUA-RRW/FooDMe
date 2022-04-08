@@ -16,7 +16,7 @@ rule unpack_fastq:
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/{sample}/fastq_unpack.log"
+        "logs/{sample}/fastq_unpack.log",
     shell:
         """
         exec 2> {log}
@@ -62,15 +62,17 @@ rule collect_denoising_stats:
     input:
         report=expand("{sample}/reports/{sample}_denoising.tsv", sample=samples.index),
     output:
-        agg=report("reports/denoising.tsv",
-                   caption="../report/denoising_stats.rst",
-                   category="Quality controls"),
+        agg=report(
+            "reports/denoising.tsv",
+            caption="../report/denoising_stats.rst",
+            category="Quality controls",
+        ),
     message:
         "Aggregating denoising stats"
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/all/denoising_stats.log"
+        "logs/all/denoising_stats.log",
     shell:
         """
         exec 2> {log}

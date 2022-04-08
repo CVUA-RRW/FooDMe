@@ -103,7 +103,7 @@ rule primer_trimming_stats:
     shell:
         """
         exec 2> {log}
-        
+
         before_r1=$(zcat {input.before_r1} | echo $((`wc -l`/4)))
         after_r1=$(zcat {input.after_r1} | echo $((`wc -l`/4)))
         before_r2=$(zcat {input.before_r2} | echo $((`wc -l`/4)))
@@ -176,7 +176,7 @@ rule parse_fastp:
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/{sample}/parse_fatsp.log"
+        "logs/{sample}/parse_fatsp.log",
     script:
         "../scripts/parse_fastp.py"
 
@@ -193,7 +193,7 @@ rule trimming_stats:
     message:
         "Merging trimming stats for {wildcards.sample}"
     log:
-        "logs/{sample}/trimming_stats.log"
+        "logs/{sample}/trimming_stats.log",
     conda:
         "../envs/pandas.yaml"
     shell:
@@ -206,19 +206,21 @@ rule collect_trimming_stats:
     input:
         report=expand("{sample}/reports/{sample}_trimmed.tsv", sample=samples.index),
     output:
-        agg=report("reports/fastp_stats.tsv",
-                   caption="../report/trimming_stats.rst",
-                   category="Quality controls"),
+        agg=report(
+            "reports/fastp_stats.tsv",
+            caption="../report/trimming_stats.rst",
+            category="Quality controls",
+        ),
     message:
         "Aggregating fastp stats"
     log:
-        "logs/all/trimming_stats.log"
+        "logs/all/trimming_stats.log",
     conda:
         "../envs/pandas.yaml"
     shell:
         """
         exec 2> {log}
-        
+
         cat {input.report[0]} | head -n 1 > {output.agg}
         for i in {input.report}; do 
             cat ${{i}} | tail -n +2 >> {output.agg}
