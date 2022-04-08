@@ -1,28 +1,52 @@
 name: Lint Code Base
 
 on:
-# Will fail linting because of: 
-# - conda env warning
-# - log warning
-# snakefmt will fail until update to 0.4.4
   push:
+    branches:
+      - master
   pull_request:
-    branches: [master]
+    branches: 
+      - master
   workflow_dispatch:
 
+# jobs:
+  # Linting:
+    # runs-on: ubuntu-latest
+    # steps:
+    
+    # - name: Checkout Code
+      # uses: actions/checkout@v2
+    
+    # - name: Lint
+      # uses: github/super-linter@v3
+      # env:
+        # VALIDATE_ALL_CODEBASE: false
+        # DEFAULT_BRANCH: master
+        # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # VALIDATE_SNAKEMAKE_SNAKEFMT: true
+        # VALIDATE_SNAKEMAKE_LINT: true
+
 jobs:
-  Linting:
+  formatting:
     runs-on: ubuntu-latest
     steps:
-    
-    - name: Checkout Code
-      uses: actions/checkout@v2
-    
-    - name: Lint
-      uses: github/super-linter@v3
+    - uses: actions/checkout@v1
+    - name: Checkout submodules
+      uses: textbook/git-checkout-submodule-action@2.0.0
+    - name: Formatting
+      uses: github/super-linter@v4
       env:
         VALIDATE_ALL_CODEBASE: false
         DEFAULT_BRANCH: master
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VALIDATE_SNAKEMAKE_SNAKEFMT: true
-        VALIDATE_SNAKEMAKE_LINT: true
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Linting
+      uses: snakemake/snakemake-github-action@v1.22.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--lint"
