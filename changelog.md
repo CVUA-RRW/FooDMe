@@ -6,6 +6,8 @@
 * Updated dependencies to newer versions. NCBI's upcoming new identifier definitions should be supported (#33).
 * Check compatibility with snakemake v7 (#34)
 * Dependency taxidTools now handled through conda environment and therefore not needed in the base environment anymore (#36). 
+* Reorganised logging (#27)
+* Fully linted and formatted (#28)
 
 ### 1.4.3
 
