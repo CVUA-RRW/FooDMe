@@ -186,6 +186,7 @@ tryCatch({
     write.table(track, report, quote = FALSE, sep = "\t", row.names = FALSE)
     
 }, error = function(e) {
+    warning(paste0("Error message: ", e$message))
     warning("Terminated process on error.")
     warning("Empty output files generated")
     
