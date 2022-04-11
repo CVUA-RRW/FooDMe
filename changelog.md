@@ -1,4 +1,4 @@
-### Dev
+### 1.4.5
 
 #### Documentation
 * The usage of the python warpper is not recommended. Prefer the use a yaml configuration file. 
