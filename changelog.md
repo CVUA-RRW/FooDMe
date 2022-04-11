@@ -1,5 +1,10 @@
 ### Dev
 
+#### Documentation
+* The usage of the python warpper is not recommended. Prefer the use a yaml configuration file. 
+* Pending deprecation warning added to the python wrapper
+* Expanded documentation on the use of the config file 
+
 #### Improvements
 * Improved error handling and logging for the DADA2 steps. Will now correctly output number of reads and denoisin/merging results for failing samples.
 
