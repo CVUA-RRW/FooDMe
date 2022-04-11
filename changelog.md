@@ -1,6 +1,11 @@
 ### Dev
 
 #### Improvements
+* Improved error handling and logging for the DADA2 steps. Will now correctly output number of reads and denoisin/merging results for failing samples.
+
+### 1.4.4
+
+#### Improvements
 * Now unpacks trimmed read files on a sample wise fashion prior to Dada2 denoising instead of unpacking all samples at once. This should reduce the memory use during the analysis.
 * Preventively fixed a pandas CopyWarning (#31) and FutureWarning
 * Updated dependencies to newer versions. NCBI's upcoming new identifier definitions should be supported (#33).

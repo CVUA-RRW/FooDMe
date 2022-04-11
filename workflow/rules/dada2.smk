@@ -30,8 +30,8 @@ rule denoise:
         r1="{sample}/trimmed/{sample}_R1.fastq",
         r2="{sample}/trimmed/{sample}_R2.fastq",
     output:
-        r1_filt=temp("{sample}/denoising/{sample}_R1_filtered.fasta"),
-        r2_filt=temp("{sample}/denoising/{sample}_R2_filtered.fasta"),
+        r1_filt=temp("{sample}/denoising/{sample}_R1_filtered.fasta.gz"),
+        r2_filt=temp("{sample}/denoising/{sample}_R2_filtered.fasta.gz"),
         errplotF="{sample}/denoising/{sample}_R1_errorRates.pdf",
         errplotR="{sample}/denoising/{sample}_R2_errorRates.pdf",
         denoiseR1="{sample}/denoising/{sample}_R1_denoising.txt",

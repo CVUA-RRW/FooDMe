@@ -1,14 +1,44 @@
 #!/usr/bin/env Rscript
 
+
+# logging
+log = file(snakemake@log[[1]], open="wt")
+sink(log)
+sink(log, type = "message")
+
+#DEBUGG
+# log = file("logfile.log", open="wt")
+# sink(log)
+# sink(log, type = "message")
+
+# threads <- 6
+# max_EE <- 0
+# sample.names <- "test"
+# filtFs <- "R1.fa"
+# filtRs <- "R2.fa"
+
+# fnFs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/NTC/trimmed/NTC_R1.fastq"
+# fnRs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/NTC/trimmed/NTC_R2.fastq"
+
+# fnFs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/NTC/trimmed/NTC_R1x.fastq"
+# fnRs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/NTC/trimmed/NTC_R2x.fastq"
+
+# fnFs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/Lasagne_horse/trimmed/Lasagne_horse_R1.fastq"
+# fnRs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/Lasagne_horse/trimmed/Lasagne_horse_R2.fastq"
+##
+
+
+# Imports
 library(ggplot2, quiet=T)
 library(dada2, quiet=T)
 
-# Get parameters from snakemake ---------------------------------------------------------------------------------------------
-# Input
+
+# Get parameters from snakemake 
+# Inputs
 fnFs <- snakemake@input[["r1"]]
 fnRs <- snakemake@input[["r2"]]
 
-# Output
+# Outputs
 filtFs <- snakemake@output[["r1_filt"]]
 filtRs <- snakemake@output[["r2_filt"]]
 errplotF <- snakemake@output[["errplotF"]]
@@ -31,25 +61,34 @@ maxlength <- snakemake@params[["max_length"]]
 max_mismatch <- snakemake@params[["max_mismatch"]]
 chimera <- snakemake@params[["chimera"]]
 
-# logging
-log = file(snakemake@log[[1]], open="wt")
-sink(log)
-sink(log, type = "message")
+
+getN <- function(x) {
+    tryCatch(sum(getUniques(x)),
+             error=function(e){return(0)})
+}
+
 
 # DADA Workflow -------------------------------------------------------------------------------------------------------------
 
-# Is there a more elegant solution here to handle no results cases?
-# can't find a way to properly handle exceptions in R1
 
+# Filter reads
+names(filtFs) <- sample.names
+names(filtRs) <- sample.names
+
+out <- suppressWarnings(
+            withCallingHandlers(
+                expr=filterAndTrim(fnFs, filtFs, fnRs, filtRs, 
+                              maxN=0, maxEE=max_EE, rm.phix=TRUE,
+                              compress=TRUE, multithread=threads, verbose=TRUE),
+                error=function(e) {message(e$message)},
+                warning=function(w) {message(w$message)
+                                     writeLines("", filtRs)
+                                     writeLines("", filtFs)
+                                     }
+            ))
+            
+# Learn Error rate
 tryCatch({
-    # Filter reads
-    names(filtFs) <- sample.names
-    names(filtRs) <- sample.names
-    out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, 
-                  maxN=0, maxEE=max_EE, rm.phix=TRUE,
-                  compress=TRUE, multithread=threads, verbose=TRUE)
-
-    # Learn Error rate
     errF <- learnErrors(filtFs, multithread=threads, verbose=TRUE)
     errR <- learnErrors(filtRs, multithread=threads, verbose=TRUE)
 
@@ -112,7 +151,6 @@ tryCatch({
     writeLines(asfasta, chimeras_fasta)
 
     # Report
-    getN <- function(x) sum(getUniques(x))
     track <- cbind(sample.names,
                     out,
                     round((out[1]-out[2])/out[1]*100, 2),
@@ -147,15 +185,11 @@ tryCatch({
                     "Reads in ASVs [%]")
     write.table(track, report, quote = FALSE, sep = "\t", row.names = FALSE)
     
-}, error = function(c) {
+}, error = function(e) {
+    warning(paste0("Error message: ", e$message))
+    warning("Terminated process on error.")
+    warning("Empty output files generated")
     
-    # Write empty files 
-    if (!exists(filtRs)){
-        writeLines("", filtRs)
-    }
-    if (!exists(filtFs)){
-        writeLines("", filtFs)
-    }
     if (!exists(errplotF)){
         ggplot() +
         theme_void() +
@@ -186,8 +220,39 @@ tryCatch({
         writeLines("", asv_table)
     }
     if (!exists(report)){
-        writeLines("Sample	Total reads	Filtered reads	Discarded reads [%]	Denoised R1	Denoised R2	Merged	Merging failures [%]	ASV	Size-filtered ASV	Discarded ASVs [% ASV]	Discarded ASVs [% of reads]	Non-chimeric ASV	Chimeras [% ASV]	Chimeras [% of reads]	Reads in ASVs	Reads in ASVs [%]", 
-                    report)
+        track <- cbind(sample.names,
+                        out,
+                        round((out[1]-out[2])/out[1]*100, 2),
+                        getN(dadaFs),
+                        getN(dadaRs),
+                        getN(mergers),
+                        round((1-getN(mergers)/out[2])*100, 2),
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0)
+        colnames(track) <- c("Sample",
+                            "Total reads", "Filtered reads",
+                            "Discarded reads [%]",
+                            "Denoised R1",
+                            "Denoised R2",
+                            "Merged",
+                            "Merging failures [%]",
+                            "ASV",
+                            "Size-filtered ASV",
+                            "Discarded ASVs [% ASV]",
+                            "Discarded ASVs [% of reads]",
+                            "Non-chimeric ASV",
+                            "Chimeras [% ASV]",
+                            "Chimeras [% of reads]",
+                            "Reads in ASVs",
+                            "Reads in ASVs [%]")
+        write.table(track, report, quote = FALSE, sep = "\t", row.names = FALSE)
     }
     if (!exists(chimeras_fasta)){
         writeLines("", chimeras_fasta)
