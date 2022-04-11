@@ -49,7 +49,7 @@ onstart:
     print(f"\nYou are using FooDMe version: {version}")
     with open(pipe_log, "a") as f:
         f.write(f"[{get_local_time()}]: Pipeline started\n")
-
+    raise()
 
 onsuccess:
     try:
