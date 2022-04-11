@@ -49,7 +49,7 @@ onstart:
     print(f"\nYou are using FooDMe version: {version}")
     with open(pipe_log, "a") as f:
         f.write(f"[{get_local_time()}]: Pipeline started\n")
-    raise()
+
 
 onsuccess:
     try:
@@ -67,12 +67,18 @@ onsuccess:
 
 
 onerror:
-    for logfile in os.listdir(".snakemake/log/"):
-        shutil.move(os.path.join(".snakemake/log", logfile), "logs")
-    shutil.rmtree(".snakemake", ignore_errors=True)
-    print(
-        f"\nAn error occured, please consult the latest log file in"
-        f"{os.path.join(config['workdir'], '.snakemake', 'log')}"
-    )
+    try:
+        for logfile in os.listdir(".snakemake/log/"):
+            shutil.move(os.path.join(".snakemake/log", logfile), "logs")
+        shutil.rmtree(".snakemake", ignore_errors=True)
+        print(
+            f"\nAn error occured, please consult the latest log file in"
+            f"{os.path.join(config['workdir'], '.snakemake', 'log')}"
+        )
+    except:
+        print(
+            f"\nAn error occured, please consult the snakemake log file in"
+            f"the current working directory."
+        )
     with open(pipe_log, "a") as f:
         f.write(f"[{get_local_time()}]: Pipeline stopped on error\n")
