@@ -1,5 +1,8 @@
 ### Dev
 
+#### Improvements
+* Improved error handling and logging for the DADA2 steps. Will now correctly output number of reads and denoisin/merging results for failing samples.
+
 ### 1.4.4
 
 #### Improvements
