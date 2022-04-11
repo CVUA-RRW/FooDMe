@@ -18,6 +18,11 @@ version = open(
             'r').read()
 
 
+def soft_deprecation_warning():
+    print("WARNING: The python wrapper will be deprecated in a future version. Use a yaml config file instead. See https://github.com/CVUA-RRW/FooDMe#calling-snakemake-with-a-configuration-file for more details",
+          )
+
+
 def create_config(config_file, args):
     if os.path.exists(config_file):
         print("\nWARNING: The file "+config_file+" already exists.")
@@ -255,6 +260,10 @@ def main():
     
     # On quit
     print("\nThank you for using FooDMe!\n")
+    
+    
 
 if __name__=='__main__':
+        soft_deprecation_warning()
         main()
+        soft_deprecation_warning()
