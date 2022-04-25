@@ -111,6 +111,9 @@ run the pipeline with fixed parameters.
 
 #### Using the python wrapper
 
+**It is advised to use a yaml configuration file to run the workflow (see below).**
+**The python wrapper will be deprecated in a future version.**
+
 ```
 usage: FooDMe [-h] [-v] -l SAMPLE_LIST -d WORKING_DIRECTORY [--forceall] [-n] [-T THREADS] [-t THREADS_SAMPLE] [-c CONDAPREFIX]
               [-s SNAKEFILE] [--keep_temp] [--fastp_length FASTP_LENGTH] [--fastp_min_phred FASTP_MIN_PHRED]
@@ -235,15 +238,29 @@ To use the pipeline offline and/or avoid recreating the conda environements use
 
 #### Calling snakemake with a configuration file
 
-Below is a minimal exemple for calling snakemake directly. Consult 
-[snakemake's documentation](https://snakemake.readthedocs.io/en/stable/) for more details.
+The most reproducible way to use the pipeline is to modify the configuration file `config/config.yaml`
+with the parmeters for your analysis and saving it in a local directory.
+
+You can then run the workflow using:
 
 ```bash 
 snakemake -s /path/to/FooDMe/Snakefile --configfile path/to/config.yaml --use-conda --cores 1
 ```
 
-To use the pipeline offline and/or avoid recreating the conda environements use 
-`--conda-prefix /path/to/conda/envs`
+To use the pipeline offline and/or avoid recreating the conda environements add 
+`--conda-prefix /path/to/conda/envs` to the above command.
+
+It is possible to modify a subset of the parameters (typically input and working directories) by 
+specifying these parameters in the snakemake call:
+
+```bash
+snakemake -s /path/to/FooDMe/Snakefile --configfile path/to/config.yaml --use-conda --cores 1 \
+    --config workdir=/path/to/workdir 
+             samples=/path/to/samplesheet.tsv 
+```
+
+Consult 
+[snakemake's documentation](https://snakemake.readthedocs.io/en/stable/) for more details.
 
 ## Workflow details
 
