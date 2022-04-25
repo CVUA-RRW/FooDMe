@@ -1,8 +1,10 @@
-![CI](https://github.com/CVUA-RRW/FooDMe/workflows/CI/badge.svg?branch=master)
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/CVUA-RRW/FooDMe)
 
-# FooDMe - A pipeline for Food DNA Metabarcoding
+# FooDMe - A pipeline for Food DNA Metabarcoding <a href='https://github.com/CVUA-RRW/FooDMe'><img src='logo.png' align="right" height="139" /></a>
+
+
+[![CI](https://github.com/CVUA-RRW/FooDMe/workflows/CI/badge.svg?branch=master)]
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/CVUA-RRW/FooDMe)](https://github.com/CVUA-RRW/FooDMe/releases/latest)
 
 FooDMe is a snakemake workflow for taxonomic assignement of targeted sequencing reads (DNA Metabarcoding). 
 It was designed with 16S amplicon sequencing of food samples (mammals and birds metabarcoding) in mind but could be applied to
