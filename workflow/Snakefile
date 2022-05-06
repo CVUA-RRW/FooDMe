@@ -74,11 +74,15 @@ onerror:
         print(
             f"\nAn error occured, please consult the latest log file in"
             f"{os.path.join(config['workdir'], '.snakemake', 'log')}"
+            f""
+            f"Issue tracker: https://github.com/CVUA-RRW/FooDMe/issues"
         )
     except:
         print(
             f"\nAn error occured, please consult the snakemake log file in"
             f"the current working directory."
+            f""
+            f"Issue tracker: https://github.com/CVUA-RRW/FooDMe/issues"
         )
     with open(pipe_log, "a") as f:
         f.write(f"[{get_local_time()}]: Pipeline stopped on error\n")
