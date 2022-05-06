@@ -222,7 +222,7 @@ def main():
                         help="Path to the BLAST database, including database basename but no extension (e.g. '/path/to/db/nt')")
     blastargs.add_argument('--taxdb', required=True, type=os.path.abspath, action = DatabaseType,
                         help="Path to the BLAST taxonomy database (folder)")
-    blastargs.add_argument('--taxid_filter', required=False, type=str, default=None,
+    blastargs.add_argument('--taxid_filter', required=False, type=int, default=0,
                         help="Limit BLAST search to the taxids under the given node")
     blastargs.add_argument('--blocklist', required=False, type=str, default="extinct", 
                         help="Provides a list of taxids to exclude from the analysis. 'extinct' uses the distributed list of extinct taxids, 'None' skips this filtering step, or provide a file path to use a custom taxid list")

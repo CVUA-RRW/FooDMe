@@ -1,3 +1,8 @@
+### 1.4.6
+
+#### Bug fix
+* The parameter `taxid_filter` now only accepts integers, default config values have been changed (#42).
+
 ### 1.4.5
 
 #### Documentation

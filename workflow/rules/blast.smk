@@ -32,7 +32,7 @@ rule get_taxid_from_db:
     conda:
         "../envs/blast.yaml"
     log:
-        "logs/common/taxid_form_db.log",
+        "logs/common/taxid_from_db.log",
     shell:
         """
         exec 2> {log}
