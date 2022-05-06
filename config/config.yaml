@@ -70,7 +70,7 @@ blast:
     # Path to the BLAST taxonomy database (folder)
     taxdb: /path/to/taxdb_folder
     # Limit BLAST search to the taxids under the given node
-    taxid_filter: None
+    taxid_filter: 0
     # Use a Blocklist to prevent some taxid from appearing in the results?
     # "extinct" will use the distributed list of extinct species
     # Provide a path for a custom list or use None to skip filtering
