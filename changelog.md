@@ -3,6 +3,9 @@
 #### Bug fix
 * The parameter `taxid_filter` now only accepts integers, default config values have been changed (#42).
 
+#### Improvements
+* Now correctly reports composition as both percentage of total usable reads and assigned reads (#41) 
+
 ### 1.4.5
 
 #### Documentation

@@ -34,20 +34,30 @@ def main(compo, report, sample):
             fout.write(
                 "Sample\tConsensus\tRank\tTaxid\tCount\tDisambiguation\tPercent of total"
             )
+
     else:
         groups = df.groupby(["Consensus", "Rank", "Taxid"]).agg(
             {"Count": "sum", "Disambiguation": concatenate_uniq}
         )
         groups = groups.sort_values("Count", ascending=False).reset_index()
+
+        # Get percs of total
+        groups["perc"] = round(groups["Count"] / groups["Count"].sum() * 100, 2)
+
+        # Get percs of assigned
         assigned, notassigned = (
             groups[groups["Consensus"] != "-"],
             groups[groups["Consensus"] == "-"],
         )
-        assigned["perc"] = round(groups["Count"] / groups["Count"].sum() * 100, 2)
-        notassigned["perc"] = "-"
+        assigned["perc_ass"] = round(assigned["Count"] / assigned["Count"].sum() * 100, 2)
+        notassigned["perc_ass"] = "-"
         groups = pd.concat([assigned, notassigned])
+
+        # Formatting
         groups.insert(0, "Sample", sample)
-        groups.rename(columns={"perc": "Percent of total"}, inplace=True)
+        groups.rename(columns={"perc": "Percent of total",
+                               "perc_ass": "Percent of assigned"}, 
+                      inplace=True)
         groups["Consensus"].replace({"-": "No match"}, inplace=True)
         groups["Taxid"].replace({0: "-"}, inplace=True)
         groups.to_csv(report, sep="\t", index=False)
