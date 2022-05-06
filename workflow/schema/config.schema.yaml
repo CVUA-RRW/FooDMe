@@ -140,7 +140,6 @@ properties:
       taxid_filter:
         type: 
           - number
-          - string
         description: Limit BLAST search to the taxids under the given node
       blocklist:
         type: string

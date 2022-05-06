@@ -3,9 +3,25 @@
 # See README.md in this repository for more informations
 # ------------------------------------------------------------------------------
 
-# Path to the output directory:
+
+# Parameter choice for 16S metabarcoding of mammals and birds
+# See also:
+# 
+# Dobrovolny S, Blaschitz M, Weinmaier T, Pechatschek J, Cichna-Markl M, Indra A,
+# Hufnagl P, Hochegger R. Development of a DNA metabarcoding method for the 
+# identification of fifteen mammalian and six poultry species in food. Food Chem.
+# 2019 Jan 30;272:354-361. doi: 10.1016/j.foodchem.2018.08.032. 
+# Epub 2018 Aug 9. PMID: 30309555.
+# 
+# Preckel L, Bruenen-Nieweler C, Denay G, Petersen H, Cichna-Markl M, Dobrovolny S,
+# Hochegger R. Identification of Mammalian and Poultry Species in Food and Pet Food
+# Samples Using 16S rDNA Metabarcoding. Foods. 2021 Nov 20;10(11):2875. 
+# doi: 10.3390/foods10112875. PMID: 34829156; PMCID: PMC8620145.
+
+
+# Path to the output directory: --> MODIFY <--
 workdir: /path/to/workdir
-# Path to the sample sheet
+# Path to the sample sheet  --> MODIFY <--
 samples: /path/to/samples.tsv
 # Number of threads allocated to each job:
 threads_sample: 1
@@ -22,7 +38,7 @@ trimming:
     window_size: 4
     # Minimum mean Phred-score in the sliding window for tail quality trimming
     mean_quality: 25 
-    # Fasta file with primers sequences for primer trimming
+    # Fasta file with primers sequences for primer trimming --> MODIFY <--
     primers_fasta: /path/to/primer/fasta
     # Should primers be trimmed on the 3' end of reads? Only relevant if sequencing through the amplicons
     primers_3end: True 
@@ -44,33 +60,29 @@ read_filter:
 cluster:
     # Clustering method. Choose betwen 'otu' and 'asv'
     method: asv
-    # Minimum identity for clustering sequences in OTUs (between 0 and 1). Will be ignored if using ASVs
-    cluster_identity: 0.97
-    # Minimal size cutoff for OTUs. Will be ignored if using ASVs
-    cluster_minsize: 2
     # Maximal number of mismatch in allowed in the read overlap. Use by Dada only
-    max_mismatch: 0
+    max_mismatch: 1
     
 # Perform Chimera detection and filtering?
 chimera: True
 
 # Taxonomic assignement options
 taxonomy:
-    # Path to the nodes.dmp file
+    # Path to the nodes.dmp file --> MODIFY <--
     rankedlineage_dmp: /path/to/rankedlineage.dmp
-    # Path to the names.dmp file
+    # Path to the names.dmp file --> MODIFY <--
     nodes_dmp: /path/to/nodes.dmp
     # Minimal taxid frequency to reach consensus (1 to use last common ancestor)
-    min_consensus: 0.7
+    min_consensus: 0.51
 
 # Options for BLAST search
 blast:
-    # Path to the BLAST database, including database basename but no extension
+    # Path to the BLAST database, including database basename but no extension --> MODIFY <--
     blast_DB: /path/to/BLAST_folder/db_base_name
-    # Path to the BLAST taxonomy database (folder)
+    # Path to the BLAST taxonomy database (folder) --> MODIFY <--
     taxdb: /path/to/taxdb_folder
     # Limit BLAST search to the taxids under the given node
-    taxid_filter: 0
+    taxid_filter: 7742
     # Use a Blocklist to prevent some taxid from appearing in the results?
     # "extinct" will use the distributed list of extinct species
     # Provide a path for a custom list or use None to skip filtering
@@ -82,4 +94,4 @@ blast:
     # Minimal proportion of the query covered by a hit for blast results. A mismatch is still counting as covering (in percent)
     qcov: 100
     # Maximum bit-score difference with the best hit for a blast result to be included in the taxonomy consensus detemination
-    bit_score_diff: 2
+    bit_score_diff: 4
