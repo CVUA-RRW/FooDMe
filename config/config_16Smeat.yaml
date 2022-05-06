@@ -1,0 +1,97 @@
+# Configuration file template
+# Modify the values below as deemed nescessary
+# See README.md in this repository for more informations
+# ------------------------------------------------------------------------------
+
+
+# Parameter choice for 16S metabarcoding of mammals and birds
+# See also:
+# 
+# Dobrovolny S, Blaschitz M, Weinmaier T, Pechatschek J, Cichna-Markl M, Indra A,
+# Hufnagl P, Hochegger R. Development of a DNA metabarcoding method for the 
+# identification of fifteen mammalian and six poultry species in food. Food Chem.
+# 2019 Jan 30;272:354-361. doi: 10.1016/j.foodchem.2018.08.032. 
+# Epub 2018 Aug 9. PMID: 30309555.
+# 
+# Preckel L, Bruenen-Nieweler C, Denay G, Petersen H, Cichna-Markl M, Dobrovolny S,
+# Hochegger R. Identification of Mammalian and Poultry Species in Food and Pet Food
+# Samples Using 16S rDNA Metabarcoding. Foods. 2021 Nov 20;10(11):2875. 
+# doi: 10.3390/foods10112875. PMID: 34829156; PMCID: PMC8620145.
+
+
+# Path to the output directory: --> MODIFY <--
+workdir: /path/to/workdir
+# Path to the sample sheet  --> MODIFY <--
+samples: /path/to/samples.tsv
+# Number of threads allocated to each job:
+threads_sample: 1
+# Total number of threads allocated to the workflow:
+threads: 4
+
+# Trimming options:
+trimming:
+    # Minimum length of input reads (after primer trimming) to keep
+    length_required: 50
+    # Minimal quality value per base
+    qualified_quality_phred: 20 
+    # Size of the sliding window for tail quality trimming
+    window_size: 4
+    # Minimum mean Phred-score in the sliding window for tail quality trimming
+    mean_quality: 25 
+    # Fasta file with primers sequences for primer trimming --> MODIFY <--
+    primers_fasta: /path/to/primer/fasta
+    # Should primers be trimmed on the 3' end of reads? Only relevant if sequencing through the amplicons
+    primers_3end: True 
+    # Maximum error-rate allowed for primer matching
+    primer_error_rate: 0.1 
+
+# Merged reads filtering options
+read_filter:
+    # Minimum length merged reads to keep
+    min_length: 70 
+    # Maximum length merged reads to keep
+    max_length: 100 
+    # Maximum expected errors in merged reads to keep
+    max_expected_errors: 2
+    # Maximum number of 'N' base in merged reads. If using denoising procedure this will be automatically reset to 0
+    max_ns: 0
+    
+# Clustering options
+cluster:
+    # Clustering method. Choose betwen 'otu' and 'asv'
+    method: asv
+    # Maximal number of mismatch in allowed in the read overlap. Use by Dada only
+    max_mismatch: 1
+    
+# Perform Chimera detection and filtering?
+chimera: True
+
+# Taxonomic assignement options
+taxonomy:
+    # Path to the nodes.dmp file --> MODIFY <--
+    rankedlineage_dmp: /path/to/rankedlineage.dmp
+    # Path to the names.dmp file --> MODIFY <--
+    nodes_dmp: /path/to/nodes.dmp
+    # Minimal taxid frequency to reach consensus (1 to use last common ancestor)
+    min_consensus: 0.51
+
+# Options for BLAST search
+blast:
+    # Path to the BLAST database, including database basename but no extension --> MODIFY <--
+    blast_DB: /path/to/BLAST_folder/db_base_name
+    # Path to the BLAST taxonomy database (folder) --> MODIFY <--
+    taxdb: /path/to/taxdb_folder
+    # Limit BLAST search to the taxids under the given node
+    taxid_filter: 7742
+    # Use a Blocklist to prevent some taxid from appearing in the results?
+    # "extinct" will use the distributed list of extinct species
+    # Provide a path for a custom list or use None to skip filtering
+    blocklist: extinct
+    # E-value threshold for blast results
+    e_value: 1e-10
+    # Minimal identity between the hit and query for blast results (in percent)
+    perc_identity: 97
+    # Minimal proportion of the query covered by a hit for blast results. A mismatch is still counting as covering (in percent)
+    qcov: 100
+    # Maximum bit-score difference with the best hit for a blast result to be included in the taxonomy consensus detemination
+    bit_score_diff: 4

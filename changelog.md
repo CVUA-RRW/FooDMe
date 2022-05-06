@@ -5,6 +5,7 @@
 
 #### Improvements
 * Now correctly reports composition as both percentage of total usable reads and assigned reads (#41) 
+* Added a configuration file for 16S birds and mammals experiments
 
 ### 1.4.5
 
