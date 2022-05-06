@@ -8,7 +8,7 @@ to your needs.
 For specific details about the parameters 
 check the main README.
 
-### Optimized configuration for 16S birds and ammals metabarcoding
+### Optimized configuration for 16S birds and mammals metabarcoding
 
 A configuration file with optimized parameters (with no warranty!) for 
 the analysis of 16S metabarcoding experiments of birds and mammals is 
