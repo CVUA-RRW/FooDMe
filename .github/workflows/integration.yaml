@@ -10,15 +10,13 @@ on:
 
 jobs:
   Testing:
-    runs-on: ${{ matrix.config.os }}
-    
-    name: ${{ matrix.config.os }}
-    
+
     strategy:
       matrix:
-        config:
-          os: [ubuntu-latest, macOS-latest]
-          
+        os: [ubuntu-latest, macOS-latest]
+
+    runs-on: ${{ matrix.os }}
+
     steps:
     
     - name: Checkout repository
