@@ -1,3 +1,8 @@
+### 1.4.7
+
+#### Bug fix
+* Fixed missing report-wise reports
+
 ### 1.4.6
 
 #### Bug fix
