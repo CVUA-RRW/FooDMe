@@ -7,3 +7,5 @@
 
 FooDMe is a reproducible and scalable snakemake workflow for the analysis of 
 DNA metabarcoding experiments, with a special focus on food and feed samples.
+
+Under construction...
