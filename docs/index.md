@@ -1,17 +1,9 @@
-# Welcome to MkDocs
+# Welcome to the documentation of FooDMe
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
 
-## Commands
+![CI](https://github.com/CVUA-RRW/FooDMe/workflows/CI/badge.svg?branch=master)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/CVUA-RRW/FooDMe)](https://github.com/CVUA-RRW/FooDMe/releases/latest)
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+FooDMe is a reproducible and scalable snakemake workflow for the analysis of 
+DNA metabarcoding experiments, with a special focus on food and feed samples.

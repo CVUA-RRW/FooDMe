@@ -5,20 +5,18 @@ site_author: Grégoire Denay, Chemisches und Veterinäruntersuchungsamt Rhein-Ru
 copyright: BSD 3-Clause license
 
 repo_url: https://github.com/CVUA-RRW/FooDMe
-repo_name: ""
-
-remote_branch: gh-pages
 
 nav:
   - Welcome: index.md
   - User Guide:
-      - Overview:
-      - Installation:
-      - Configuration:
-      - Start a run:
-      - View results:
-      - Getting help:
-  - FAQs:
+      - Overview: userguide/overview.md
+      - Installation: userguide/installation.md
+      - Nucleotide Database: userguide/database.md
+      - Configuration: userguide/configuration.md
+      - Start a run: userguide/run.md
+      - View results: userguide/results.md
+      - Getting help: userguide/help.md
+  - FAQs: faqs.md
   - About: 
       - License: about/license.md
       - Release notes: about/changelog.md
