@@ -1,0 +1,24 @@
+site_name: FooDMe Documentation
+site_url: https://cvua-rrw.github.io/FooDMe
+site_description: Food DNA Metabarcoding analysis
+site_author: Grégoire Denay, Chemisches und Veterinäruntersuchungsamt Rhein-Ruhr-Wupper - AöR
+copyright: BSD 3-Clause license
+
+repo_url: https://github.com/CVUA-RRW/FooDMe
+repo_name: ""
+
+remote_branch: gh-pages
+
+nav:
+  - Welcome: index.md
+  - User Guide:
+      - Overview:
+      - Installation:
+      - Configuration:
+      - Start a run:
+      - View results:
+      - Getting help:
+  - FAQs:
+  - About: 
+      - License: about/license.md
+      - Release notes: about/changelog.md
