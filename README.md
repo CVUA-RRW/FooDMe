@@ -1,5 +1,5 @@
 
-# FooDMe - A pipeline for Food DNA Metabarcoding <a href='https://github.com/CVUA-RRW/FooDMe'><img src='logo.png' align="right" height="139" /></a>
+# FooDMe - A pipeline for Food DNA Metabarcoding <a href='https://github.com/CVUA-RRW/FooDMe'><img src='docs/logo.png' align="right" height="139" /></a>
 
 
 ![CI](https://github.com/CVUA-RRW/FooDMe/workflows/CI/badge.svg?branch=master)

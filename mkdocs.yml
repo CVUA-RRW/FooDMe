@@ -1,0 +1,22 @@
+site_name: FooDMe Documentation
+site_url: https://cvua-rrw.github.io/FooDMe
+site_description: Food DNA Metabarcoding analysis
+site_author: Grégoire Denay, Chemisches und Veterinäruntersuchungsamt Rhein-Ruhr-Wupper - AöR
+copyright: BSD 3-Clause license
+
+repo_url: https://github.com/CVUA-RRW/FooDMe
+
+nav:
+  - Welcome: index.md
+  - User Guide:
+      - Overview: userguide/overview.md
+      - Installation: userguide/installation.md
+      - Nucleotide Database: userguide/database.md
+      - Configuration: userguide/configuration.md
+      - Start a run: userguide/run.md
+      - View results: userguide/results.md
+      - Getting help: userguide/help.md
+  - FAQs: faqs.md
+  - About: 
+      - License: about/license.md
+      - Release notes: about/changelog.md
