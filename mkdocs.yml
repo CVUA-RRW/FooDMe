@@ -20,3 +20,6 @@ nav:
   - About: 
       - License: about/license.md
       - Release notes: about/changelog.md
+
+theme:
+    name: readthedocs
