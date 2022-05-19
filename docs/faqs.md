@@ -1,9 +1,17 @@
 # Frequently Asked Questions
 
-#### I don´t want to use the BLAST NT database, how do I do?
+**Q: I don´t want to use the BLAST NT database, how do I do?**
 
-#### Do I need to install mamba ?
+**A:** 
 
-#### Can I use FooDMe for single end reads ?
+**Q: Do I need to install mamba ?**
 
-#### Are IonTorrent data supported?
+**A:** 
+
+**Q: Can I use FooDMe for single end reads ?**
+
+**A:**
+
+**Q: Are IonTorrent data supported?**
+
+**A:**
