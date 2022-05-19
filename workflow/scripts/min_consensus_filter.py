@@ -20,7 +20,7 @@ def parse_blast(blast_file):
     """
     dictout = defaultdict()
     with open(blast_file, 'r') as fi:
-        next(f)  # Skip header
+        next(fi)  # Skip header
         for line in fi:
             ls = line.split()
             taxids = ls[6].split(";")  # split taxids if nescessary
