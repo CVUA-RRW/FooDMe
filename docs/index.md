@@ -16,7 +16,7 @@ FooDMe processes paired-end Illumina reads in the following way:
 - Primer trimming
 - Quality filtering
 - Sequence clustering based on identity clustering (OTUs), dereplication, or denoising (ASVs)
-- Similiraty search cluster sequences in a user-provided dataabase
+- Similarity search cluster sequences in a user-provided database
 - Determine a taxonomic consensus for each cluster
 - Outputs quality reports and results in human-readable formats
 
