@@ -16,6 +16,6 @@
 
 **A:**
 
-**Q: Can I use FooDMe for bactereria metabarcoding?**
+**Q: Can I use FooDMe for bacteria metabarcoding?**
 
 **A:**

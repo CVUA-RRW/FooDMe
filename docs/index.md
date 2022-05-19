@@ -24,6 +24,11 @@ FooDMe processes paired-end Illumina reads in the following way:
 
 ## Quick links
 
+- First time? Check the [User Guide](userguide/overview.md).
+- For a history of the releases see [Changelog](about/changelog.md).
+- A list of [Frequently Asked Questions](faqs.md).
+- Get help [here](help.md)!
+
 --- 
 
 ## Connex tools
