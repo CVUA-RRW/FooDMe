@@ -7,6 +7,10 @@
 FooDMe is a reproducible and scalable snakemake workflow for the analysis of 
 DNA metabarcoding experiments, with a special focus on food and feed samples.
 
+---
+
+## Overview
+
 FooDMe processes paired-end Illumina reads in the following way:
 
 - Primer trimming
@@ -15,4 +19,12 @@ FooDMe processes paired-end Illumina reads in the following way:
 - Similiraty search cluster sequences in a user-provided dataabase
 - Determine a taxonomic consensus for each cluster
 - Outputs quality reports and results in human-readable formats
+
+---
+
+## Quick links
+
+--- 
+
+## Connex tools
 
