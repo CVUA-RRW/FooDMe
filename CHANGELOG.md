@@ -1,30 +1,42 @@
+### Dev
+
+#### Bug fix
+
+* Fixed header in `consensus-table.tsv`
+
 ### 1.4.7
 
 #### Bug fix
+
 * Fixed missing report-wise reports
 
 ### 1.4.6
 
 #### Bug fix
+
 * The parameter `taxid_filter` now only accepts integers, default config values have been changed (#42).
 
 #### Improvements
+
 * Now correctly reports composition as both percentage of total usable reads and assigned reads (#41) 
 * Added a configuration file for 16S birds and mammals experiments
 
 ### 1.4.5
 
 #### Documentation
+
 * The usage of the python warpper is not recommended. Prefer the use a yaml configuration file. 
 * Pending deprecation warning added to the python wrapper
 * Expanded documentation on the use of the config file 
 
 #### Improvements
+
 * Improved error handling and logging for the DADA2 steps. Will now correctly output number of reads and denoisin/merging results for failing samples.
 
 ### 1.4.4
 
 #### Improvements
+
 * Now unpacks trimmed read files on a sample wise fashion prior to Dada2 denoising instead of unpacking all samples at once. This should reduce the memory use during the analysis.
 * Preventively fixed a pandas CopyWarning (#31) and FutureWarning
 * Updated dependencies to newer versions. NCBI's upcoming new identifier definitions should be supported (#33).
@@ -36,23 +48,28 @@
 ### 1.4.3
 
 #### Bug Fix
+
 * Fixed a variable refernece breaking Vsearch pipeline
 * Fixed time display upon pipeline completion on success or error
 
 ### 1.4.2
 
 #### Bug Fix
+
 * Fixed wrapper
 
 ### 1.4.1
 
 #### Improvements:
+
 * Moderate performance improvements due to saving taxonomy as a filtered JSON file. Expect the workflow to be about 1 min faster per sample.
 
 #### Bug fixes:
+
 * Fixed Github version paring for lightweight tags. 
 
 #### Standardization
+
 * `tests` was renamed `.tests`
 * Linting and reorganize workflow to match be closer to snakemake standards
 * Added JSON-Schema validation for the config and sample sheet files
@@ -66,11 +83,13 @@
 * Modified default parameters of the config file and python laucher with more sensible values
 
 #### Improvements:
+
 * Expand disambiguation info with the frequency of each species (#17)
 * Add minimum consensus filter as an alternative to last common ancestor. Use it with the parameter `--min_consensus`. The value be be in the interval (0.5;1], 1 being a last common ancestro behavior and 0.51 a simple majority vote.
 * Added blocklist of taxids to mask (#13). Default behaviour is to mask extinct taxids. Users can skip this steps or provide their own blocklist with the `--blocklist` parameter.
 
 #### Bug fixes
+
 * Cluster that do not find a matching reference in BLAST are not counted towards the compoisiton total anymore. Additionnaly the number of assigned reads is now visible in the summary report(#12)
 * Fixed the calculation of the "No primer found" field under the triming statistics (#19)
 

@@ -18,8 +18,9 @@ Additionally the BLAST step will require an amount of virtual memory equivalent 
 the database. This can be either hard drive space or RAM.
 
 A minimal configuration for working with the BLAST nt database is therefore:
-* 500 Gb Hard drive
-* 8 Gb RAM
+
+- 500 Gb Hard drive
+- 8 Gb RAM
 
 Increasing the number of cores will considerably speed up the workflow by taking advantage of 
 parallelization.
@@ -56,7 +57,7 @@ cd ~
 git clone https://github.com/CVUA-RRW/FooDMe.git
 ```
 
-**Note:** Without git, you can download the repository manually and upack the archive 
+> **_NOTE:_** Without git, you can download the repository manually and upack the archive 
 locally.
 
 Having git installed will later allow you to get the latest version of the workflow
@@ -103,7 +104,7 @@ snakemake --use-conda --conda-prefix ~/conda-envs --cores 1
 Snakemake will the start creating the nescessary conda environments (this can take a few minutes)
 before analyzing the three examples samples in the `.tests` folder.
 
-**Note:** The `.tests` folder might be hidden on your file explorer. If you don´t see it,
+> **_NOTE:_** The `.tests` folder might be hidden on your file explorer. If you don´t see it,
 enable `view hidden file` in the options.
 
 Feel free to explore the files produced by this first run in the `.tests` folder. 
