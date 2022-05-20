@@ -3,6 +3,7 @@
 #### Bug fix
 
 * Fixed header in `consensus-table.tsv`
+* Fixed a bash synthax misuse in the calculation of VSearch statistics
 
 ### 1.4.7
 
