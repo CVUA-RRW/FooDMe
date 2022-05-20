@@ -56,7 +56,7 @@ These are easy to get from the NCBI servers and can be used with other sources.
 > **_NOTE:_** The links below are provided as information and might not link to the most recent 
 > version of the files. 
 
-> **_NOTE:_** If using the scripts above to retrive either the NT or RefSeq database, the file 
+> **_NOTE:_** If using the scripts above to retrieve either the NT or RefSeq database, the file 
 > below should already be included in your local database.
 
 ### Taxonomic information
@@ -64,11 +64,12 @@ These are easy to get from the NCBI servers and can be used with other sources.
 The `taxdb` files are nescessary to link taxonomic identifier (taxid) and human-readable 
 informations. These can be downloaded here:
 
-> https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz
+> [https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz](https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz)
 
 ### Taxonomic classification
 
 The `taxdump` files contain the taxonomy hierarchical information and are nescessary 
 to determine the degree of relationship between different taxa. They can be downloaded here:
 
-> https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
+> [https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz)
+

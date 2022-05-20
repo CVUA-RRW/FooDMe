@@ -6,27 +6,6 @@ log = file(snakemake@log[[1]], open="wt")
 sink(log)
 sink(log, type = "message")
 
-#DEBUGG
-# log = file("logfile.log", open="wt")
-# sink(log)
-# sink(log, type = "message")
-
-# threads <- 6
-# max_EE <- 0
-# sample.names <- "test"
-# filtFs <- "R1.fa"
-# filtRs <- "R2.fa"
-
-# fnFs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/NTC/trimmed/NTC_R1.fastq"
-# fnRs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/NTC/trimmed/NTC_R2.fastq"
-
-# fnFs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/NTC/trimmed/NTC_R1x.fastq"
-# fnRs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/NTC/trimmed/NTC_R2x.fastq"
-
-# fnFs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/Lasagne_horse/trimmed/Lasagne_horse_R1.fastq"
-# fnRs <- "/home/debian/NGS/metabarcoding_paper/foodme_benchmark/FooDMe_paper/.tests/Lasagne_horse/trimmed/Lasagne_horse_R2.fastq"
-##
-
 
 # Imports
 library(ggplot2, quiet=T)

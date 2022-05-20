@@ -1,9 +1,5 @@
 # Frequently Asked Questions
 
-**Q: I don´t want to use the BLAST NT database, how do I do?**
-
-**A:** 
-
 **Q: Do I need to install mamba?**
 
 **A:** 

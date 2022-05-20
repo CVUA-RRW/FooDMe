@@ -3,6 +3,9 @@
 A detailled installation guide. 
 To help new users, examples below will describe an installation in the `/home/user` folder.
 
+Beginners are encouraged to follow this guide step by step. It is assumed that raw sequencing
+data are stored in `raw_data` folder in the user´s home directory.
+
 ## Requirements
 
 Because of the tools used in the workflow only work in a UNIX environment,
@@ -27,6 +30,9 @@ parallelization.
 
 The workflow can therefore run on a medium range laptop, even within a Virtual Machine
 emulating Linux. 
+
+An internet connection will be nescessary for the first run of the pipeline. Successive runs can be 
+performed without an internet connection
 
 ## Conda
 

@@ -38,5 +38,5 @@ Using a set of primers, finds possible amplicon in the database (or a taxonomic 
 and performs pairwise alignements of barcodes. Available form [Github](https://github.com/CVUA-RRW/BaRCoD).
 
 **TaxidTools:** A Python library to load, process and work with taxonomy definitions.
-Documentation on the [homepage](https://cvua-rrw.github.io/taxidTools/)
+Documentation on the [homepage](https://cvua-rrw.github.io/taxidTools/).
 

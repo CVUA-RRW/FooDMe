@@ -62,6 +62,10 @@ will be modelled based on the available data. Using this model, reads can be cor
 for sequencing-induced substitutions. This results in a typically low number of cluster, 
 close to the biological reality of the sample.
 
+> **_NOTE:_** Clusters are often refered to as Operational Taxonomic Units (OTUs) for
+> dereplication and identity clustering and as Amplicon Sequence Variants (ASVs) for
+> denoising.
+
 ### Taxonomic assignment
 
 #### BLAST search and filtering
@@ -70,8 +74,14 @@ The representative sequences for each clusters are compaired to a user provided 
 database using Basic Local Alignment Strategy (BLAST) and references satisfying specified 
 similiraty critera are recovered.
 
+In most cases, only part of the database is relevant for each application. For this puprose it is 
+possible to specify a taxonomic node (for example Vertebrates) to which to limit the BLAST search.
+
+Specific taxa can also be irrelevant, such as common contaminants or extinct species. This taxa can
+be provided as a list of identifiers in a text file and will be filtered out of the BLAST search.
+
 Because this typically results in a large number of matching results (and taxa), the matches 
-can be post-filtered based on their alignment scores.
+can be post-filtered based on their alignment quality as measured by the alignement bit-scores.
 
 #### Taxonomic consensus
 
