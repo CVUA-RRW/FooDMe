@@ -31,6 +31,12 @@ FooDMe processes paired-end Illumina reads in the following way:
 
 --- 
 
+## Citation
+
+If you use FooDMe fo reasearch please cite the project using the 
+DOI at the top of this page.
+
+---
 ## Connex tools
 
 **BaRCoD:** A snakemake workflow aiming at recovering and analyzing barcodes for metabarcoding experiments.
