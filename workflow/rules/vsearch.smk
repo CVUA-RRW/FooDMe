@@ -274,15 +274,15 @@ rule clustering_stats:
         # Calculating fractions
         discarded_seq=$(($clusters_seq - $size_filt_seq))
         discarded_perc_clust=$(echo "scale=2;(100* $discarded_seq / $clusters_seq)" | bc)
-        discarded_reads=$(($uniques_reads - $size_filt_reads))
+        discarded_reads=$(echo "$uniques_reads - $size_filt_reads" | bc )
         discarded_perc_reads=$(echo "scale=2;(100* $discarded_reads / $uniques_reads)" | bc)
 
         chim_seq=$(($size_filt_seq - $non_chimera_seq))
         chim_seq_perc=$(echo "scale=2;(100* $chim_seq / $size_filt_seq)" | bc)
-        chim_reads=$(($size_filt_reads - $non_chimera_reads))
+        chim_reads=$(echo "$size_filt_reads - $non_chimera_reads" | bc)
         chim_reads_perc=$(echo "scale=2;(100* $chim_reads / $size_filt_reads)" | bc)
 
-        clustered_perc=$(echo "sclae=2;(100* $non_chimera_reads / $uniques_reads)" | bc)
+        clustered_perc=$(echo "scale=2;(100* $non_chimera_reads / $uniques_reads)" | bc)
 
         # Writting report
         echo "Sample\tUnique sequences\tClusters\tClusters above size filter\tDiscarded clusters[% of clusters]\tDiscarded clusters[% of reads]\tNon-chimeric clusters (OTU)\tChimeras [% of clusters]\tChimeras [% of reads]\tPseudo-reads clustered\tPseudo-reads clustered [%]" > {output.report}

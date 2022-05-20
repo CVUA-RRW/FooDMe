@@ -2,7 +2,7 @@
 
 **Q: Do I need to install mamba?**
 
-**A:** No you dont´t. Simply using conda should be enough, although considerable slower to 
+**A:** No you dont´t. Simply using conda should be enough, although considerably slower, to 
 create environments. If using only conda you will need to add the argument `--conda-frontend conda`
 when executing snakemake.
 

@@ -16,7 +16,7 @@ read_filter:
     max_expected_errors: 2
     max_ns: 0
 cluster:
-    method: asv
+    method: otu
     cluster_identity: 1
     cluster_minsize: 2
     max_mismatch: 0
