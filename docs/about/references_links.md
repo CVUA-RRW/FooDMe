@@ -4,6 +4,7 @@ This pipeline uses several tools and external ressources.
 Documentation for these can be found at the links below:
 
 | Tool | Link |
+| --- | --- |
 | BLAST | [https://blast.ncbi.nlm.nih.gov/Blast.cgi](https://blast.ncbi.nlm.nih.gov/Blast.cgi) |
 | Cutadapt | [https://cutadapt.readthedocs.io/en/stable/](https://cutadapt.readthedocs.io/en/stable/) |
 | create_sampleSheet | [https://gitlab.com/bfr_bioinformatics/AQUAMIS](https://gitlab.com/bfr_bioinformatics/AQUAMIS) |
