@@ -33,3 +33,10 @@ FooDMe processes paired-end Illumina reads in the following way:
 
 ## Connex tools
 
+**BaRCoD:** A snakemake workflow aiming at recovering and analyzing barcodes for metabarcoding experiments.
+Using a set of primers, finds possible amplicon in the database (or a taxonomic subset thereof) 
+and performs pairwise alignements of barcodes. Available form [Github](https://github.com/CVUA-RRW/BaRCoD).
+
+**TaxidTools:** A Python library to load, process and work with taxonomy definitions.
+Documentation on the [homepage](https://cvua-rrw.github.io/taxidTools/)
+

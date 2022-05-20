@@ -150,7 +150,7 @@ rule cluster:
         "../envs/vsearch.yaml"
     threads: config["threads"]
     message:
-        "Distance greedy clustering sequences  for {wildcards.sample}"
+        "Distance greedy clustering sequences for {wildcards.sample}"
     log:
         "logs/{sample}_clustering.log",
     shell:

@@ -19,3 +19,7 @@
 **Q: Can I use FooDMe for bacteria metabarcoding?**
 
 **A:**
+
+**Q: What is best set of parameters for ... ?**
+
+**A:**

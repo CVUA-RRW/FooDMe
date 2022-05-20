@@ -18,6 +18,7 @@ nav:
   - FAQs: faqs.md
   - Getting help: help.md
   - About: 
+      - References and links: about/references_links.md
       - License: about/license.md
       - Release notes: about/changelog.md
 
