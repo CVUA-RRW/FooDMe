@@ -39,7 +39,11 @@ the tables can be exported in excel, csv, and pdf formats.
 
 #### Trimming statistics
 
-#### Denoising statistics
+#### Read filtering statistics (OTU only)
+
+#### Clustering statistics (OTU only)
+
+#### Denoising statistics (ASV only)
 
 #### Taxonomic assignment
 
