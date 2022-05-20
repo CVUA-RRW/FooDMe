@@ -8,11 +8,11 @@ when executing snakemake.
 
 **Q: Can I use FooDMe for single end reads?**
 
-**A:** No. If that is something you need, get in touch it may be possible to implement.
+**A:** No. If that is something you need, [get in touch](https://github.com/CVUA-RRW/FooDMe/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=), it may be possible to implement.
 
 **Q: Are IonTorrent data supported?**
 
-**A:** Not yet. But it should be possible with some modifications. Get in touch if this is something you need.
+**A:** Not yet. But it should be possible with some modifications. [Get in touch](https://github.com/CVUA-RRW/FooDMe/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=) if this is something you need.
 
 **Q: Can I use FooDMe for bacteria metabarcoding?**
 
@@ -22,4 +22,4 @@ when executing snakemake.
 
 **A:** The best way to know is to try. We will try to provide pre-configured set of parameters
 for different applications. If there is none for yours you should try different combinations and range.
-Get in touch if you need help determining important parameters and relevant ranges.
+[Get in touch](https://github.com/CVUA-RRW/FooDMe/issues/new?assignees=&labels=question&template=question.md&title=) if you need help determining important parameters and relevant ranges.
