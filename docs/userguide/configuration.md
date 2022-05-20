@@ -37,8 +37,7 @@ This will create a file called `samples.tsv` in the `raw_data` folder.
 
 | Parameter                 | Expected values           | Description |
 | ---                       | ---                       | --- |
-| `workdir`                 | Path                      | Path to the output directory, will be created if   |
-|                           |                           | it doesn´t exist |
+| `workdir`                 | Path                      | Path to the output directory, will be created if <br>it doesn´t exist |
 | `samples`                 | Path                      | Path to the sample sheet                           |
 | `threads_sample`          | Number                    | Number of threads assigned to each job             |
 | `threads`                 | Number                    | Number of threads assigned to the workflow         |
@@ -47,43 +46,26 @@ This will create a file called `samples.tsv` in the `raw_data` folder.
 | `window-size`             | Number                    | Size of the sliding window for 3´ quality trimming |
 | `mean_quality`            | Number                    | Minimal quality thresold for sliding average       |
 | `primers_fasta`           | Path                      | Path to the fasta file containing primer sequences |
-| `primers_end`             | True/False                | Should primers be trimmed on the 3´ end of the     |
-|                           |                           | reads? Only relevant if the sequencing length is    |
-|                           |                           | larger than the amplicon length |
+| `primers_end`             | True/False                | Should primers be trimmed on the 3´ end of <br>the reads? Only relevant if the sequencing length is <br>larger than the amplicon length |
 | `primer_error_rate`       | Number [0, 1]             | Maximum error-rate allowed for primer matching     |
-| `min_length`              | Number                    | Minimal length of the merge reads or ASV sequences |
-| `max_length`              | Number                    | Maximal lenght of the merge reads or ASV sequences |
-| `max_expected_errors`     | Number                    | Maximum number of expected errors allowed in       |
-|                           |                           | merged reads (OTUs) or trimmed reads (ASVs) |
-| `max_ns`                  | Number                    | Maximal number of undetermined `N` nucleotide per  |
-|                           |                           | sequence. THis will automatically be set to 0 for  |
-|                           |                           | ASVs |
+| `min_length`              | Number                    | Minimal length of the merge reads or <br>ASV sequences |
+| `max_length`              | Number                    | Maximal lenght of the merge reads or <br>ASV sequences |
+| `max_expected_errors`     | Number                    | Maximum number of expected errors allowed in <br>merged reads (OTUs) or trimmed reads (ASVs) |
+| `max_ns`                  | Number                    | Maximal number of undetermined `N` nucleotide <br>per sequence. This will automatically be set <br>to 0 for ASVs |
 | `method`                  | `otu` or `asv`            | Clustering method |
 | `cluster_identity`        | Number [0, 1]             | OTU identity threshold. Only for OTU |
 | `cluster_minsize`         | Number                    | Minimal size of clusters to keep |
-| `max_mismatch`            | Number                    | Maximum number of mismatch allowed in the overlap  |
-|                           |                           | between reads. Only for ASV |
+| `max_mismatch`            | Number                    | Maximum number of mismatch allowed in the<br> overlap between reads. Only for ASV |
 | `chimera`                 | True/False                | Should predicted chimeric sequences be removed? |
-| `rankedlineage_dmp`       | Path                      | Path to the `rankedlineage.dmp` file from the      |
-|                           |                           | `taxdump` archive |
-| `nodes_dmp`               | Path                      | Path to the `nodes.dmp` file from the `taxdump`    |
-|                           |                           |   archive |
-| `min_consensus`           | Number [0.51, 1]          | Minimal agreement for taxonomic consensus |
-|                           |                           | determination. 0.51 is a majority vote and 1.0 is  |
-|                           |                           |   a last common ancestor determination |
-| `blast_DB`                | Path                      | Path to the BLAST database in the form  |
-|                           |                           | `path/to/folder/db-name` |
+| `rankedlineage_dmp`       | Path                      | Path to the `rankedlineage.dmp` file from the <br>`taxdump` archive |
+| `nodes_dmp`               | Path                      | Path to the `nodes.dmp` file from <br>the `taxdump` archive |
+| `min_consensus`           | Number [0.51, 1]          | Minimal agreement for taxonomic consensus <br>determination. 0.51 is a majority vote and 1.0 is<br> a last common ancestor determination |
+| `blast_DB`                | Path                      | Path to the BLAST database in the form <br>`path/to/folder/db-name` |
 | `taxdb`                   | Path                      | Path to the folder containing the `taxdb`files |
-| `taxid_filter`            | Taxonomic identifier      | Node under which to perform the BLAST search. |
-|                           |                           | Equivalent to pruning the taxonomy above this node |
-| `blocklist`               | `extinct` or custom path  | Path to a list of taxonomic identifier to exclude |
-|                           |                           | from the BLAST search |
+| `taxid_filter`            | Taxonomic identifier      | Node under which to perform the BLAST search. <br>Equivalent to pruning the taxonomy above <br>this node |
+| `blocklist`               | `extinct` or custom path  | Path to a list of taxonomic identifier to exclude <br>from the BLAST search |
 | `e_value`                 | Number (scientific)       | Minimal E-value threshold for the BLAST search |
-| `perc_identity`           | Number [0, 100]           | Minimal identity (in percent) between the query and |
-|                           |                           | hit sequence for the BLAST search |
-| `qcov`                    | Number [0, 100]           | Percent of the query to be covered by the hit |
-|                           |                           |   sequence for the BLAST search |
-| `bit_score_diff`          | Number                    |  Maximum bit-score difference between the best and |
-|                           |                           | last hit to keep for each query after the BLAST |
-|                           |                           | search |
+| `perc_identity`           | Number [0, 100]           | Minimal identity (in percent) between the query and <br>hit sequence for the BLAST search |
+| `qcov`                    | Number [0, 100]           | Percent of the query to be covered by the hit <br>sequence for the BLAST search |
+| `bit_score_diff`          | Number                    | Maximum bit-score difference between the best<br> and last hit to keep for each query after the <br>BLAST search |
 
