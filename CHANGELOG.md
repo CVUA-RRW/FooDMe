@@ -1,9 +1,13 @@
-### Dev
+### 1.4.8
 
 #### Bug fix
 
 * Fixed header in `consensus-table.tsv`
 * Fixed a bash synthax misuse in the calculation of VSearch statistics
+
+#### Documentation
+
+* Moved the documentation to the homepage at https://cvua-rrw.github.io/FooDMe/
 
 ### 1.4.7
 
