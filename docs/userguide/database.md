@@ -1,14 +1,74 @@
 # Nucleotide database
 
+In order to taxonomically assign sequences, a certain amout of reference data is required.
+Below are the instructions to retrieve standard databases and how to create custom ones.
 
 ## BLAST database
 
+The sequence comparison step as implememted uses the BLAST tool. This requires that the 
+nucleotide database is indexed and formatted in a BLAST specific way.
+
 ### Preformatted databases
+
+A large pre-formatted nucleotide sequence database is freely available from the NCBI
+servers. The BLAST NT database contains a collection of sequences from different sources
+and can be downloaded directly for the [NCBI servers](https://ftp.ncbi.nlm.nih.gov/blast/db/). 
+
+A script to fetch the BLAST NT database and additional required taxonomic definitions 
+is available with FooDMe:
+
+```bash
+cd ~
+mkdir blast_nt
+bash ~/FooDMe/ressources/fetch-nt-blast.sh -d blast-nt
+```
+
+Running the above commands will create the blast_nt directory on retrive all the 
+nescessary files from the NCBI servers in this directory.
+
+> **_NOTE:_** Downloading the BLAST NT database will require about 150Gb of available memory
+> and take several hours. 
 
 ### Custom databases
 
+A collection of non-redundant reference sequences (RefSeq) is also available from the NCBI servers.
+The collection is not yet in a BLAST format but we provide a script to retrive and format it.
+
+Running the commands below will create a folder called refseq, download the RefSeq collection and 
+format it in a blast format. This requires to create a conda environment containing the blast tools.
+
+```bash
+mamba create -n blast -c conda-forge -c bioconda blast
+conda activate blast
+cd ~
+mkdir refseq
+bash ~/FooDMe/ressources/create-RefSeq-blastdb.sh -d refseq -t
+```
+
+Additionally it is possible to format any sequence collection in a BLAST coöpliant format.
+A User Guide therefore is available from the [BLAST documentation](https://www.ncbi.nlm.nih.gov/books/NBK569841/).
+
 ## Additonal files
+
+In addition to the nucleotide collection, several taxonomy definition files are nescessary.
+These are easy to get from the NCBI servers and can be used with other sources.
+
+> **_NOTE:_** The links below are provided as information and might not link to the most recent 
+> version of the files. 
+
+> **_NOTE:_** If using the scripts above to retrive either the NT or RefSeq database, the file 
+> below should already be included in your local database.
 
 ### Taxonomic information
 
+The `taxdb` files are nescessary to link taxonomic identifier (taxid) and human-readable 
+informations. These can be downloaded here:
+
+> https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz
+
 ### Taxonomic classification
+
+The `taxdump` files contain the taxonomy hierarchical information and are nescessary 
+to determine the degree of relationship between different taxa. They can be downloaded here:
+
+> https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz

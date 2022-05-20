@@ -15,8 +15,9 @@ nav:
       - Configuration: userguide/configuration.md
       - Start a run: userguide/run.md
       - View results: userguide/results.md
-  - FAQs: faqs.md
-  - Getting help: help.md
+  - support:
+    - FAQs: faqs.md
+    - Getting help: help.md
   - About: 
       - References and links: about/references_links.md
       - License: about/license.md
