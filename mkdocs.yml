@@ -24,8 +24,26 @@ nav:
       - Release notes: about/changelog.md
 
 theme:
-    name: readthedocs
-    logo: logo.png
+  name: material
+  logo: logo.png
+    palette:
+      - media: "(prefers-color-scheme: light)"
+        scheme: default
+        primary: light blue
+        accent: deep orange
+        toggle:
+          icon: material/eye
+          name: Switch to dark mode
+      - media: "(prefers-color-scheme: dark)"
+        scheme: slate 
+        primary: light blue
+        accent: deep orange
+        toggle:
+          icon: material/eye-outline
+          name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+    favicon: material/dna
 
 extra:
     analytics:
