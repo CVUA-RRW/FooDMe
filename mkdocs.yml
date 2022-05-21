@@ -64,3 +64,6 @@ extra:
     provider: google
     property: G-Q2XQTDWNGB
 
+markdown_extensions:
+  - attr_list
+  - md_in_html
