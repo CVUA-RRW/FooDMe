@@ -5,7 +5,7 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/CVUA-RRW/FooDMe)](https://github.com/CVUA-RRW/FooDMe/releases/latest)
 [![DOI](https://zenodo.org/badge/296584559.svg)](https://zenodo.org/badge/latestdoi/296584559)
 
-![logo](logo.png){ align=right width="50" }
+![logo](logo.png){ align=right width="200" }
 
 FooDMe is a reproducible and scalable snakemake workflow for the analysis of 
 DNA metabarcoding experiments, with a special focus on food and feed samples.
