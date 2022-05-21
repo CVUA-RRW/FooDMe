@@ -3,7 +3,7 @@
 
 
 ![CI](https://github.com/CVUA-RRW/FooDMe/workflows/CI/badge.svg?branch=master)
-[![GitHub Clones](https://img.shields.io/badge/dynamic/json?color=success&label=Clone&query=count&url=https://gist.githubusercontent.com/gregdenay/02b5545a991e1a51c423422e56f5500f/raw/clone.json&logo=github)](https://github.com/MShawon/github-clone-count-badge)
+[![GitHub Clones](https://img.shields.io/badge/dynamic/json?color=success&label=Cloners&query=uniques&url=https://gist.githubusercontent.com/gregdenay/02b5545a991e1a51c423422e56f5500f/raw/clone.json&logo=github)](https://github.com/MShawon/github-clone-count-badge)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/CVUA-RRW/FooDMe)](https://github.com/CVUA-RRW/FooDMe/releases/latest)
 [![DOI](https://zenodo.org/badge/296584559.svg)](https://zenodo.org/badge/latestdoi/296584559)
