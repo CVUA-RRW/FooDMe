@@ -1,4 +1,4 @@
-# Welcome to the documentation of FooDMe <a href='https://github.com/CVUA-RRW/FooDMe'><img src='logo.png' align="right" height="150" /></a>
+# Welcome to the documentation of FooDMe <a href='https://github.com/CVUA-RRW/FooDMe'><img src='logo.png' align="right" height="50" /></a>
 
 ![CI](https://github.com/CVUA-RRW/FooDMe/workflows/CI/badge.svg?branch=master)
 [![GitHub Clones](https://img.shields.io/badge/dynamic/json?color=success&label=Cloners&query=uniques&url=https://gist.githubusercontent.com/gregdenay/02b5545a991e1a51c423422e56f5500f/raw/clone.json&logo=github)](https://github.com/MShawon/github-clone-count-badge)
