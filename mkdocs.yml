@@ -26,3 +26,8 @@ nav:
 theme:
     name: readthedocs
     logo: logo.png
+
+extra:
+    analytics:
+        provider: google
+        property: G-Q2XQTDWNGB
