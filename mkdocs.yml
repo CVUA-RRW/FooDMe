@@ -15,7 +15,7 @@ nav:
       - Configuration: userguide/configuration.md
       - Start a run: userguide/run.md
       - View results: userguide/results.md
-  - support:
+  - Support:
     - FAQs: faqs.md
     - Getting help: help.md
   - About: 
@@ -51,6 +51,7 @@ theme:
     - navigation.tabs.sticky
     - navigation.top
     - toc.integrate
+    - content.code.annotate
 
 plugins:
   - search
