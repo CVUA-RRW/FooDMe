@@ -3,7 +3,7 @@
 ## Questions
 
 Still confused? 
-Check the [FAQs](../faqs.md) and the [open questions](https://github.com/CVUA-RRW/FooDMe/labels/question).
+Check the [FAQs](faqs.md) and the [open questions](https://github.com/CVUA-RRW/FooDMe/labels/question).
 If you don´t find what you need there, then [ask a new question](https://github.com/CVUA-RRW/FooDMe/issues/new?assignees=&labels=question&template=question.md&title=)!
 
 ## Bug report

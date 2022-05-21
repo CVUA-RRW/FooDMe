@@ -44,8 +44,21 @@ theme:
   icon:
     repo: fontawesome/brands/github
     favicon: material/dna
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - toc.integrate
+
+plugins:
+  - search
 
 extra:
+  version:
+    provider: mike
+    default: stable
   analytics:
     provider: google
     property: G-Q2XQTDWNGB
