@@ -46,6 +46,7 @@ theme:
     favicon: material/dna
 
 extra:
-    analytics:
-        provider: google
-        property: G-Q2XQTDWNGB
+  analytics:
+    provider: google
+    property: G-Q2XQTDWNGB
+
