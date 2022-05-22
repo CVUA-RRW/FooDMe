@@ -62,9 +62,11 @@ will be modelled based on the available data. Using this model, reads can be cor
 for sequencing-induced substitutions. This results in a typically low number of cluster, 
 close to the biological reality of the sample.
 
-> **_NOTE:_** Clusters are often refered to as Operational Taxonomic Units (OTUs) for
-> dereplication and identity clustering and as Amplicon Sequence Variants (ASVs) for
-> denoising.
+!!! note
+
+    Clusters are often refered to as Operational Taxonomic Units (OTUs) for
+    dereplication and identity clustering and as Amplicon Sequence Variants (ASVs) for
+    denoising.
 
 ### Taxonomic assignment
 

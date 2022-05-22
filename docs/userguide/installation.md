@@ -63,7 +63,9 @@ cd ~
 git clone https://github.com/CVUA-RRW/FooDMe.git
 ```
 
-> **_NOTE:_** Without git, you can download the repository manually and upack the archive locally.
+!!! info 
+
+    Without git, you can download the repository manually and upack the archive locally.
 
 Having git installed will later allow you to get the latest version of the workflow
 as well keep the older versions archived for reproducibility and traceability purposes.
@@ -109,8 +111,10 @@ snakemake --use-conda --conda-prefix ~/conda-envs --cores 1
 Snakemake will the start creating the nescessary conda environments (this can take a few minutes)
 before analyzing the three examples samples in the `.tests` folder.
 
-> **_NOTE:_** The `.tests` folder might be hidden on your file explorer. If you don´t see it,
-> enable `view hidden file` in the options.
+!!! note 
+
+    The `.tests` folder might be hidden on your file explorer. If you don´t see it,
+    enable `view hidden file` in the options.
 
 Feel free to explore the files produced by this first run in the `.tests` folder. 
 More details about the output and the use of snakemake will be given in the later sections

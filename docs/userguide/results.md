@@ -3,8 +3,10 @@
 The analysis produces a number of files containing quality reports, tables and graphs, 
 as well as some of the processed data at different steps of the analysis.
 
-> **_NOTE:_** By default, large files are removed during the analysis
-> use snakemake´s `--notemp` to keep all files.
+!!! note
+
+    By default, large files are removed during the analysis
+    use snakemake´s `--notemp` to keep all files.
 
 ## Folder structure
 

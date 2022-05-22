@@ -26,8 +26,10 @@ bash ~/FooDMe/ressources/fetch-nt-blast.sh -d blast-nt
 Running the above commands will create the blast_nt directory on retrive all the 
 nescessary files from the NCBI servers in this directory.
 
-> **_NOTE:_** Downloading the BLAST NT database will require about 150Gb of available memory
-> and take several hours. 
+!!! warning 
+
+    Downloading the BLAST NT database will require about 150Gb of available memory
+    and take several hours. 
 
 ### Custom databases
 
@@ -53,11 +55,15 @@ A User Guide therefore is available from the [BLAST documentation](https://www.n
 In addition to the nucleotide collection, several taxonomy definition files are nescessary.
 These are easy to get from the NCBI servers and can be used with other sources.
 
-> **_NOTE:_** The links below are provided as information and might not link to the most recent 
-> version of the files. 
+!!! warning 
 
-> **_NOTE:_** If using the scripts above to retrieve either the NT or RefSeq database, the file 
-> below should already be included in your local database.
+    The links below are provided as information and might not link to the most recent 
+    version of the files. 
+
+!!! note 
+
+    If using the scripts above to retrieve either the NT or RefSeq database, the file 
+    below should already be included in your local database.
 
 ### Taxonomic information
 
