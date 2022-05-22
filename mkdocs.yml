@@ -60,9 +60,6 @@ extra:
   version:
     provider: mike
     default: stable
-  analytics:
-    provider: google
-    property: G-Q2XQTDWNGB
 
 markdown_extensions:
   - attr_list
