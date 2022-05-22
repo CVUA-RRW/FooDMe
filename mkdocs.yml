@@ -73,3 +73,5 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.superfences
 
+copyright: Copyright &copy; 2020 - 2022 Grégoire Denay
+
