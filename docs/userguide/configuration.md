@@ -10,7 +10,7 @@ Feel free to submit yours!
 
 !!! warning 
 
-    Path to reference files are system depends and will still need to be changed
+    Path to reference files are system dependent and will still need to be changed
     even for preset configurations.
 
 ## How to use to configuration file
@@ -67,7 +67,7 @@ This will create a file called `samples.tsv` in the `raw_data` folder.
 | `cluster` | `cluster_identity`        | Number [0, 1]             | OTU identity threshold. Only for OTU |
 | `cluster` | `cluster_minsize`         | Number                    | Minimal size of clusters to keep |
 | `cluster` | `max_mismatch`            | Number                    | Maximum number of mismatch allowed in the<br> overlap between reads. Only for ASV |
-| `chimera`                 | True/False                | Should predicted chimeric sequences be removed? |
+| | `chimera`                 | True/False                | Should predicted chimeric sequences be removed? |
 | `taxonomy` | `rankedlineage_dmp`       | Path                      | Path to the `rankedlineage.dmp` file from the <br>`taxdump` archive |
 | `taxonomy` | `nodes_dmp`               | Path                      | Path to the `nodes.dmp` file from <br>the `taxdump` archive |
 | `taxonomy` | `min_consensus`           | Number [0.51, 1]          | Minimal agreement for taxonomic consensus <br>determination. 0.51 is a majority vote and 1.0 is<br> a last common ancestor determination |
