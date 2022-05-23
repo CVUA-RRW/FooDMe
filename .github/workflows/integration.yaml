@@ -53,6 +53,6 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: foodme-fail
-        path: |
-          .tests/logs
+        path: .tests/logs/
+        if-no-files-found: error
         retention-days: 7
