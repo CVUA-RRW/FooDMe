@@ -13,7 +13,16 @@ snakemake --use-conda --conda-prefix ~/conda-envs --cores 1 \
   --configfile ~/FooDMe/config/myconfig.yaml
 ```
 
-Whereby the number of dedicated cores can be adapted to your specific system.
+!!! info
+
+    Depending on your system you may want to assign more cores to the analysis. 
+    Each additional core will allow running another job in parallel, considerably speeding up execution time.
+    You can adjust the number of assiged cores with `--cores N` whereby N is the number of cores.
+
+!!! info
+
+    Specifying a prefix for the conda environment is not nescessary but will allow you to recycle created environments 
+    between runs. Doing so will save up, time, ressources, and memory on each execution.
 
 ## Run-specific parameters
 
