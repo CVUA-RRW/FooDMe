@@ -108,25 +108,25 @@ Below is a schematical overview of the data processing:
 
 ```mermaid
 flowchart LR
-    [Raw data] --> (Primer trimming)
+    A[Raw data] --> B(Primer trimming)
     subgraph Pre-processing
-    (Primer trimming) ---> (Quality trimming)
+    B ---> C(Quality trimming)
     end
-    (Quality trimming) --->|OTU| (Read merging)
-    (Quality trimming) --->|ASV| (Denoising)
+    C --->|OTU| D1(Read merging)
+    C --->|ASV| D2(Denoising)
     subgraph Clustering
-    (Read merging) ---> (Cluster filtering)
-    (Denoising) ---> (Corrected read merging)
+    D1 ---> E1(Cluster filtering)
+    D2  ---> E2(Read merging)
     end
-    (Branch filter) ---> [(BLAST database)]
-    (Blocklist) ---> [(BLAST database)]
-    [(BLAST database)] ---> (Local Alignment search)
-    (Cluster filtering) ---> (Local Alignment search)
-    (Corrected read merging) ---> (Local Alignment search)
-    [(Taxnomy definitions)] ---> (Consensus determination)
+    Z1(Branch filter) ---> Z0[(BLAST database)]
+    Z2(Blocklist) ---> Z0
+    Z0 ---> F(Local Alignment search)
+    E1 ---> F
+    E2 ---> F
+    Y ---> H(Consensus determination)
     subgraph Taxonomic assignement
-    (Local Alignment search) ---> (Bitscore filtering)
-    (Bitscore filtering) ---> (Consensus determination)
+    F ---> G(Bitscore filtering)
+    G ---> H
     end
-    (Consensus determination) ---> [Report]
+    H ---> I[Report]
 ```
