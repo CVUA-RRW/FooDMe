@@ -16,7 +16,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     
-    - name: Run workflow
+    - name: Test workflow (ASV)
       uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: '.tests'
@@ -30,13 +30,21 @@ jobs:
         snakefile: 'workflow/Snakefile'
         args: "--report snkmk_report.html" 
     
+    - name: Test workflow (OTU)
+      uses: snakemake/snakemake-github-action@v1.23.0
+      with:
+        directory: '.tests'
+        snakefile: 'workflow/Snakefile'
+        args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config_otu.yaml"
+        stagein: |
+          find .tests/ -maxdepth 1 -mindepth 1 ! -name "config" ! -name "data" | xargs rm -r
+    
     - name: Archive report for checks
       uses: actions/upload-artifact@v2
       if: ${{ success() }}
       with:
         name: foodme-reports
         path: |
-          .tests/reports/report.html
           .tests/snkmk_report.html
         retention-days: 7
     
