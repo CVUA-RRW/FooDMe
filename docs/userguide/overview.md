@@ -123,7 +123,7 @@ flowchart TD
     Z0 ---> F(Local Alignment search)
     E1 ---> F
     E2 ---> F
-    Y ---> H(Consensus determination)
+    Y[(Taxonomy definitions)] ---> H(Consensus determination)
     subgraph Taxonomic assignement
     F ---> G(Bitscore filtering)
     G ---> H
