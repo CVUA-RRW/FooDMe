@@ -1,21 +1,28 @@
 # Installation
 
-A detailled installation guide. 
-To help new users, examples below will describe an installation in the `/home/user` folder.
+Below is a detialled installation guide.
+Beginners are encouraged to follow this guide step by step. 
 
-Beginners are encouraged to follow this guide step by step. It is assumed that raw sequencing
-data are stored in `raw_data` folder in the user´s home directory.
+!!! note 
+
+    The examples below will describe an installation in the `/home/user` folder.
+    It is assumed that raw sequencing data are stored in the `raw_data` folder in the user´s home directory.
 
 ## Requirements
 
-Because of the tools used in the workflow only work in a UNIX environment,
+Becausesome of the tools used by the workflow only work in a UNIX environment,
 Windows OS is *not* supported.
 
 The ressources needed to run the pipeline vary according to the nucleotide database used.
-In general be sure to have enought hardrive space to store the database and you raw data plus 
+In general be sure to have enought hard-drive space to store the databases and the raw data plus 
 space to store the results. 
 
 The workflow will remove tempory intermediate files on the fly to minimize the memory footprint.
+
+!!! note
+
+    Depending on the analysis mehtod, sequencing depth, and samples complexity, the persistent output
+    should be below 100MB per sample.
 
 Additionally the BLAST step will require an amount of virtual memory equivalent to the size of 
 the database. This can be either hard drive space or RAM.
@@ -41,7 +48,7 @@ There are many different distributions of conda to choose from, each with their 
 For a new installation we recommend using the minimalistic distribution [miniconda](https://docs.conda.io/en/latest/miniconda.html).
 
 The dependency solver of conda being notoriously slow and helpless in front 
-of complex environment, it is advised to supplement the conda installation 
+of complex environments, it is advised to supplement the conda installation 
 with a better solver called [mamba](https://github.com/mamba-org/mamba):
 
 ```bash
@@ -65,7 +72,7 @@ git clone https://github.com/CVUA-RRW/FooDMe.git
 
 !!! info 
 
-    Without git, you can download the repository manually and upack the archive locally.
+    Without git, you can download the repository manually and unpack the archive locally.
 
 Having git installed will later allow you to get the latest version of the workflow
 as well keep the older versions archived for reproducibility and traceability purposes.
@@ -98,7 +105,7 @@ conda deactivate snakemake
 
 The repository comes with a minimal dataset allowing to run a quick test of the installation.
 Running this example is also a good occasion to initialize all the software dependencies 
-that will be reused on later runs.
+that will be reused on later runs. 
 
 In this examples we will store the workflow´s enviroments under `~/conda-envs`.
 
@@ -113,9 +120,15 @@ before analyzing the three examples samples in the `.tests` folder.
 
 !!! note 
 
+    The created conda environment can be reused in later runs by specifying the argument
+    `--conda-prefix ~/conda-envs` when executing snakemake. This will save the environment 
+    creation time.
+
+!!! warning 
+
     The `.tests` folder might be hidden on your file explorer. If you don´t see it,
     enable `view hidden file` in the options.
 
 Feel free to explore the files produced by this first run in the `.tests` folder. 
-More details about the output and the use of snakemake will be given in the later sections
+More details about the [output](results.md) and the [use of snakemake](run.md) will be given in the later sections
 of this guide.

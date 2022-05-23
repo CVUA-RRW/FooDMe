@@ -1,6 +1,6 @@
 # Overview
 
-Welcome to the user manual of FooDme.
+Welcome to the User Manual of FooDme.
 This documentation will guide you through your first steps with the pipeline.
 
 ## Aim
@@ -22,9 +22,9 @@ See the [configuration help](configuration.md) for more details.
 
 As a first analysis step, primers will be trimmed form the reads. By default primers are only matched on 
 the 5' end of the reads. In some cases (e.g. Sequencing is longer than the amplicon length) one may want
-to trim primers on the 3' end as well. This behaviour can be triggered in the [parameters](configuration.md). 
+to trim primers on the 3' end as well. This behaviour is supported and can be triggered in the [parameters](configuration.md). 
 
-The reads will then be pre-processed for quality trimming on the 3' using a sliding window checking for minimal 
+The reads will then be pre-processed for quality trimming on the 3' end using a sliding window checking for minimal 
 quality requirements.
 
 ### Clustering
@@ -35,19 +35,19 @@ that can be better suited to your specific needs.
 #### Identity clustering
 
 For this strategy, sequences are first dereplicated and ranked by abundance.
-Each sequences is then comparaired to an itinially empty list of centroid and 
-based on sequence similarity is either assigned as a new centroid or merged with 
+Each sequence is then compaired to an itinially empty list of centroids and, 
+based on sequence similarity, is either assigned as a new centroid or merged with 
 the most similar existing centroid.
 
 The degree of identity required for clustering the sequences can be freely set, 0.97 
 being a commonly accepted value and 1.0 corresponding to a dereplication.
 
-This approach is very good at smoothing out seqencing noise but can also results
-in the clustering of highly similar sequences.
+This approach is very good at smoothing out seqencing noise but can also result
+in the clustering of highly similar sequences for different organisms.
 
 #### Dereplication
 
-With the strategy, only identitcal reads will be clustered together.
+With this strategy, only identical reads will be clustered together.
 This is effectively implemented as an identity clustering strategy with 100% identity.
 This is more suitable for high sensitivity identification of amplicons but
 the sequencing noise will not be filtered.
@@ -72,8 +72,8 @@ close to the biological reality of the sample.
 
 #### BLAST search and filtering
 
-The representative sequences for each clusters are compaired to a user provided nucleotide
-database using Basic Local Alignment Strategy (BLAST) and references satisfying specified 
+The representative sequences for each cluster are compaired to a user-provided nucleotide
+database using Basic Local Alignment Search (BLAST) and references satisfying specified 
 similiraty critera are recovered.
 
 In most cases, only part of the database is relevant for each application. For this puprose it is 
@@ -82,6 +82,11 @@ possible to specify a taxonomic node (for example Vertebrates) to which to limit
 Specific taxa can also be irrelevant, such as common contaminants or extinct species. This taxa can
 be provided as a list of identifiers in a text file and will be filtered out of the BLAST search.
 
+!!! info
+
+    We use the NCBI Taxonomy nomenclature, including lineages and identifiers.
+    See https://www.ncbi.nlm.nih.gov/taxonomy for more details.
+
 Because this typically results in a large number of matching results (and taxa), the matches 
 can be post-filtered based on their alignment quality as measured by the alignement bit-scores.
 
@@ -89,4 +94,39 @@ can be post-filtered based on their alignment quality as measured by the alignem
 
 As this process often results in a unclear mix of taxa, a consensus can be determined based 
 on the underlying taxonomic hierachy and a minimal agreement level that can be freely set
-between strict majority (0.51) or last-common ancestor (1.0).
+between strict majority (0.51) to last-common ancestor (1.0).
+
+### Ouput
+
+Statistics on the results of each processing steps as well as the final results with the 
+composition of each samples are saved in tabular files and in an HTML report whose tables
+can be exported to popular formats such as Excel or PDF. More info [here](results.md).
+
+## Workflow chart
+
+Below is a schematical overview of the data processing:
+
+```mermaid
+graph LR
+    [Raw data] --> (Primer trimming)
+    subgraph Pre-processing
+    (Primer trimming) ---> (Quality trimming)
+    end
+    (Quality trimming) --->|OTU| (Read merging)
+    (Quality trimming) --->|ASV| (Denoising)
+    subgraph Clustering
+    (Read merging) ---> (Cluster filtering)
+    (Denoising) ---> (Corrected read merging)
+    end
+    (Branch filter) ---> [(BLAST database)]
+    (Blocklist) ---> [(BLAST database)]
+    [(BLAST database)] ---> (Local Alignment search)
+    (Cluster filtering) ---> (Local Alignment search)
+    (Corrected read merging) ---> (Local Alignment search)
+    [(Taxnomy definitions)] ---> (Consensus determination)
+    subgraph Taxonomic assignement
+    (Local Alignment search) ---> (Bitscore filtering)
+    (Bitscore filtering) ---> (Consensus determination)
+    end
+    (Consensus determination) ---> [Report]
+```

@@ -2,8 +2,9 @@
 
 Parameters can be freely set to fit specific analytical needs.
 Different sets of parameters should be saved to configuration files in YAML format.
+This ensures reproducible analysis of different samples over time.
 
-A template of such configuration is stored in the repository under `FooDME/config/config.yaml`.
+A template of such a configuration file is stored in the repository under `FooDME/config/config.yaml`.
 
 The `config` folder will be populated with configuration sets for specific experiments.
 Feel free to submit yours!
@@ -30,7 +31,7 @@ is available under `FooDME/config/samples.tsv`. and takes the following form:
 | nameB | B_R1.fastq.gz | B_R2.fastq.gz |
 
 Simply modify the template with your own files 
-or use the provided script to automatically generate a sample sheet form FASTQ files in a folder:
+or use the provided script to automatically generate a sample sheet from FASTQ files in a folder:
 
 ```bash
 bash ~/FooDMe/ressources/create_sampleSheet.sh --mode illumina --fastxDir ~/raw_data
@@ -38,9 +39,14 @@ bash ~/FooDMe/ressources/create_sampleSheet.sh --mode illumina --fastxDir ~/raw_
 
 This will create a file called `samples.tsv` in the `raw_data` folder.
 
+!!! note
+
+    The above command assumes that FASTQ files are named according to Illumina naming standards.
+    Different naming standards are available. Use `--help` to see more options.
+
 !!! info 
 
-    This script was developed by the Federal institute of risk assessment (BfR) in Berlin.
+    This tool was developed by the Federal institute of risk assessment (BfR) in Berlin.
     More information is available in their [repository](https://gitlab.com/bfr_bioinformatics/AQUAMIS).
 
 ## List of parameters

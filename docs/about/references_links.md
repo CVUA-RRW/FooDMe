@@ -15,7 +15,7 @@ Documentation for these can be found at the links below:
 | RMarkdown | [https://rmarkdown.rstudio.com/](https://rmarkdown.rstudio.com/) |
 | SeqTK | [https://github.com/lh3/seqtk](https://github.com/lh3/seqtk) |
 | Snakemake | [https://snakemake.readthedocs.io/en/stable/](https://snakemake.readthedocs.io/en/stable/) |
-| Tidyverse | [https://www.tidyverse.org/](https://www.tidyverse.org/) |
 | taxidTools | [https://cvua-rrw.github.io/taxidTools/](https://cvua-rrw.github.io/taxidTools/) |
+| Tidyverse | [https://www.tidyverse.org/](https://www.tidyverse.org/) |
 | VSEARCH | [https://github.com/torognes/vsearch](https://github.com/torognes/vsearch) |
 

@@ -1,12 +1,12 @@
 # Nucleotide database
 
-In order to taxonomically assign sequences, a certain amout of reference data is required.
+In order to taxonomically assign sequences, a certain amount of reference data is required.
 Below are the instructions to retrieve standard databases and how to create custom ones.
 
 ## BLAST database
 
-The sequence comparison step as implememted uses the BLAST tool. This requires that the 
-nucleotide database is indexed and formatted in a BLAST specific way.
+The sequence comparison step as implemented uses the BLAST tool. This requires that the 
+nucleotide database is indexed and formatted in a BLAST-specific way.
 
 ### Preformatted databases
 
@@ -23,8 +23,8 @@ mkdir blast_nt
 bash ~/FooDMe/ressources/fetch-nt-blast.sh -d blast-nt
 ```
 
-Running the above commands will create the blast_nt directory on retrive all the 
-nescessary files from the NCBI servers in this directory.
+Running the above commands will create the blast_nt directory and retrieve all the 
+nescessary files from the NCBI servers.
 
 !!! warning 
 
@@ -34,7 +34,7 @@ nescessary files from the NCBI servers in this directory.
 ### Custom databases
 
 A collection of non-redundant reference sequences (RefSeq) is also available from the NCBI servers.
-The collection is not yet in a BLAST format but we provide a script to retrive and format it.
+The collection is not yet in a BLAST format but we provide a script to retrieve and format it.
 
 Running the commands below will create a folder called refseq, download the RefSeq collection and 
 format it in a blast format. This requires to create a conda environment containing the blast tools.
@@ -47,7 +47,7 @@ mkdir refseq
 bash ~/FooDMe/ressources/create-RefSeq-blastdb.sh -d refseq -t
 ```
 
-Additionally it is possible to format any sequence collection in a BLAST coöpliant format.
+Additionally it is possible to format any sequence collection in a BLAST compliant format.
 A User Guide therefore is available from the [BLAST documentation](https://www.ncbi.nlm.nih.gov/books/NBK569841/).
 
 ## Additonal files
@@ -62,7 +62,7 @@ These are easy to get from the NCBI servers and can be used with other sources.
 
 !!! note 
 
-    If using the scripts above to retrieve either the NT or RefSeq database, the file 
+    If using the scripts above to retrieve either the NT or RefSeq database, the files 
     below should already be included in your local database.
 
 ### Taxonomic information

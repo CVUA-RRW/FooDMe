@@ -3,7 +3,7 @@
 **Q: Do I need to install mamba?**
 
 **A:** No you dont´t. Simply using conda should be enough, although considerably slower, to 
-create environments. If using only conda you will need to add the argument `--conda-frontend conda`
+create environments. If using only conda you may need to add the argument `--conda-frontend conda`
 when executing snakemake.
 
 **Q: Can I use FooDMe for single end reads?**
