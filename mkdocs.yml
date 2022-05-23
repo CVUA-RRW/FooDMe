@@ -15,6 +15,9 @@ nav:
       - Configuration: userguide/configuration.md
       - Start a run: userguide/run.md
       - View results: userguide/results.md
+  - Validation & Benchmarking:
+      - Benchmark mode: benchmark/benchmark.md
+      - Parameter space epxloration: benchmark/paramspace.md
   - Support:
     - FAQs: faqs.md
     - Getting help: help.md
