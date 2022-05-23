@@ -48,16 +48,11 @@ jobs:
           .tests/snkmk_report.html
         retention-days: 7
     
-    - name: Archive all results on fail
+    - name: Archive logs on fail
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
       with:
         name: foodme-fail
         path: |
-          .tests/reports
-          .tests/NTC
           .tests/logs
-          .tests/Lasagne_horse
-          .tests/Lasagen_clean
-          .tests/PIPELINE_STATUS
         retention-days: 7
