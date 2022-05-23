@@ -49,6 +49,7 @@ theme:
     - navigation.tracking
     - navigation.tabs
     - navigation.tabs.sticky
+    - navigation.sections
     - navigation.top
     - toc.integrate
     - content.code.annotate
@@ -71,7 +72,11 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 
 copyright: Copyright &copy; 2020 - 2022 Grégoire Denay
 

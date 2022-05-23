@@ -85,7 +85,7 @@ be provided as a list of identifiers in a text file and will be filtered out of 
 !!! info
 
     We use the NCBI Taxonomy nomenclature, including lineages and identifiers.
-    See https://www.ncbi.nlm.nih.gov/taxonomy for more details.
+    See [https://www.ncbi.nlm.nih.gov/taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy) for more details.
 
 Because this typically results in a large number of matching results (and taxa), the matches 
 can be post-filtered based on their alignment quality as measured by the alignement bit-scores.
