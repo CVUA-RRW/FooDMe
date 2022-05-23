@@ -107,7 +107,7 @@ can be exported to popular formats such as Excel or PDF. More info [here](result
 Below is a schematical overview of the data processing:
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[Raw data] --> B(Primer trimming)
     subgraph Pre-processing
     B ---> C(Quality trimming)
