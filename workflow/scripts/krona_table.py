@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
+sys.stderr = open(snakemake.log[0], "w")
+
+
 import sys
 import taxidTools as txd
 import pandas as pd
-
-
-sys.stderr = open(snakemake.log[0], "w")
 
 
 def get_lineage(taxid, tax):

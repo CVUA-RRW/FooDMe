@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
+sys.stderr = open(snakemake.log[0], "w")
+
+
 import sys
 from os import stat
 import pandas as pd
-
-
-sys.stderr = open(snakemake.log[0], "w")
 
 
 def main(report, filtered, bit_diff):

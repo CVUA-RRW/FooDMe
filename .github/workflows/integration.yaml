@@ -17,27 +17,32 @@ jobs:
       uses: actions/checkout@v2
     
     - name: Test workflow (ASV)
-      uses: snakemake/snakemake-github-action@v1.23.0
+      uses: snakemake/snakemake-github-action@v1.24.0
       with:
         directory: '.tests'
         snakefile: 'workflow/Snakefile'
         args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs" 
+        stagein: |
+            conda config --set channel_priority strict
     
-    - name: Report
-      uses: snakemake/snakemake-github-action@v1.23.0
+    - name: Report (ASV)
+      uses: snakemake/snakemake-github-action@v1.24.0
       with:
         directory: '.tests'
         snakefile: 'workflow/Snakefile'
-        args: "--report snkmk_report.html" 
+        args: "--report snkmk_report.html"
+        stagein: |
+            conda config --set channel_priority strict
     
     - name: Test workflow (OTU)
-      uses: snakemake/snakemake-github-action@v1.23.0
+      uses: snakemake/snakemake-github-action@v1.24.0
       with:
         directory: '.tests'
         snakefile: 'workflow/Snakefile'
         args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config_otu.yaml"
         stagein: |
-          find .tests/ -maxdepth 1 -mindepth 1 ! -name "config" ! -name "data" | xargs rm -r
+            conda config --set channel_priority strict
+            find .tests/ -maxdepth 1 -mindepth 1 ! -name "config" ! -name "data" | xargs rm -r
     
     - name: Archive report for checks
       uses: actions/upload-artifact@v2
@@ -46,6 +51,7 @@ jobs:
         name: foodme-reports
         path: |
           .tests/snkmk_report.html
+          .tests/snkmk_report_otu.html
         retention-days: 7
     
     - name: Archive logs on fail
