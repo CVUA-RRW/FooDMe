@@ -6,6 +6,11 @@
 * Moved log directive to top of python scripts to catch import errors
 * Replaced all `bc` callsby `printf` statements in `vsearch.smk` (#52)
 * Improved logging for OTU workflow
+* Added test suite for OTU workflow
+
+#### Documentation
+
+* Improved Conda installation guide by quoting the Bioconda guide and adding new snakemake requirement to set sstrict channel priority
 
 ### 1.4.8
 
