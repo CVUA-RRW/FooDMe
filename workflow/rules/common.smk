@@ -19,9 +19,6 @@ samples = pd.read_csv(sample_path, index_col="sample", sep="\t", engine="python"
 validate(samples, schema="../schema/samples.schema.yaml")
 samples.index = samples.index.astype("str", copy=False)
 
-# Validating reference table -------------------------
-
-
 
 # General puprose functions --------------------------
 def get_local_time():

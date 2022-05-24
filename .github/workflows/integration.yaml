@@ -23,7 +23,7 @@ jobs:
         snakefile: 'workflow/Snakefile'
         args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs" 
     
-    - name: Report
+    - name: Report (ASV)
       uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: '.tests'
@@ -39,6 +39,13 @@ jobs:
         stagein: |
           find .tests/ -maxdepth 1 -mindepth 1 ! -name "config" ! -name "data" | xargs rm -r
     
+    - name: Report (OTU)
+      uses: snakemake/snakemake-github-action@v1.23.0
+      with:
+        directory: '.tests'
+        snakefile: 'workflow/Snakefile'
+        args: "--report snkmk_report_otu.html" 
+    
     - name: Archive report for checks
       uses: actions/upload-artifact@v2
       if: ${{ success() }}
@@ -46,6 +53,7 @@ jobs:
         name: foodme-reports
         path: |
           .tests/snkmk_report.html
+          .tests/snkmk_report_otu.html
         retention-days: 7
     
     - name: Archive logs on fail
