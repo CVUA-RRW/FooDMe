@@ -297,7 +297,7 @@ rule clustering_stats:
     message:
         "Collecting clustering stats  for {wildcards.sample}"
     log:
-        "logs/{sampel}/cluastering_stats.log",
+        "logs/{sample}/cluastering_stats.log",
     shell:
         """
         exec 2> {log}
