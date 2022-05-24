@@ -9,7 +9,6 @@ Checklist
 - [ ] Comprehensive description of the changes
 - [ ] Link eventual issues
 - [ ] Test modifications
-- [ ] If there are new parameters: update foodme.py
 - [ ] If there are new parameters: update config template
 - [ ] Update README if nescessary
 - [ ] Add modifications to changelog.md
