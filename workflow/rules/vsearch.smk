@@ -315,18 +315,40 @@ rule clustering_stats:
         non_chimera_seq=$(grep -c "^>" {input.non_chimera} || true)
         non_chimera_reads=$(grep "^>" {input.non_chimera} | awk -F '=' '{{s+=$2}}END{{print s}}' || true)
 
-        # Calculating fractions
+        # Get percents
         discarded_seq=$(($clusters_seq - $size_filt_seq))
-        discarded_perc_clust=$(printf %.2f "$((10**3 * (100* $discarded_seq / $clusters_seq)))e-3")
+        if [[ $clusters_seq -eq 0 ]]
+        then
+            discarded_perc_clust=0
+        else
+            discarded_perc_clust=$(printf %.2f "$((10**3 * (100* $discarded_seq / $clusters_seq)))e-3")
+        fi
+
         discarded_reads=$(($uniques_reads - $size_filt_reads))
-        discarded_perc_reads=$(printf %.2f "$((10**3 * (100* $discarded_reads / $uniques_reads)))e-3")
+        if [[ $uniques_reads -eq 0 ]]
+        then
+            discarded_perc_reads=0
+            clustered_perc=0
+        else
+            discarded_perc_reads=$(printf %.2f "$((10**3 * (100* $discarded_reads / $uniques_reads)))e-3")
+            clustered_perc=$(printf %.2f "$((10**3 * (100* $non_chimera_reads / $uniques_reads)))e-3")
+        fi
 
         chim_seq=$(($size_filt_seq - $non_chimera_seq))
-        chim_seq_perc=$(printf %.2f "$((10**3 * (100* $chim_seq / $size_filt_seq)))e-3")
-        chim_reads=$(($size_filt_reads - $non_chimera_reads))
-        chim_reads_perc=$(printf %.2f "$((10**3 * (100* $chim_reads / $size_filt_reads)))e-3")
+        if [[ $discarded_perc_reads -eq 0 ]]
+        then
+            chim_seq_perc=0
+        else
+            chim_seq_perc=$(printf %.2f "$((10**3 * (100* $chim_seq / $size_filt_seq)))e-3")
+        fi
 
-        clustered_perc=$(printf %.2f "$((10**3 * (100* $non_chimera_reads / $uniques_reads)))e-3")
+        chim_reads=$(($size_filt_reads - $non_chimera_reads))
+        if [[ $size_filt_reads -eq 0 ]]
+        then
+            chim_reads_perc=0
+        else
+            chim_reads_perc=$(printf %.2f "$((10**3 * (100* $chim_reads / $size_filt_reads)))e-3")
+        fi
 
         # Writting report
         echo "Sample\tUnique sequences\tClusters\tClusters above size filter\tDiscarded clusters[% of clusters]\tDiscarded clusters[% of reads]\tNon-chimeric clusters (OTU)\tChimeras [% of clusters]\tChimeras [% of reads]\tPseudo-reads clustered\tPseudo-reads clustered [%]" > {output.report}
