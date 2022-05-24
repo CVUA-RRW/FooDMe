@@ -109,10 +109,12 @@ rule qc_stats:
         filtered=$(grep -c "^>" {input.filtered} || true)
         discarded=$(grep -c "^>" {input.discarded} || true)
         dereplicated=$(grep -c "^>" {input.dereplicated} || true)
+
         # Calculating fractions
-        notmerged_perc=$(echo "scale=2;(100* $notmerged / $total_reads)" | bc)
-        discarded_perc=$(echo "scale=2;(100* $discarded / $merged)" | bc)
-        duplicate_perc=$(echo "scale=2;(100* $dereplicated / $filtered)" | bc)
+        notmerged_perc=(printf %.2f "$((10**3 * (100* $notmerged / $total_reads)))e-3")
+        discarded_perc=(printf %.2f "$((10**3 * (100* $discarded / $merged)))e-3")
+        notmerged_perc=(printf %.2f "$((10**3 * (100* $dereplicated / $filtered)))e-3")
+
         # Writing report
         echo "Sample\tTotal reads\tPseudo-reads\tMerging failures [%]\tPseudo-reads PF\tDiscarded reads [%]\tUnique sequences\tUnique sequences [%]" > {output.merging}
         echo "{wildcards.sample}\t$total_reads\t$merged\t$notmerged_perc\t$filtered\t$discarded_perc\t$dereplicated\t$duplicate_perc" >> {output.merging}
@@ -273,16 +275,16 @@ rule clustering_stats:
 
         # Calculating fractions
         discarded_seq=$(($clusters_seq - $size_filt_seq))
-        discarded_perc_clust=$(echo "scale=2;(100* $discarded_seq / $clusters_seq)" | bc)
-        discarded_reads=$(echo "$uniques_reads - $size_filt_reads" | bc )
-        discarded_perc_reads=$(echo "scale=2;(100* $discarded_reads / $uniques_reads)" | bc)
+        discarded_perc_clust=$(printf %.2f "$((10**3 * (100* $discarded_seq / $clusters_seq)))e-3")
+        discarded_reads=$(($uniques_reads - $size_filt_reads))
+        discarded_perc_reads=$(printf %.2f "$((10**3 * (100* $discarded_reads / $uniques_reads)))e-3")
 
         chim_seq=$(($size_filt_seq - $non_chimera_seq))
-        chim_seq_perc=$(echo "scale=2;(100* $chim_seq / $size_filt_seq)" | bc)
-        chim_reads=$(echo "$size_filt_reads - $non_chimera_reads" | bc)
-        chim_reads_perc=$(echo "scale=2;(100* $chim_reads / $size_filt_reads)" | bc)
+        chim_seq_perc=$(printf %.2f "$((10**3 * (100* $chim_seq / $size_filt_seq)))e-3")
+        chim_reads=$(($size_filt_reads - $non_chimera_reads))
+        chim_reads_perc=$(printf %.2f "$((10**3 * (100* $chim_reads / $size_filt_reads)))e-3")
 
-        clustered_perc=$(echo "scale=2;(100* $non_chimera_reads / $uniques_reads)" | bc)
+        clustered_perc=$(printf %.2f "$((10**3 * (100* $non_chimera_reads / $uniques_reads)))e-3")
 
         # Writting report
         echo "Sample\tUnique sequences\tClusters\tClusters above size filter\tDiscarded clusters[% of clusters]\tDiscarded clusters[% of reads]\tNon-chimeric clusters (OTU)\tChimeras [% of clusters]\tChimeras [% of reads]\tPseudo-reads clustered\tPseudo-reads clustered [%]" > {output.report}
