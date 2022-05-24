@@ -47,6 +47,47 @@ Snakemake makes intensive use of the environment manager [conda](https://docs.co
 There are many different distributions of conda to choose from, each with their advantages or inconvenients.
 For a new installation we recommend using the minimalistic distribution [miniconda](https://docs.conda.io/en/latest/miniconda.html).
 
+For an installation guide, see the [Bioconda documentation](https://bioconda.github.io/user/install.html#set-up-channels), specifically steps 1 and 2:
+
+!!! quote
+
+    1. Install conda
+
+    Bioconda requires the conda package manager to be installed. If you have an Anaconda Python installation, you already have it. Otherwise, the best way to install it is with the Miniconda package. The Python 3 version is recommended.
+
+    On MacOS, run:
+
+    ```bash
+    curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+    sh Miniconda3-latest-MacOSX-x86_64.sh
+    ```
+
+    On Linux, run:
+
+    curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    sh Miniconda3-latest-Linux-x86_64.sh
+
+    Follow the instructions in the installer. If you encounter problems, refer to the Miniconda documentation. You can also join our Gitter channel to ask other users for help.
+
+    2. Set up channels
+
+    After installing conda you will need to add the bioconda channel as well as the other channels bioconda depends on. It is important to add them in this order so that the priority is set correctly (that is, conda-forge is highest priority).
+
+    The conda-forge channel contains many general-purpose packages not already found in the defaults channel.
+
+    ```bash
+    conda config --add channels defaults
+    conda config --add channels bioconda
+    conda config --add channels conda-forge
+    ```
+
+The newer versions on Snakemake also require that conda be set in strict channel priority mode.
+This can be done by changing the conda configuration:
+
+```bash
+conda config --set channel_priority strict
+```
+
 The dependency solver of conda being notoriously slow and helpless in front 
 of complex environments, it is advised to supplement the conda installation 
 with a better solver called [mamba](https://github.com/mamba-org/mamba):
