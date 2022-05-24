@@ -19,9 +19,11 @@ rule merge_reads:
     conda:
         "../envs/vsearch.yaml"
     log:
-        "logs/{sample}_merge.log",
+        "logs/{sample}/read_merge.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --fastq_mergepairs {input.r1} --reverse {input.r2} \
             --threads {threads} --fastqout {output.merged} \
             --fastq_eeout --fastaout_notmerged_fwd {output.notmerged_fwd} \
@@ -39,8 +41,14 @@ rule qual_stat:
         "Collecting quality statistics for {wildcards.sample}"
     conda:
         "../envs/vsearch.yaml"
+    log:
+        "logs/{sample}/fastq_quality_check.log",
     shell:
-        "vsearch --fastq_eestats {input.merged} --output {output.stat}"
+        """
+        exec 2> {log}
+
+        vsearch --fastq_eestats {input.merged} --output {output.stat}
+        """
 
 
 rule quality_filter:
@@ -59,9 +67,11 @@ rule quality_filter:
     conda:
         "../envs/vsearch.yaml"
     log:
-        "logs/{sample}_filter.log",
+        "logs/{sample}/fastq_quality_filter.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --fastq_filter {input.merged} \
         --fastq_maxee {params.maxee} --fastq_minlen {params.minlen} \
         --fastq_maxlen {params.maxlen} --fastq_maxns {params.maxns} \
@@ -81,11 +91,15 @@ rule dereplicate:
     conda:
         "../envs/vsearch.yaml"
     log:
-        "logs/{sample}_derep.log",
+        "logs/{sample}/dereplication.log",
     shell:
-        "vsearch --derep_fulllength {input.filtered} --strand plus \
+        """
+        exec 2> {log}
+
+        vsearch --derep_fulllength {input.filtered} --strand plus \
         --output {output.derep} --sizeout \
-        --relabel {wildcards.sample}_seq --fasta_width 0 --log {log}"
+        --relabel {wildcards.sample}_seq --fasta_width 0 --log {log}
+        """
 
 
 rule qc_stats:
@@ -100,8 +114,12 @@ rule qc_stats:
         merging="{sample}/reports/{sample}_merging.tsv",
     message:
         "Collecting quality filtering summary for {wildcards.sample}"
+    log:
+        "logs/{sample}/qc_stats.log",
     shell:
         """
+        exec 2> {log}
+
         # Parsing fasta/fastq files
         merged=$(grep -c "^@" {input.merged} || true)
         notmerged=$(grep -c "^>" {input.notmerged_fwd} || true)
@@ -125,11 +143,19 @@ rule collect_qc_stats:
     input:
         report=expand("{sample}/reports/{sample}_merging.tsv", sample=samples.index),
     output:
-        agg="reports/merging_stats.tsv",
+        agg=report(
+            "reports/merging_stats.tsv",
+            caption="../report/vsearch_qc_stats.rst",
+            category="Quality controls",
+        ),
     message:
         "Collecting quality filtering stats"
+    log:
+        "logs/all/qc_stats.log",
     shell:
         """
+        exec 2> {log}
+
         cat {input.report[0]} | head -n 1 > {output.agg}
         for i in {input.report}; do 
             cat ${{i}} | tail -n +2 >> {output.agg}
@@ -154,9 +180,11 @@ rule cluster:
     message:
         "Distance greedy clustering sequences for {wildcards.sample}"
     log:
-        "logs/{sample}_clustering.log",
+        "logs/{sample}/clustering.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --cluster_size {input.fasta} --threads {threads} \
         --id {params.clusterID} --strand plus --sizein --sizeout \
         --fasta_width 0 --centroids {output.centroids} --uc {output.stat} \
@@ -177,9 +205,11 @@ rule sort_otu:
     message:
         "Sorting centroids and size-filtering for {wildcards.sample}"
     log:
-        "logs/{sample}_sort_otu.log",
+        "logs/{sample}/sort_otu.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --sortbysize {input.fasta} --threads {threads} \
         --sizein --sizeout \
         --fasta_width 0 --minsize {params.min_size} --output {output.sorted} \
@@ -202,9 +232,11 @@ rule chimera_denovo:
     message:
         "De novo chimera detection for {wildcards.sample}"
     log:
-        "logs/{sample}_denovo_chimera.log",
+        "logs/{sample}/denovo_chimera.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --uchime_denovo {input.sorted} \
         --sizein --sizeout --fasta_width 0 \
         --qmask none --nonchimeras {output.nonchim} \
@@ -224,9 +256,11 @@ rule relabel_otu:
     message:
         "Relabelling OTUs  for {wildcards.sample}"
     log:
-        "logs/{sample}_relabel_otus.log",
+        "logs/{sample}/relabel_otus.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --fastx_filter {input.fasta} \
         --sizein --sizeout --fasta_width 0 \
         --relabel OTU_ --fastaout {output.renamed}
@@ -239,9 +273,13 @@ rule create_otu_tab:
     output:
         tab="{sample}/clustering/{sample}_OTUs.txt",
     message:
-        "Export OTU table  for {wildcards.sample}"
+        "Export OTU table for {wildcards.sample}"
+    log:
+        "logs/{sample}/out_tab.log",
     shell:
         """
+        exec 2> {log}
+
         grep "^>" {input.fasta} \
             | sed -e 's/;size=/\t/' \
             | tr -d '>' > {output.tab}
@@ -258,8 +296,12 @@ rule clustering_stats:
         report="{sample}/reports/{sample}_clustering.tsv",
     message:
         "Collecting clustering stats  for {wildcards.sample}"
+    log:
+        "logs/{sampel}/cluastering_stats.log",
     shell:
         """
+        exec 2> {log}
+
         # Collecting counts
         uniques_seq=$(grep -c "^>" {input.derep} || true)
         uniques_reads=$(grep "^>" {input.derep} | awk -F '=' '{{s+=$2}}END{{print s}}' || true)
@@ -303,8 +345,12 @@ rule collect_clustering_stats:
         ),
     message:
         "collecting clustering stats"
+    log:
+        "logs/all/clustering_stats.log",
     shell:
         """
+        exec 2> {log}
+
         cat {input.report[0]} | head -n 1 > {output.agg}
         for i in {input.report}; do 
             cat ${{i}} | tail -n +2 >> {output.agg}
