@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 
+sys.stderr = open(snakemake.log[0], "w")
+
+
 import os
 import sys
 import json
 import csv
 import pandas as pd
-
-
-sys.stderr = open(snakemake.log[0], "w")
 
 
 def main(injson, inhtml, outtsv):

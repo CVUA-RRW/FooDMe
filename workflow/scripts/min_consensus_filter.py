@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
+sys.stderr = open(snakemake.log[0], "w")
+
+
 import sys
 import taxidTools as txd
 from collections import Counter, defaultdict
-
-
-sys.stderr = open(snakemake.log[0], "w")
 
 
 def parse_blast(blast_file):

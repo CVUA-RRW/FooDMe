@@ -1,6 +1,9 @@
-### Dev
+### 1.4.9
 
+#### Bug fix
 
+* Added missing `pandas` dependency in `taxidTools` environment
+* Moved log directive to top of python scripts to catch import errors
 
 ### 1.4.8
 
