@@ -131,11 +131,11 @@ rule qc_stats:
         # Calculating fractions
         notmerged_perc=$(printf %.2f "$((10**3 * (100* $notmerged / $total_reads)))e-3")
         discarded_perc=$(printf %.2f "$((10**3 * (100* $discarded / $merged)))e-3")
-        notmerged_perc=$(printf %.2f "$((10**3 * (100* $dereplicated / $filtered)))e-3")
+        derep_perc=$(printf %.2f "$((10**3 * (100* $dereplicated / $filtered)))e-3")
 
         # Writing report
         echo "Sample\tTotal reads\tPseudo-reads\tMerging failures [%]\tPseudo-reads PF\tDiscarded reads [%]\tUnique sequences\tUnique sequences [%]" > {output.merging}
-        echo "{wildcards.sample}\t$total_reads\t$merged\t$notmerged_perc\t$filtered\t$discarded_perc\t$dereplicated\t$duplicate_perc" >> {output.merging}
+        echo "{wildcards.sample}\t$total_reads\t$merged\t$notmerged_perc\t$filtered\t$discarded_perc\t$dereplicated\t$derep_perc" >> {output.merging}
         """
 
 
