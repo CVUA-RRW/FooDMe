@@ -4,6 +4,7 @@
 
 * Added missing `pandas` dependency in `taxidTools` environment
 * Moved log directive to top of python scripts to catch import errors
+* Replaced all `bc` callsby `printf` statements in `vsearch.smk` (#52)
 
 ### 1.4.8
 
