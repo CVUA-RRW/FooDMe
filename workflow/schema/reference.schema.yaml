@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: Benchmarking Reference File Schema
+
+properties:
+  fields:
+    - sample:
+      type: string
+      description: sample name or identifier
+    - taxid:
+      type: integer
+      description: taxonomic identifier
+    - prop:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: Proportion in the interval [0, 1]
+  required:
+    - sample
+    - taxid
+    - proportion
