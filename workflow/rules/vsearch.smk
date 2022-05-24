@@ -142,7 +142,7 @@ rule qc_stats:
         else
             discarded_perc=$(printf %.2f "$((10**3 * (100* $discarded / $merged)))e-3")
         fi
-        
+
         if [[ $filtered -eq 0 ]]
         then
             derep_perc=0
