@@ -129,9 +129,26 @@ rule qc_stats:
         dereplicated=$(grep -c "^>" {input.dereplicated} || true)
 
         # Calculating fractions
-        notmerged_perc=$(printf %.2f "$((10**3 * (100* $notmerged / $total_reads)))e-3")
-        discarded_perc=$(printf %.2f "$((10**3 * (100* $discarded / $merged)))e-3")
-        derep_perc=$(printf %.2f "$((10**3 * (100* $dereplicated / $filtered)))e-3")
+        if [[ $total_reads -eq 0 ]]
+        then
+            notmerged_perc=0
+        else
+            notmerged_perc=$(printf %.2f "$((10**3 * (100* $notmerged / $total_reads)))e-3")
+        fi
+
+        if [[ $merged -eq 0 ]]
+        then
+            discarded_perc=0
+        else
+            discarded_perc=$(printf %.2f "$((10**3 * (100* $discarded / $merged)))e-3")
+        fi
+        
+        if [[ $filtered -eq 0 ]]
+        then
+            derep_perc=0
+        else
+            derep_perc=$(printf %.2f "$((10**3 * (100* $dereplicated / $filtered)))e-3")
+        fi
 
         # Writing report
         echo "Sample\tTotal reads\tPseudo-reads\tMerging failures [%]\tPseudo-reads PF\tDiscarded reads [%]\tUnique sequences\tUnique sequences [%]" > {output.merging}
