@@ -77,9 +77,9 @@ onsuccess:
 
 onerror:
     print(
-            f"\nAn error occured, please consider filing an bug report."
-            f""
-            f"Issue tracker: https://github.com/CVUA-RRW/FooDMe/issues"
-        )
+        f"\nAn error occured, please consider filing an bug report."
+        f"\n"
+        f"\nIssue tracker: https://github.com/CVUA-RRW/FooDMe/issues"
+    )
     with open(pipe_log, "a") as f:
         f.write(f"[{get_local_time()}]: Pipeline stopped on error\n")
