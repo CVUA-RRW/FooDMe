@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 
+sys.stderr = open(snakemake.log[0], "w")
+
+
 import sys
 import pandas as pd
-
-
-sys.stderr = open(snakemake.log[0], "w")
 
 
 def concatenate_uniq(entries):

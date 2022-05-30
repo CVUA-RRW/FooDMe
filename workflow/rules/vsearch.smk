@@ -19,9 +19,11 @@ rule merge_reads:
     conda:
         "../envs/vsearch.yaml"
     log:
-        "logs/{sample}_merge.log",
+        "logs/{sample}/read_merge.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --fastq_mergepairs {input.r1} --reverse {input.r2} \
             --threads {threads} --fastqout {output.merged} \
             --fastq_eeout --fastaout_notmerged_fwd {output.notmerged_fwd} \
@@ -39,8 +41,14 @@ rule qual_stat:
         "Collecting quality statistics for {wildcards.sample}"
     conda:
         "../envs/vsearch.yaml"
+    log:
+        "logs/{sample}/fastq_quality_check.log",
     shell:
-        "vsearch --fastq_eestats {input.merged} --output {output.stat}"
+        """
+        exec 2> {log}
+
+        vsearch --fastq_eestats {input.merged} --output {output.stat}
+        """
 
 
 rule quality_filter:
@@ -59,9 +67,11 @@ rule quality_filter:
     conda:
         "../envs/vsearch.yaml"
     log:
-        "logs/{sample}_filter.log",
+        "logs/{sample}/fastq_quality_filter.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --fastq_filter {input.merged} \
         --fastq_maxee {params.maxee} --fastq_minlen {params.minlen} \
         --fastq_maxlen {params.maxlen} --fastq_maxns {params.maxns} \
@@ -81,11 +91,15 @@ rule dereplicate:
     conda:
         "../envs/vsearch.yaml"
     log:
-        "logs/{sample}_derep.log",
+        "logs/{sample}/dereplication.log",
     shell:
-        "vsearch --derep_fulllength {input.filtered} --strand plus \
+        """
+        exec 2> {log}
+
+        vsearch --derep_fulllength {input.filtered} --strand plus \
         --output {output.derep} --sizeout \
-        --relabel {wildcards.sample}_seq --fasta_width 0 --log {log}"
+        --relabel {wildcards.sample}_seq --fasta_width 0 --log {log}
+        """
 
 
 rule qc_stats:
@@ -100,8 +114,12 @@ rule qc_stats:
         merging="{sample}/reports/{sample}_merging.tsv",
     message:
         "Collecting quality filtering summary for {wildcards.sample}"
+    log:
+        "logs/{sample}/qc_stats.log",
     shell:
         """
+        exec 2> {log}
+
         # Parsing fasta/fastq files
         merged=$(grep -c "^@" {input.merged} || true)
         notmerged=$(grep -c "^>" {input.notmerged_fwd} || true)
@@ -109,13 +127,32 @@ rule qc_stats:
         filtered=$(grep -c "^>" {input.filtered} || true)
         discarded=$(grep -c "^>" {input.discarded} || true)
         dereplicated=$(grep -c "^>" {input.dereplicated} || true)
+
         # Calculating fractions
-        notmerged_perc=$(echo "scale=2;(100* $notmerged / $total_reads)" | bc)
-        discarded_perc=$(echo "scale=2;(100* $discarded / $merged)" | bc)
-        duplicate_perc=$(echo "scale=2;(100* $dereplicated / $filtered)" | bc)
+        if [[ $total_reads -eq 0 ]]
+        then
+            notmerged_perc=0
+        else
+            notmerged_perc=$(printf %.2f "$((10**3 * (100* $notmerged / $total_reads)))e-3")
+        fi
+
+        if [[ $merged -eq 0 ]]
+        then
+            discarded_perc=0
+        else
+            discarded_perc=$(printf %.2f "$((10**3 * (100* $discarded / $merged)))e-3")
+        fi
+
+        if [[ $filtered -eq 0 ]]
+        then
+            derep_perc=0
+        else
+            derep_perc=$(printf %.2f "$((10**3 * (100* $dereplicated / $filtered)))e-3")
+        fi
+
         # Writing report
         echo "Sample\tTotal reads\tPseudo-reads\tMerging failures [%]\tPseudo-reads PF\tDiscarded reads [%]\tUnique sequences\tUnique sequences [%]" > {output.merging}
-        echo "{wildcards.sample}\t$total_reads\t$merged\t$notmerged_perc\t$filtered\t$discarded_perc\t$dereplicated\t$duplicate_perc" >> {output.merging}
+        echo "{wildcards.sample}\t$total_reads\t$merged\t$notmerged_perc\t$filtered\t$discarded_perc\t$dereplicated\t$derep_perc" >> {output.merging}
         """
 
 
@@ -123,11 +160,19 @@ rule collect_qc_stats:
     input:
         report=expand("{sample}/reports/{sample}_merging.tsv", sample=samples.index),
     output:
-        agg="reports/merging_stats.tsv",
+        agg=report(
+            "reports/merging_stats.tsv",
+            caption="../report/vsearch_qc_stats.rst",
+            category="Quality controls",
+        ),
     message:
         "Collecting quality filtering stats"
+    log:
+        "logs/all/qc_stats.log",
     shell:
         """
+        exec 2> {log}
+
         cat {input.report[0]} | head -n 1 > {output.agg}
         for i in {input.report}; do 
             cat ${{i}} | tail -n +2 >> {output.agg}
@@ -152,9 +197,11 @@ rule cluster:
     message:
         "Distance greedy clustering sequences for {wildcards.sample}"
     log:
-        "logs/{sample}_clustering.log",
+        "logs/{sample}/clustering.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --cluster_size {input.fasta} --threads {threads} \
         --id {params.clusterID} --strand plus --sizein --sizeout \
         --fasta_width 0 --centroids {output.centroids} --uc {output.stat} \
@@ -175,9 +222,11 @@ rule sort_otu:
     message:
         "Sorting centroids and size-filtering for {wildcards.sample}"
     log:
-        "logs/{sample}_sort_otu.log",
+        "logs/{sample}/sort_otu.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --sortbysize {input.fasta} --threads {threads} \
         --sizein --sizeout \
         --fasta_width 0 --minsize {params.min_size} --output {output.sorted} \
@@ -200,9 +249,11 @@ rule chimera_denovo:
     message:
         "De novo chimera detection for {wildcards.sample}"
     log:
-        "logs/{sample}_denovo_chimera.log",
+        "logs/{sample}/denovo_chimera.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --uchime_denovo {input.sorted} \
         --sizein --sizeout --fasta_width 0 \
         --qmask none --nonchimeras {output.nonchim} \
@@ -222,9 +273,11 @@ rule relabel_otu:
     message:
         "Relabelling OTUs  for {wildcards.sample}"
     log:
-        "logs/{sample}_relabel_otus.log",
+        "logs/{sample}/relabel_otus.log",
     shell:
         """
+        exec 2> {log}
+
         vsearch --fastx_filter {input.fasta} \
         --sizein --sizeout --fasta_width 0 \
         --relabel OTU_ --fastaout {output.renamed}
@@ -237,9 +290,13 @@ rule create_otu_tab:
     output:
         tab="{sample}/clustering/{sample}_OTUs.txt",
     message:
-        "Export OTU table  for {wildcards.sample}"
+        "Export OTU table for {wildcards.sample}"
+    log:
+        "logs/{sample}/out_tab.log",
     shell:
         """
+        exec 2> {log}
+
         grep "^>" {input.fasta} \
             | sed -e 's/;size=/\t/' \
             | tr -d '>' > {output.tab}
@@ -256,8 +313,12 @@ rule clustering_stats:
         report="{sample}/reports/{sample}_clustering.tsv",
     message:
         "Collecting clustering stats  for {wildcards.sample}"
+    log:
+        "logs/{sample}/cluastering_stats.log",
     shell:
         """
+        exec 2> {log}
+
         # Collecting counts
         uniques_seq=$(grep -c "^>" {input.derep} || true)
         uniques_reads=$(grep "^>" {input.derep} | awk -F '=' '{{s+=$2}}END{{print s}}' || true)
@@ -271,18 +332,40 @@ rule clustering_stats:
         non_chimera_seq=$(grep -c "^>" {input.non_chimera} || true)
         non_chimera_reads=$(grep "^>" {input.non_chimera} | awk -F '=' '{{s+=$2}}END{{print s}}' || true)
 
-        # Calculating fractions
+        # Get percents
         discarded_seq=$(($clusters_seq - $size_filt_seq))
-        discarded_perc_clust=$(echo "scale=2;(100* $discarded_seq / $clusters_seq)" | bc)
-        discarded_reads=$(echo "$uniques_reads - $size_filt_reads" | bc )
-        discarded_perc_reads=$(echo "scale=2;(100* $discarded_reads / $uniques_reads)" | bc)
+        if [[ $clusters_seq -eq 0 ]]
+        then
+            discarded_perc_clust=0
+        else
+            discarded_perc_clust=$(printf %.2f "$((10**3 * (100* $discarded_seq / $clusters_seq)))e-3")
+        fi
+
+        discarded_reads=$(($uniques_reads - $size_filt_reads))
+        if [[ $uniques_reads -eq 0 ]]
+        then
+            discarded_perc_reads=0
+            clustered_perc=0
+        else
+            discarded_perc_reads=$(printf %.2f "$((10**3 * (100* $discarded_reads / $uniques_reads)))e-3")
+            clustered_perc=$(printf %.2f "$((10**3 * (100* $non_chimera_reads / $uniques_reads)))e-3")
+        fi
 
         chim_seq=$(($size_filt_seq - $non_chimera_seq))
-        chim_seq_perc=$(echo "scale=2;(100* $chim_seq / $size_filt_seq)" | bc)
-        chim_reads=$(echo "$size_filt_reads - $non_chimera_reads" | bc)
-        chim_reads_perc=$(echo "scale=2;(100* $chim_reads / $size_filt_reads)" | bc)
+        if [[ $discarded_perc_reads -eq 0 ]]
+        then
+            chim_seq_perc=0
+        else
+            chim_seq_perc=$(printf %.2f "$((10**3 * (100* $chim_seq / $size_filt_seq)))e-3")
+        fi
 
-        clustered_perc=$(echo "scale=2;(100* $non_chimera_reads / $uniques_reads)" | bc)
+        chim_reads=$(($size_filt_reads - $non_chimera_reads))
+        if [[ $size_filt_reads -eq 0 ]]
+        then
+            chim_reads_perc=0
+        else
+            chim_reads_perc=$(printf %.2f "$((10**3 * (100* $chim_reads / $size_filt_reads)))e-3")
+        fi
 
         # Writting report
         echo "Sample\tUnique sequences\tClusters\tClusters above size filter\tDiscarded clusters[% of clusters]\tDiscarded clusters[% of reads]\tNon-chimeric clusters (OTU)\tChimeras [% of clusters]\tChimeras [% of reads]\tPseudo-reads clustered\tPseudo-reads clustered [%]" > {output.report}
@@ -301,8 +384,12 @@ rule collect_clustering_stats:
         ),
     message:
         "collecting clustering stats"
+    log:
+        "logs/all/clustering_stats.log",
     shell:
         """
+        exec 2> {log}
+
         cat {input.report[0]} | head -n 1 > {output.agg}
         for i in {input.report}; do 
             cat ${{i}} | tail -n +2 >> {output.agg}
