@@ -17,7 +17,7 @@ rule confusion_matrix:
         target_rank=config["benchmark"]["target_rank"],
         sample={wildcards.bchmk_sample},
     message:
-        "Finding out the truth for {wildcards.bchmk_sample}
+        "Finding out the truth for {wildcards.bchmk_sample}"
     conda:
         "../envs/taxidtools.yaml"
     log:

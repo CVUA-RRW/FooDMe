@@ -34,12 +34,11 @@ rule all:
         expand("{sample}/reports/{sample}_report.html", sample=samples.index),
         "reports/report.html",
 
-
 rule benchmark:
     input:
         expand("{sample}/reports/{sample}_report.html", sample=samples.index),
         "reports/report.html",
-        "benchmark/benchamrking_report.html",
+        "benchmarking/confusion_matrix.tsv",
 
 
 # Includes --------------------------------------------------------------------
@@ -49,7 +48,7 @@ include: "rules/trimming.smk"
 include: "rules/vsearch.smk" if config["cluster"]["method"] == "otu" else "rules/dada2.smk"
 include: "rules/blast.smk"
 include: "rules/reports.smk"
-include: "rules/benchmark.smk"
+include: "rules/benchmarking.smk"
 
 
 # Workflow --------------------------------------------------------------------
@@ -77,20 +76,8 @@ onsuccess:
 
 
 onerror:
-    try:
-        for logfile in os.listdir(".snakemake/log/"):
-            shutil.move(os.path.join(".snakemake/log", logfile), "logs")
-        shutil.rmtree(".snakemake", ignore_errors=True)
-        print(
-            f"\nAn error occured, please consult the latest log file in"
-            f"{os.path.join(config['workdir'], '.snakemake', 'log')}"
-            f""
-            f"Issue tracker: https://github.com/CVUA-RRW/FooDMe/issues"
-        )
-    except:
-        print(
-            f"\nAn error occured, please consult the snakemake log file in"
-            f"the current working directory."
+    print(
+            f"\nAn error occured, please consider filing an bug report."
             f""
             f"Issue tracker: https://github.com/CVUA-RRW/FooDMe/issues"
         )

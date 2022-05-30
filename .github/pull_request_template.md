@@ -11,5 +11,5 @@ Checklist
 - [ ] Test modifications
 - [ ] If there are new parameters: update foodme.py
 - [ ] If there are new parameters: update config template
-- [ ] Update README if nescessary
+- [ ] Update documentation if nescessary
 - [ ] Add modifications to changelog.md

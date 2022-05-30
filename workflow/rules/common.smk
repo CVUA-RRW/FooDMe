@@ -23,7 +23,9 @@ samples.index = samples.index.astype("str", copy=False)
 # Loading and validationg benchmark reference --------
 try:
     reference_path = config["benchmark"]["reference"]
-    reference = pd.read_csv(reference_path, index_col="sample", sep="\t", engine="python")
+    reference = pd.read_csv(
+        reference_path, index_col="sample", sep="\t", engine="python"
+    )
     validate(reference, schema="../schema/reference.schema.yaml")
     reference.index = reference.index.astype("str", copy=False)
     # Get union of reference and samples to use for benchmarking
