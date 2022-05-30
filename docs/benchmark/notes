@@ -1,0 +1,3 @@
+
+'target_rank' -> because limitations of NCBI taxonomy need to be given in the linnean ranks (specy, genus, fam, etc..)
+'match_rank' -> given in a normalized linnean taxonomy, is not nescessarily the rank of the match

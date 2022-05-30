@@ -9,11 +9,13 @@ rule confusion_matrix:
     input:
         compo="{bchmk_sample}/reports/{bchmk_sample}_composition.tsv",
         truth=lambda wildcards: get_sample_reference(wildcards),
+        tax = "common/taxonomy.json",
     output:
-        confmat="{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv"
+        confmat="{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv",
     params:
-        threshold=config["benchmark"]["threshold"]
-        target_rank=config["benchmark"]["target_rank"]
+        threshold=config["benchmark"]["threshold"],
+        target_rank=config["benchmark"]["target_rank"],
+        sample={wildcards.bchmk_sample},
     message:
         "Finding out the truth for {wildcards.bchmk_sample}
     conda:
@@ -24,7 +26,7 @@ rule confusion_matrix:
         "../scripts/confusion_matrix.py"
 
 
-rule collect_blast_stats:
+rule collect_confusion_matrices:
     input:
         report=expand("{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv", sample=benchmark.index),
     output:
@@ -49,11 +51,22 @@ rule collect_blast_stats:
         """
 
 
-# rule distance:
-
-
 # rule runtime:
 
 
 # rule yield:
 
+
+# rule PRcurve:
+
+
+# rule PRcurve_all:
+
+
+# rule metrics:
+    # precision
+    # recall
+    # PR-AUC
+    # L2 distance
+    # Mean absolute error
+    # yield

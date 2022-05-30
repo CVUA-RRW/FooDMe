@@ -39,6 +39,15 @@ jobs:
         stagein: |
           find .tests/ -maxdepth 1 -mindepth 1 ! -name "config" ! -name "data" | xargs rm -r
     
+    - name: Test workflow (benchmark)
+      uses: snakemake/snakemake-github-action@v1.23.0
+      with:
+        directory: '.tests'
+        snakefile: 'workflow/Snakefile'
+        args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config_benchmark.yaml"
+        stagein: |
+          find .tests/ -maxdepth 1 -mindepth 1 ! -name "config" ! -name "data" | xargs rm -r
+    
     - name: Archive report for checks
       uses: actions/upload-artifact@v2
       if: ${{ success() }}
