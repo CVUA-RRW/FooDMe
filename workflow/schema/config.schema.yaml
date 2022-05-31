@@ -183,7 +183,11 @@ properties:
       target_rank:
         type: string
         description: Maximum consensus rank to consider a result real. Must be a Linnean rank ('species', 'genus' 'family', 'order', 'class', 'phylum', 'kingdom')
-    
+    required:
+      - reference
+      - threshold
+      - target_rank
+  
   required:
     - workdir
     - samples

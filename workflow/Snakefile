@@ -49,9 +49,7 @@ include: "rules/trimming.smk"
 include: "rules/vsearch.smk" if config["cluster"]["method"] == "otu" else "rules/dada2.smk"
 include: "rules/blast.smk"
 include: "rules/reports.smk"
-
-if 'benchmark' in snakemake.get_argument_parser().parse_args().target:
-    include: "rules/benchmark.smk" 
+include: "rules/benchmark.smk" 
 
 
 # Workflow --------------------------------------------------------------------

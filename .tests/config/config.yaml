@@ -34,3 +34,7 @@ blast:
     perc_identity: 97
     qcov: 100
     bit_score_diff: 2
+benchmark:
+    reference: config/reference.tsv
+    threshold: 0.1
+    target_rank: genus
