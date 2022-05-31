@@ -44,6 +44,7 @@ rule benchmark:
             bchmk_sample=benchmark_index
         ),
         "benchmarking/confusion_matrix.tsv",
+        "benchmarking/yield.tsv",
 
 
 # Includes --------------------------------------------------------------------

@@ -1,6 +1,6 @@
 shell.executable("bash")
 
-# Use {bchmk_sample} instead of {sample} to make explicit that we are
+# Use {bchmk_sample} with index 'benchmark_index' instead of {sample} to make explicit that we are
 # working with 'benchmark.index' here and not with 'samples.index'
 # See common.smk for the index specifications
 
@@ -17,7 +17,7 @@ rule confusion_matrix:
         target_rank=config["benchmark"]["target_rank"],
         sample=lambda w: w.bchmk_sample,
     message:
-        "Finding out the truth for {wildcards.bchmk_sample}"
+        "Calculating confusion table for {wildcards.bchmk_sample}"
     conda:
         "../envs/taxidtools.yaml"
     log:
@@ -39,7 +39,7 @@ rule collect_confusion_matrices:
             category="Benchmarking",
         ),
     message:
-        "Rassembling the truth"
+        "Collecting confusion tables"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -54,10 +54,70 @@ rule collect_confusion_matrices:
         """
 
 
+rule yields:
+    input:
+        summary="{bchmk_sample}/reports/{bchmk_sample}_summary.tsv",
+    output:
+        yields="{bchmk_sample}/benchmarking/{bchmk_sample}_yield.tsv",
+    message:
+        "Calculating yield for {wildcards.bchmk_sample}"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/{bchmk_sample}/yield.log",
+    shell:
+        """
+        exec 2> {log}
+        
+        # Read data in
+        IFS='\t'
+        read -r sample q30 size read_in merged clustered n_cluster assigned sp gn hr nm <<< {input.summary}
+
+        # Calculate yields
+        if [[ $read_in -eq 0 ]]
+        then
+            merged_perc=0
+            clustered_perc=0
+            assigned_perc=0
+        else
+            merged_perc=$(printf %.2f "$((10**3 * (100* $merged / $read_in)))e-3")
+            clustered_perc=$(printf %.2f "$((10**3 * (100* $clustered / $read_in)))e-3")
+            assigned_perc=$(printf %.2f "$((10**3 * (100* $assigned / $read_in)))e-3")
+        fi
+
+        # Write report
+        echo "Sample\tTotal reads [%]\tMerged reads [%]\tClustered reads [%]\tAssigned reads [%]" > {output.yields}
+        echo "$sampe\t100.00\t$merged_perc\t$clustered_perc\t$assigned_perc"
+        """
+
+
+rule collect_yield:
+    input:
+        report=expand(
+            "{bchmk_sample}/benchmarking/{bchmk_sample}_yield.tsv",
+            bchmk_sample=benchmark_index,
+        ),
+    output:
+        agg=report(
+            "benchmarking/yield.tsv",
+            caption="../report/yields.rst",
+            category="Benchmarking",
+        ),
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/all/yield.log",
+    shell:
+        """
+        exec 2> {log}
+        cat {input.report[0]} | head -n 1 > {output.agg}
+        for i in {input.report}; do 
+            cat ${{i}} | tail -n +2 >> {output.agg}
+        done
+        """
+
+
 # rule runtime:
-
-
-# rule yield:
 
 
 # rule PRcurve:

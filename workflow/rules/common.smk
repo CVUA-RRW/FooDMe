@@ -28,7 +28,7 @@ reference.index = reference.index.astype("str", copy=False)
 # Get union of reference and samples to use for benchmarking
 samples_set = set(samples.index)
 reference_set = set(reference.index)
-benchmark_index = list(samples_set.union(reference_set))
+benchmark_index = list(samples_set.intersection(reference_set))
 
 
 # General puprose functions --------------------------
