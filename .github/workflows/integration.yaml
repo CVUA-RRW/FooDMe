@@ -49,7 +49,7 @@ jobs:
       with:
         directory: '.tests'
         snakefile: 'workflow/Snakefile'
-        args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config_benchmark.yaml"
+        args: "benchmark -j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config_benchmark.yaml"
         stagein: |
           find .tests/ -maxdepth 1 -mindepth 1 ! -name "config" ! -name "data" | xargs rm -r
     
