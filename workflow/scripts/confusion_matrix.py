@@ -98,11 +98,10 @@ def main(
     pred['ref_match'] = matches
 
     # Get Lca of exp and pred matches to know what ranks correspond
-    norms = [
-        format_rank(tax.get(str(tx)), ranks) if tax.isAncestorOf(m,tx)  # speed up if same lineage
-        else format_rank(tax.lca([tx,m]), ranks) 
-        for tx,m in zip(pred.loc[:,'taxid'], pred.loc[:,'ref_match']) 
-        ]
+    norms = [format_rank(tax.get(str(tx)), ranks) if tax.isAncestorOf(m,tx)  # speed up if same lineage
+                else format_rank(tax.lca([tx,m]), ranks)
+                for tx,m in zip(pred.loc[:,'taxid'], pred.loc[:,'ref_match'])]
+
     pred['match_rank'] = [node.rank for node in norms]
 
     # Post format finished tables
