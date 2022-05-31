@@ -1,6 +1,6 @@
 shell.executable("bash")
 
-# Use {bchmk_sample} instead of {sample} to make explicit that we are 
+# Use {bchmk_sample} instead of {sample} to make explicit that we are
 # working with 'benchmark.index' here and not with 'samples.index'
 # See common.smk for the index specifications
 
@@ -8,8 +8,8 @@ shell.executable("bash")
 rule confusion_matrix:
     input:
         compo="{bchmk_sample}/reports/{bchmk_sample}_composition.tsv",
-        truth=config['benchmark']['reference'],
-        tax = "common/taxonomy.json",
+        truth=config["benchmark"]["reference"],
+        tax="common/taxonomy.json",
     output:
         confmat="{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv",
     params:
@@ -21,14 +21,17 @@ rule confusion_matrix:
     conda:
         "../envs/taxidtools.yaml"
     log:
-        "logs/{bchmk_sample}/confusion_matrix.log"
+        "logs/{bchmk_sample}/confusion_matrix.log",
     script:
         "../scripts/confusion_matrix.py"
 
 
 rule collect_confusion_matrices:
     input:
-        report=expand("{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv", bchmk_sample=benchmark_index),
+        report=expand(
+            "{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv",
+            bchmk_sample=benchmark_index,
+        ),
     output:
         agg=report(
             "benchmarking/confusion_matrix.tsv",
