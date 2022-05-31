@@ -168,6 +168,22 @@ properties:
       - qcov
       - bit_score_diff
   
+  benchmark:
+    description: Options for benchmarking
+    type: object
+    properties:
+      reference:
+        type: string
+        description: Path to the reference table with sample composition
+      threshold:
+        type: number
+        description: Minimum proportion (in the [0, 1] interval) to consider a result real
+        minimum: 0
+        maximum: 1
+      target_rank:
+        type: string
+        description: Maximum consensus rank to consider a result real. Must be a Linnean rank ('species', 'genus' 'family', 'order', 'class', 'phylum', 'kingdom')
+    
   required:
     - workdir
     - samples

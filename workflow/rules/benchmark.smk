@@ -8,14 +8,14 @@ shell.executable("bash")
 rule confusion_matrix:
     input:
         compo="{bchmk_sample}/reports/{bchmk_sample}_composition.tsv",
-        truth=lambda wildcards: get_sample_reference(wildcards),
+        truth=config['benchmark']['reference'],
         tax = "common/taxonomy.json",
     output:
         confmat="{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv",
     params:
         threshold=config["benchmark"]["threshold"],
         target_rank=config["benchmark"]["target_rank"],
-        sample={wildcards.bchmk_sample},
+        sample=lambda w: w.bchmk_sample,
     message:
         "Finding out the truth for {wildcards.bchmk_sample}"
     conda:
@@ -28,7 +28,7 @@ rule confusion_matrix:
 
 rule collect_confusion_matrices:
     input:
-        report=expand("{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv", sample=benchmark.index),
+        report=expand("{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv", bchmk_sample=benchmark_index),
     output:
         agg=report(
             "benchmarking/confusion_matrix.tsv",

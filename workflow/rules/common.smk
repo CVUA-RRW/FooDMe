@@ -21,7 +21,7 @@ samples.index = samples.index.astype("str", copy=False)
 
 
 # Loading and validationg benchmark reference --------
-try:
+if 'benchmark' in snakemake.get_argument_parser().parse_args().target:
     reference_path = config["benchmark"]["reference"]
     reference = pd.read_csv(
         reference_path, index_col="sample", sep="\t", engine="python"
@@ -31,9 +31,10 @@ try:
     # Get union of reference and samples to use for benchmarking
     samples_set = set(samples.index)
     reference_set = set(reference.index)
-    benchmark.index = list(samples_set.union(reference_set))
-except KeyError:
-    pass  # Need to catch error at some point if benchmarking is required!!!
+    benchmark_index = list(samples_set.union(reference_set))
+else:
+    pass
+
 
 # General puprose functions --------------------------
 def get_local_time():
@@ -43,10 +44,6 @@ def get_local_time():
 # Input functions ------------------------------------
 def get_fastq(wildcards, read_pair="fq1"):
     return samples.loc[(wildcards.sample), [read_pair]].dropna()[0]
-
-
-def get_sample_reference(wildcards):
-    return reference.loc[(wildacrds.sample)].dropna()[0]
 
 
 def get_mask():

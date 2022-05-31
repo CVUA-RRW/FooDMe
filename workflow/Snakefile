@@ -38,6 +38,7 @@ rule benchmark:
     input:
         expand("{sample}/reports/{sample}_report.html", sample=samples.index),
         "reports/report.html",
+        expand("{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv", bchmk_sample=benchmark_index),
         "benchmarking/confusion_matrix.tsv",
 
 
@@ -48,7 +49,9 @@ include: "rules/trimming.smk"
 include: "rules/vsearch.smk" if config["cluster"]["method"] == "otu" else "rules/dada2.smk"
 include: "rules/blast.smk"
 include: "rules/reports.smk"
-include: "rules/benchmark.smk"
+
+if 'benchmark' in snakemake.get_argument_parser().parse_args().target:
+    include: "rules/benchmark.smk" 
 
 
 # Workflow --------------------------------------------------------------------
