@@ -59,6 +59,8 @@ def main(
 
     tax = txd.load(taxonomy)
 
+    threshold=threshold/100 # Everything in the interval [0,1]
+
     # Load data
     compo_tbl = pd.read_csv(compo, sep="\t")
     truth_tbl = pd.read_csv(truth, sep="\t")
@@ -67,9 +69,7 @@ def main(
     truth_tbl = truth_tbl.loc[truth_tbl['sample'] == sample]
 
     # Filter and normalize compo to range [0, 1] (input in %)
-    compo_tbl = compo_tbl.loc[
-        (compo_tbl['Taxid'] != "-") & (compo_tbl['Percent of assigned'] >= threshold)
-        ]
+    compo_tbl = compo_tbl.loc[(compo_tbl['Taxid'] != "-")]
     compo_tbl['Percent of assigned'] = compo_tbl['Percent of assigned']/100
 
     # Preformating tables
@@ -111,7 +111,8 @@ def main(
         ).filter(
             items=['pred_ratio', "ref_match", "match_rank"]
          )
-    pred['predicted'] = 1
+    # Was the taxid predicted? only if above threshold
+    pred['predicted'] = pred.apply(lambda x: 1 if x['pred_ratio']>=threshold else 0, axis=1)
 
     exp = exp.set_index('taxid'
         ).filter(items=['exp_ratio']
@@ -159,7 +160,7 @@ if __name__ == '__main__':
         compo = snakemake.input['compo'],
         truth = snakemake.input['truth'],
         output = snakemake.output['confmat'],
-        sample = snakemake.params['params'],
+        sample = snakemake.params['sample'],
         threshold = snakemake.params['threshold'],
         target_rank = snakemake.params['target_rank'],
         taxonomy = snakemake.input['tax']

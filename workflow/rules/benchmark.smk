@@ -68,7 +68,7 @@ rule yields:
     shell:
         """
         exec 2> {log}
-        
+
         # Read data in
         IFS='\t'
         read -r sample q30 size read_in merged clustered n_cluster assigned sp gn hr nm <<< {input.summary}
@@ -103,6 +103,8 @@ rule collect_yield:
             caption="../report/yields.rst",
             category="Benchmarking",
         ),
+    message:
+        "Collecting yield reports"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -117,19 +119,80 @@ rule collect_yield:
         """
 
 
-# rule runtime:
+rule metrics_sample:
+    input:
+        confmat="{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv",
+    output:
+        metrics="{bchmk_sample}/benchmarking/{bchmk_sample}_metrics.tsv",
+    params:
+        sample=lambda w: w.bchmk_sample,
+    message:
+        "Calculating metrics for {wildcards.bchmk_sample}"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/{bchmk_sample}/metrics.log",
+    script:
+        "../scripts/benchmark_metrics.py"
 
 
-# rule PRcurve:
+rule metrics_global:
+    input:
+        confmat="benchmarking/confusion_matrix.tsv",
+    output:
+        metrics="aggregated_samples/benchmarking/aggregated_metrics.tsv",
+    params:
+        sample="aggregated",
+    message:
+        "Calculating metrics for aggregated samples"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/all/agg_metrics.log",
+    script:
+        "../scripts/benchmark_metrics.py"
 
 
-# rule PRcurve_all:
+rule collect_benchmarking_metrics:
+    input:
+        agg_metrics="aggregated_samples/benchmarking/aggregated_metrics.tsv",
+        metrics=expand(
+            "{bchmk_sample}/benchmarking/{bchmk_sample}_metrics.tsv",
+            bchmk_sample=benchmark_index,
+        ),
+    output:
+        agg=report(
+            "benchmarking/metrics.tsv",
+            caption="../report/metrics.rst",
+            category="Benchmarking",
+        ),
+    message:
+        "Collecting metrics reports"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/all/metrics.log",
+    shell:
+        """
+        exec 2> {log}
+        cat {input.agg_metrics} > {output.agg}
+        for i in {input.metrics}; do 
+            cat ${{i}} | tail -n +2 >> {output.agg}
+        done
+        """
 
 
-# rule metrics:
-    # precision
-    # recall
-    # PR-AUC
-    # L2 distance
-    # Mean absolute error
-    # yield
+rule prcurve:
+    input:
+        confmat="benchmarking/confusion_matrix.tsv",
+    output:
+        pr_curve="benchmarking/pr_curve.tsv",
+    message:
+        "calculating precision-recall curve"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/all/pr_curve.log",
+    script:
+        "../scripts/pr-curve.py"
+

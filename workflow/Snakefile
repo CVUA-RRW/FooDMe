@@ -45,6 +45,8 @@ rule benchmark:
         ),
         "benchmarking/confusion_matrix.tsv",
         "benchmarking/yield.tsv",
+        "benchmarking/metrics.tsv",
+        "benchmarking/pr_curve.tsv",
 
 
 # Includes --------------------------------------------------------------------
