@@ -98,8 +98,8 @@ def main(
     pred['ref_match'] = matches
 
     # Get Lca of exp and pred matches to know what ranks correspond
-    norms = [format_rank(tax.get(str(tx)), ranks) if tax.isAncestorOf(m,tx)  # speed up if same lineage
-                else format_rank(tax.lca([tx,m]), ranks)
+    norms = [format_rank(tax.get(str(tx)), tax, ranks) if tax.isAncestorOf(m,tx)  # speed up if same lineage
+                else format_rank(tax.lca([tx,m]), tax, ranks)
                 for tx,m in zip(pred.loc[:,'taxid'], pred.loc[:,'ref_match'])]
 
     pred['match_rank'] = [node.rank for node in norms]
@@ -151,7 +151,7 @@ def main(
     # Missing values are missagnignements!
     conftable = conftable.fillna(0)
 
-    contable.to_csv(output, sep="\t", header=True, index=False)
+    conftable.to_csv(output, sep="\t", header=True, index=False)
 
 
 if __name__ == '__main__':

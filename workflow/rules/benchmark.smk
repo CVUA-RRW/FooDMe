@@ -71,7 +71,7 @@ rule yields:
 
         # Read data in
         IFS='\t'
-        read -r sample q30 size read_in merged clustered n_cluster assigned sp gn hr nm <<< {input.summary}
+        read -r sample q30 size read_in merged clustered n_cluster assigned sp gn hr nm <<< $(cat {input.summary} | tail -n +2)
 
         # Calculate yields
         if [[ $read_in -eq 0 ]]
@@ -87,7 +87,7 @@ rule yields:
 
         # Write report
         echo "Sample\tTotal reads [%]\tMerged reads [%]\tClustered reads [%]\tAssigned reads [%]" > {output.yields}
-        echo "$sampe\t100.00\t$merged_perc\t$clustered_perc\t$assigned_perc"
+        echo "$sample\t100.00\t$merged_perc\t$clustered_perc\t$assigned_perc" >> {output.yields}
         """
 
 
