@@ -251,49 +251,27 @@ rule software_versions:
     message:
         "Collecting software versions"
     params:
-        method=config["cluster"]["method"],
-        dir={workflow.basedir},
+        dir=f"{workflow.basedir}/workflow/envs/",
     conda:
         "../envs/pandas.yaml"
     log:
         "logs/common/software_version.log",
     shell:
         """
-        exec 2> {log}
-
-        echo "Software\tVersion" \
-            > {output.report}
-
-        paste <(echo "fastp") \
-            <(grep fastp= {params.dir}/envs/fastp.yaml \
-                | cut -d "=" -f2) \
+        echo "Package\tVersion" > {output.report}
+        for env in $(ls {params.dir}*.yaml)
+          do
+          cat $env \
+            | tr "\n" "@" \
+            | sed -E 's/(.*)dependencies:(.*)/\2/' \
+            | sed -E 's/\s{2}-\s{1}/\n/' \
+            | tr -d " " \
+            | tr "@" "\n" \
+            | awk 'NF' \
+            | tr "=" "\t" \
+            | sed -E 's/^-//' \
             >> {output.report}
-
-        paste <(echo "cutadapt") \
-            <(grep cutadapt= {params.dir}/envs/cutadapt.yaml \
-                | cut -d "=" -f2) \
-            >> {output.report}
-
-        if [[ {params.method} == "otu" ]] 
-        then
-            paste \
-                <(echo "vsearch") \
-                <(grep vsearch= {params.dir}/envs/vsearch.yaml \
-                    | cut -d "=" -f2) \
-                >> {output.report}
-        else
-            paste \
-                <(echo "dada2") \
-                <(grep bioconductor-dada2= {params.dir}/envs/dada2.yaml \
-                    | cut -d "=" -f2) \
-                >> {output.report}
-        fi
-
-        paste \
-            <(echo "blast") \
-            <(grep blast= {params.dir}/envs/blast.yaml \
-                | cut -d "=" -f2) \
-        >> {output.report}
+        done
         """
 
 
