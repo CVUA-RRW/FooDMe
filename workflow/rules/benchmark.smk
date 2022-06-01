@@ -188,7 +188,7 @@ rule prcurve:
     output:
         pr_curve="benchmarking/pr_curve.tsv",
     message:
-        "calculating precision-recall curve"
+        "Calculating precision-recall curve"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -196,3 +196,29 @@ rule prcurve:
     script:
         "../scripts/pr-curve.py"
 
+
+rule benchmarking_report:
+    input:
+        confmat="benchmarking/confusion_matrix.tsv",
+        metrics="benchmarking/metrics.tsv",
+        pr_curve="benchmarking/pr_curve.tsv",
+        yields="benchmarking/yield.tsv",
+        db="reports/db_versions.tsv",
+        soft="reports/software_versions.tsv",
+    output:
+        report=report(
+            "benchmarking/benchmarking_report.html",
+            caption="../report/bchm_markdown.rst",
+            category="Benchmarking",
+        ),
+    params:
+        workdir=config["workdir"],
+        version=version,
+    message:
+        "Creating benchmarking report"
+    conda:
+        "../envs/rmarkdown.yaml"
+    log:
+        "logs/all/benchmark_report.log",
+    script:
+        "../scripts/benchmark_report.Rmd"

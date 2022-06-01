@@ -47,6 +47,7 @@ rule benchmark:
         "benchmarking/yield.tsv",
         "benchmarking/metrics.tsv",
         "benchmarking/pr_curve.tsv",
+        "benchmarking/benchmarking_report.html"
 
 
 # Includes --------------------------------------------------------------------
