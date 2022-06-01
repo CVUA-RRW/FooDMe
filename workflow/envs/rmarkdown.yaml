@@ -1,6 +1,7 @@
 name: rmarkdown
 channels:
   - r
+  - conda-forge
   - anaconda
   - defaults
 dependencies:
