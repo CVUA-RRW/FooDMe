@@ -294,6 +294,7 @@ rule tax_stats:
     shell:
         """
         exec 2> {log}
+        LC_NUMERIC="en_US.UTF-8"
 
         echo "Sample\tQuery\tUnknown sequences\tUnknown sequences [%]\t(Sub-)Species consensus\t(Sub-)Species consensus [%]\tGenus consensus\tGenus consensus [%]\tFamily consensus\tFamily consensus [%]\tHigher rank consensus\tHigher rank consensus [%]" > {output}
 

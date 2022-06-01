@@ -1,3 +1,19 @@
+### Dev
+
+#### Non backward compatible changes
+
+* Added the benchmarking module which can be called with `snakemake benchmark`
+* Added required parameters in the config file
+
+#### Bug fix
+
+* Fixed a problem with printf where decmals would be printed with a comma instead of a point in french or german (amongst other) locals
+
+#### Dependencies
+
+* Added a dependency to Scikit-learn
+* Updated tidyverse dependency to version 1.3.1
+
 ### 1.4.9
 
 #### Bug fix

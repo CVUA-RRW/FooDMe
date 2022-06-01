@@ -119,6 +119,7 @@ rule qc_stats:
     shell:
         """
         exec 2> {log}
+        LC_NUMERIC="en_US.UTF-8"
 
         # Parsing fasta/fastq files
         merged=$(grep -c "^@" {input.merged} || true)
@@ -318,6 +319,7 @@ rule clustering_stats:
     shell:
         """
         exec 2> {log}
+        LC_NUMERIC="en_US.UTF-8"
 
         # Collecting counts
         uniques_seq=$(grep -c "^>" {input.derep} || true)

@@ -1,0 +1,220 @@
+---
+title: "FooDMe - Food DNA Metabarcoding - benchmarking report"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+theme: default
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(out.width = '80%',fig.asp= 0.5,fig.align='center',echo=FALSE, warning=FALSE, message=FALSE)
+options(markdown.HTML.header = system.file("misc", "datatables.html", package = "knitr"))
+
+library(DT, quietly = T)
+library(tidyverse, quietly = T)
+
+executor <- Sys.info()["user"]
+```
+
+---
+author: `r paste0(executor)`
+---
+
+```{r init}
+workdir <- snakemake@params[["workdir"]]
+
+confmat <- snakemake@input[["confmat"]]
+metrics <- snakemake@input[["metrics"]]
+pr_curve <- snakemake@input[["pr_curve"]]
+yields <- snakemake@input[["yields"]]
+db <- snakemake@input[["db"]]
+soft <- snakemake@input[["soft"]]
+
+# infer run name from workdir
+run <- basename(workdir)
+#head(tail(strsplit(workdir,"/")[[1]],2),1)
+
+# Number of samples
+nsamples <- nrow(read.csv(file = yields, sep = "\t", check.names=FALSE))
+
+# graphs
+theme_set(theme_bw())
+```
+
+# Benchmarking report for run: `r run` {.tabset}
+
+## Overview
+
+* Run name: `r run`
+
+* Number of samples: `r nsamples`
+
+* Run directory: `r workdir`
+
+* config file: <a href=../config.yaml>`r file.path(workdir,"config.yaml")`<a/>
+
+* log files in folder: `r file.path(workdir,"logs")`
+
+* snakemake logs in folder: `r file.path(workdir,".snakemake")`
+
+* FooDMe version: `r snakemake@params[["version"]]`
+
+
+## Yield
+
+```{r yields}
+data_table <- read.csv(file = yields, sep = "\t", check.names=FALSE)
+datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
+		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
+		options = list(	
+					dom = 'BRrltpi',
+					autoWidth=FALSE,
+					scrollX = TRUE,
+					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
+					ColReorder = TRUE,
+					buttons =
+					list(
+						'copy',
+						'print',
+						list(
+						extend = 'collection',
+						buttons = c('csv', 'excel', 'pdf'),
+						text = 'Download'
+						),
+						I('colvis')
+						)
+						))
+```
+
+
+
+```{r yield_plots}
+read_tsv(
+        yields,
+        col_names=c('sample', 'Total', 'Merged', 'Clustered', 'Assigned'),
+        skip=1) %>% 
+    pivot_longer(!sample, names_to="Steps", values_to="Yield") %>% 
+    mutate(Steps=fct_relevel(as_factor(Steps),'Total', 'Merged', 'Clustered', 'Assigned')) %>%
+    ggplot(aes(x=Steps, y=Yield, fill=Steps))+
+    geom_violin( scale = "count")+
+    stat_summary(fun = median, geom="line", group=1)+
+    stat_summary(fun = median, geom="point", group=1)+
+    ylab("Yield [%]")
+```
+
+Step-wise yield distribution (violins) and median (black point) across samples.
+
+## Metrics
+
+```{r metrics}
+data_table <- read.csv(file = metrics, sep = "\t", check.names=FALSE)
+datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
+		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
+		options = list(	
+					dom = 'BRrltpi',
+					autoWidth=FALSE,
+					scrollX = TRUE,
+					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
+					ColReorder = TRUE,
+					buttons =
+					list(
+						'copy',
+						'print',
+						list(
+						extend = 'collection',
+						buttons = c('csv', 'excel', 'pdf'),
+						text = 'Download'
+						),
+						I('colvis')
+						)
+						))
+```
+
+
+
+```{r metrics_plot}
+read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/metrics.tsv") %>%
+    filter(Sample!="aggregated") %>%
+    pivot_longer(!Sample, names_to="Metric", values_to="value") %>%
+    filter(Metric!='Distance') %>%
+    mutate(value=value*100) %>%
+    ggplot(aes(x=Metric, y=value, fill=Metric))+
+    geom_violin(scale = "count")+
+    stat_summary(fun = median, geom="line", group=1)+
+    stat_summary(fun = median, geom="point", group=1)+
+    ylab("Value [%]")
+````
+
+Benchamrking metrics distribution (violins) and median (black point) across samples.
+Global metrics from aggregated samples and Distances are not displayed.
+
+
+
+```{r prcurve}
+read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/pr_curve.tsv") %>%
+    arrange(Recall) %>%
+    ggplot(aes(x=Recall, y=Precision))+
+    geom_line()
+```
+
+Precision-Recall curve of aggregated results
+
+## Confusion matrix
+
+```{r confmat}
+data_table <- read.csv(file = confmat, sep = "\t", check.names=FALSE)
+datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
+		extensions = list("ColReorder" = NULL, "Buttons" = NULL),
+		options = list(	
+					dom = 'BRrltpi',
+					autoWidth=FALSE,
+					scrollX = TRUE,
+					lengthMenu = list(c(10, 50, -1), c('10', '50', 'All')),
+					ColReorder = TRUE,
+					buttons =
+					list(
+						'copy',
+						'print',
+						list(
+						extend = 'collection',
+						buttons = c('csv', 'excel', 'pdf'),
+						text = 'Download'
+						),
+						I('colvis')
+						)
+						))
+```
+
+## Versions
+
+### Databases
+
+```{r db_versions}
+db_table <- read.csv(file = db, sep = "\t", check.names=FALSE)
+knitr::kable(db_table)
+```
+
+### Softwares
+
+```{r soft_versions}
+soft_table <- read.csv(file = soft, sep = "\t", check.names=FALSE)
+knitr::kable(soft_table)
+```
+
+## Help
+
+[Link to the repository](https://github.com/CVUA-RRW/FooDMe)
+
+
+[Report a bug or ask a question](https://github.com/CVUA-RRW/FooDMe/issues/new)
+
+
+[Last release](https://github.com/CVUA-RRW/FooDMe/releases)
