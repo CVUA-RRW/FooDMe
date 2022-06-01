@@ -143,7 +143,7 @@ rule metrics_global:
     output:
         metrics="aggregated_samples/benchmarking/aggregated_metrics.tsv",
     params:
-        sample="aggregated",
+        sample="all",
     message:
         "Calculating metrics for aggregated samples"
     conda:

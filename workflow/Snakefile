@@ -40,14 +40,14 @@ rule benchmark:
         expand("{sample}/reports/{sample}_report.html", sample=samples.index),
         "reports/report.html",
         expand(
-            "{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv", 
-            bchmk_sample=benchmark_index
+            "{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv",
+            bchmk_sample=benchmark_index,
         ),
         "benchmarking/confusion_matrix.tsv",
         "benchmarking/yield.tsv",
         "benchmarking/metrics.tsv",
         "benchmarking/pr_curve.tsv",
-        "benchmarking/benchmarking_report.html"
+        "benchmarking/benchmarking_report.html",
 
 
 # Includes --------------------------------------------------------------------

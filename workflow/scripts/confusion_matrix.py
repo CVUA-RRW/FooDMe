@@ -3,12 +3,14 @@
 
 
 import sys
-import numpy as np
-import pandas as pd
-import taxidTools as txd
 
 
 sys.stderr = open(snakemake.log[0], "w")
+
+
+import numpy as np
+import pandas as pd
+import taxidTools as txd
 
 
 def closest_node(taxid, ref_taxids, tax):

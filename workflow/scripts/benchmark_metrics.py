@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
+import sys
+
+
+sys.stderr = open(snakemake.log[0], "w")
+
+
 import numpy as np
 import pandas as pd
 from sklearn.metrics import (
@@ -10,9 +16,6 @@ from sklearn.metrics import (
     f1_score, 
     average_precision_score,
 )
-
-
-sys.stderr = open(snakemake.log[0], "w")
 
 
 def main(confmat, output, sample):

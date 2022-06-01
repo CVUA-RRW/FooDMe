@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 
-sys.stderr = open(snakemake.log[0], "w")
-
-
 import sys
+
+
+sys.stderr = open(snakemake.log[0], "w")
 
 
 def main(taxids, blocklist, output):
