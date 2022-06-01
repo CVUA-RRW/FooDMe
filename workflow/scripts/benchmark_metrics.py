@@ -26,7 +26,9 @@ def main(confmat, output, sample):
     
     with open(output, "w") as fout:
         fout.write("\t".join(["Sample", "Precision", "Recall", "F1 score", "Average precision"]))
-        fout.write("\t".join([sample, precision, recall, fscore, prauc]))
+        fout.write("\n")
+        fout.write("\t".join([sample, str(precision), str(recall), str(fscore), str(prauc)]))
+        fout.write("\n")
 
 
 if __name__ == '__main__':

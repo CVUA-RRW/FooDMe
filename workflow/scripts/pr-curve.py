@@ -16,7 +16,7 @@ def main(confmat, output):
     
     # get classification metrics
     pr, rec, thr = precision_recall_curve(conf_table['expected'], conf_table['pred_ratio'])
-    thr.append(1.0)  # Because scikit
+    thr = np.append(thr, [1.0])  # Because scikit
     
     #Creating df from lists
     df = pd.DataFrame(list(zip(pr, rec, thr)),

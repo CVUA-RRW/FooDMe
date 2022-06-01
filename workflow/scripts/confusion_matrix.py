@@ -158,6 +158,8 @@ def main(
     # Missing values are missagnignements!
     conftable = conftable.fillna(0)
     conftable = conftable.reset_index().rename(columns={'index': 'Taxid'})
+    conftable["Sample"] = sample
+    conftable = conftable[['Sample', 'Taxid', 'predicted', 'expected', 'pred_ratio', 'exp_ratio']]
 
     conftable.to_csv(output, sep="\t", header=True, index=False)
 
