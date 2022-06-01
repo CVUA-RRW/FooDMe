@@ -258,9 +258,13 @@ rule software_versions:
         "logs/common/software_version.log",
     shell:
         """
+        exec 2> {log}
+
+        echo {params.dir}
         echo "Package\tVersion" > {output.report}
         for env in $(ls {params.dir}/workflow/envs/*.yaml)
           do
+          echo $env
           cat $env \
             | tr "\n" "@" \
             | sed -E 's/(.*)dependencies:(.*)/\2/' \
