@@ -251,7 +251,7 @@ rule software_versions:
     message:
         "Collecting software versions"
     params:
-        dir=f"{workflow.basedir}/workflow/envs/",
+        dir={workflow.basedir},
     conda:
         "../envs/pandas.yaml"
     log:
@@ -259,7 +259,7 @@ rule software_versions:
     shell:
         """
         echo "Package\tVersion" > {output.report}
-        for env in $(ls {params.dir}*.yaml)
+        for env in $(ls {params.dir}/workflow/envs/*.yaml)
           do
           cat $env \
             | tr "\n" "@" \
