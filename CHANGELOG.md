@@ -14,6 +14,10 @@
 * Added a dependency to Scikit-learn
 * Updated tidyverse dependency to version 1.3.1
 
+#### Documentation
+
+* Added documentation for the benchmark module
+
 ### 1.4.9
 
 #### Bug fix
