@@ -9,14 +9,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  Testing:
+  Testing_ASV:
     runs-on: ubuntu-latest
     steps:
     
     - name: Checkout repository
       uses: actions/checkout@v2
     
-    - name: Test workflow (ASV)
+    - name: Test workflow
       uses: snakemake/snakemake-github-action@v1.24.0
       with:
         directory: '.tests'
@@ -25,16 +25,41 @@ jobs:
         stagein: |
             conda config --set channel_priority strict
     
-    - name: Report (ASV)
+    - name: Report
       uses: snakemake/snakemake-github-action@v1.24.0
       with:
         directory: '.tests'
         snakefile: 'workflow/Snakefile'
-        args: "--report snkmk_report.html"
+        args: "--report snkmk_report_asv.html"
         stagein: |
             conda config --set channel_priority strict
     
-    - name: Test workflow (OTU)
+    - name: Archive report for checks
+      uses: actions/upload-artifact@v2
+      if: ${{ success() }}
+      with:
+        name: foodme-report-asv
+        path: |
+          .tests/snkmk_report.html
+        retention-days: 3
+    
+    - name: Archive logs on fail
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: foodme-fail-asv
+        path: .tests/logs/
+        if-no-files-found: error
+        retention-days: 3
+  
+  Testing_OTU:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    
+    - name: Test workflow
       uses: snakemake/snakemake-github-action@v1.24.0
       with:
         directory: '.tests'
@@ -42,32 +67,74 @@ jobs:
         args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config_otu.yaml"
         stagein: |
             conda config --set channel_priority strict
-            find .tests/ -maxdepth 1 -mindepth 1 ! -name "config" ! -name "data" | xargs rm -r
     
-    - name: Test workflow (benchmark)
+    - name: Report
+      uses: snakemake/snakemake-github-action@v1.24.0
+      with:
+        directory: '.tests'
+        snakefile: 'workflow/Snakefile'
+        args: "--report snkmk_report_otu.html"
+        stagein: |
+            conda config --set channel_priority strict
+    
+    - name: Archive report for checks
+      uses: actions/upload-artifact@v2
+      if: ${{ success() }}
+      with:
+        name: foodme-report-otu
+        path: |
+          .tests/snkmk_report.html
+        retention-days: 3
+    
+    - name: Archive logs on fail
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: foodme-fail-otu
+        path: .tests/logs/
+        if-no-files-found: error
+        retention-days: 3
+  
+  Testing_benchmark:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    
+    - name: Test workflow
       uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: '.tests'
         snakefile: 'workflow/Snakefile'
         args: "benchmark -j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config_benchmark.yaml"
         stagein: |
-          find .tests/ -maxdepth 1 -mindepth 1 ! -name "config" ! -name "data" | xargs rm -r
+          conda config --set channel_priority strict
+    
+    - name: Report
+      uses: snakemake/snakemake-github-action@v1.24.0
+      with:
+        directory: '.tests'
+        snakefile: 'workflow/Snakefile'
+        args: "--report snkmk_report_bchmrk.html"
+        stagein: |
+            conda config --set channel_priority strict
     
     - name: Archive report for checks
       uses: actions/upload-artifact@v2
       if: ${{ success() }}
       with:
-        name: foodme-reports
+        name: foodme-report-bchmrk
         path: |
           .tests/snkmk_report.html
-          .tests/snkmk_report_otu.html
-        retention-days: 7
+        retention-days: 3
     
     - name: Archive logs on fail
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
       with:
-        name: foodme-fail
+        name: foodme-fail-bchmrk
         path: .tests/logs/
         if-no-files-found: error
-        retention-days: 7
+        retention-days: 3
+  
