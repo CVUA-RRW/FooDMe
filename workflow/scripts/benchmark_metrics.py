@@ -21,12 +21,12 @@ def main(confmat, output, sample):
     # get classification metrics
     precision = precision_score(conf_table['expected'], conf_table['predicted'])
     recall = recall_score(conf_table['expected'], conf_table['predicted'])
-    f1_score = f1_score(conf_table['expected'], conf_table['predicted'])
+    fscore = f1_score(conf_table['expected'], conf_table['predicted'])
     prauc = average_precision_score(conf_table['expected'], conf_table['pred_ratio'])
     
     with open(output, "w") as fout:
         fout.write("\t".join(["Sample", "Precision", "Recall", "F1 score", "Average precision"]))
-        fout.write("\t".join([sample, precision, recall, f1_score, prauc]))
+        fout.write("\t".join([sample, precision, recall, fscore, prauc]))
 
 
 if __name__ == '__main__':
