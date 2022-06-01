@@ -23,11 +23,14 @@ def closest_node(taxid, ref_taxids, tax):
 
 
 def format_rank(taxid, tax, ranks): # ranks can pass custom classification
+    """
+    Return next corresponding rank for given taxid and rank list
+    """
     l=txd.Lineage(taxid)
     l.filter(ranks)
     # Missing ranks ranks are replaced by DummyNodes
-    return [node for node in l 
-            if not isinstance(node, txd.DummyNode)][0]
+    next_node= [node for node in l if not isinstance(node, txd.DummyNode)][0]
+    return next_node.rank
 
 
 def main(
@@ -88,30 +91,36 @@ def main(
         copy = True
         ).rename({'proportion': 'exp_ratio'}, axis = 1)
 
-    ### Part2: Matching expectations to reality ---------------------
+    ### Part2: Checking the acceptability of predictions ---------------------
 
     # Find matches 
-    matches = [
-        closest_node(taxid, exp.loc[:,'taxid'].to_list(), tax) 
-        for taxid in pred.loc[:,'taxid'].to_list()
-        ]
-    pred['ref_match'] = matches
+    pred['ref_match'] = pred.apply(
+        lambda x: closest_node(x['taxid'], exp.loc[:,'taxid'].to_list(), tax), 
+        axis=1,
+    )
 
     # Get Lca of exp and pred matches to know what ranks correspond
-    norms = [format_rank(tax.get(str(tx)), tax, ranks) if tax.isAncestorOf(m,tx)  # speed up if same lineage
-                else format_rank(tax.lca([tx,m]), tax, ranks)
-                for tx,m in zip(pred.loc[:,'taxid'], pred.loc[:,'ref_match'])]
+    pred['match_rank'] = pred.apply(
+        lambda x: format_rank(tax.get(str(x['taxid'])), tax, ranks) if tax.isAncestorOf(x['ref_match'],x['taxid'])
+            else format_rank(tax.lca([x['taxid'],x['ref_match']]), tax, ranks),
+        axis=1,
+    )
 
-    pred['match_rank'] = [node.rank for node in norms]
-
-    # Post format finished tables
+    # Drop unnescessary columns
     pred = pred.set_index(
         'taxid'
         ).filter(
             items=['pred_ratio', "ref_match", "match_rank"]
          )
-    # Was the taxid predicted? only if above threshold
-    pred['predicted'] = pred.apply(lambda x: 1 if x['pred_ratio']>=threshold else 0, axis=1)
+
+    # Counts as predicted only if quantif above threshold and rank under limit
+    # Index of max accepted rank
+    max_index = ranks.index(target_rank)
+    
+    pred['predicted'] = pred.apply(
+        lambda x: 1 if (x['pred_ratio']>=threshold) and (ranks.index(x['match_rank'])<= max_index) else 0,
+        axis=1
+    )
 
     exp = exp.set_index('taxid'
         ).filter(items=['exp_ratio']
@@ -119,16 +128,6 @@ def main(
     exp['expected'] = 1
 
     ### Part 3: building confusion table ------------------------
-
-    # Index of max accepted rank
-    max_index = ranks.index(target_rank)
-
-    # checking correctness of results
-    pred['expected'] = [
-        0 if ranks.index(mrk) > max_index
-        else 1
-        for mrk in pred['match_rank']
-        ]
 
     # reindex predicted using ref_match, keep taxid as info and sum ratios below the rank limit
     # This is to avoid merging data on assignement with too high rank for duplicated taxa
@@ -138,18 +137,27 @@ def main(
         for taxid_val, match_val, match_rank in zip(pred.index, pred['ref_match'], pred['match_rank'])
         ]
 
-    conftable = pred.reset_index(drop=True).groupby(
-                            ["ref_match", "predicted", "expected"]).sum()
-    conftable = conftable.reset_index().rename(columns={'ref_match': 'Taxid'})
-    conftable = conftable.astype('float64')
-    exp = exp.astype('float64')
+    conftable = pred.reset_index(
+                    drop=True
+                ).rename(
+                    columns={'ref_match': 'Taxid'}
+                ).groupby(
+                    ["Taxid", "predicted"]
+                ).sum()
+    conftable = conftable.reset_index(["predicted"])
+    conftable = conftable.astype({'predicted': int, 'pred_ratio': float})
+    exp = exp.astype({'expected': int, 'exp_ratio': float})
 
-    conftable = pd.merge(conftable, 
+    conftable = pd.merge(
+        conftable, 
         exp,
-        how='outer')
+        how='outer',
+        left_index=True,
+        right_index=True)
 
     # Missing values are missagnignements!
     conftable = conftable.fillna(0)
+    conftable = conftable.reset_index().rename(columns={'index': 'Taxid'})
 
     conftable.to_csv(output, sep="\t", header=True, index=False)
 
@@ -164,3 +172,11 @@ if __name__ == '__main__':
         target_rank = snakemake.params['target_rank'],
         taxonomy = snakemake.input['tax']
         )
+
+### DEBUG
+compo="Lasagne_clean/reports/Lasagne_clean_composition.tsv"
+truth="config/reference.tsv"
+sample="Lasagne_clean"
+threshold=0.1
+target_rank="genus"
+taxonomy="common/taxonomy.json"
