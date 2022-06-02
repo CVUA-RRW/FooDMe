@@ -146,7 +146,7 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 
 
 ```{r metrics_plot}
-read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/metrics.tsv",
+read_tsv(metrics,
         show_col_types = FALSE) %>%
     filter(Sample!="aggregated") %>%
     pivot_longer(!Sample, names_to="Metric", values_to="value") %>%
@@ -166,7 +166,7 @@ Global metrics from aggregated samples and qunatification are not displayed.
 
 
 ```{r error_plot}
-read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/metrics.tsv",
+read_tsv(metrics,
         show_col_types = FALSE) %>%
     filter(Sample!="aggregated") %>%
     pivot_longer(!Sample, names_to="Metric", values_to="value") %>%
@@ -184,7 +184,7 @@ Mean realtive error distribtion (violins) and median (black point) across sample
 
 
 ```{r distance_plot}
-read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/metrics.tsv",
+read_tsv(metrics,
         show_col_types = FALSE) %>%
     filter(Sample!="aggregated") %>%
     pivot_longer(!Sample, names_to="Metric", values_to="value") %>%
@@ -201,7 +201,7 @@ Euclidian distance between predicted and expected values (violins) and median (b
 
 
 ```{r prcurve}
-read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/pr_curve.tsv",
+read_tsv(metrics,
         show_col_types = FALSE) %>%
     arrange(Recall) %>%
     ggplot(aes(x=Recall, y=Precision))+
