@@ -97,14 +97,14 @@ def main(
 
     # Find matches 
     pred['ref_match'] = pred.apply(
-        lambda x: closest_node(x['taxid'], exp.loc[:,'taxid'].to_list(), tax), 
+        lambda x: closest_node(int(x['taxid']), exp.loc[:,'taxid'].astype(int).to_list(), tax), 
         axis=1,
     )
 
     # Get Lca of exp and pred matches to know what ranks correspond
     pred['match_rank'] = pred.apply(
-        lambda x: format_rank(tax.get(str(x['taxid'])), tax, ranks) if tax.isAncestorOf(x['ref_match'],x['taxid'])
-            else format_rank(tax.lca([x['taxid'],x['ref_match']]), tax, ranks),
+        lambda x: format_rank(tax.get(str(int(x['taxid']))), tax, ranks) if tax.isAncestorOf(int(x['ref_match']),int(x['taxid']))
+            else format_rank(tax.lca([int(x['taxid']),int(x['ref_match'])]), tax, ranks),
         axis=1,
     )
 
