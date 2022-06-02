@@ -10,7 +10,7 @@ parameter sets.
 
 ## Benchmarking parameters
 
-The benchmarking module requires three additional paramters:
+The benchmarking module requires three additional parameters:
 
 - `reference`: Path to a table containing the sample composition information containing the followuing fields:
     - `sample`: Sample name
@@ -88,10 +88,27 @@ depending on wether it is considered true and expected.
     we do not calculate metrics reliying on the negative reuslt, such as specificity or ROC.
 
 The following metrics are then calculated as:
+
 - precision: part of true positives in all results predicted to be true. It is the reciprocal of the False-positve rate 
+
+$$
+precision=\frac{TP}{TP+FP}
+$$
+
 - recall: part of real positives predicted as true. It is the reciprocal of the False-negative rate.
+
+$$
+recall=\frac{TP}{TP+FN}
+$$
+
 - F1 score: harmonic mean of the precision and recall.
-- Average precision: summarizes the variation of precision and recall across a range of thresholds (here concentration thresholds are used).
+
+$$
+F1=2\cdot\frac{precision \cdot recall}{precision + recall}
+$$
+
+- Average precision: summarizes the variation of precision and recall across a range of thresholds 
+  (here concentration thresholds are used). It is an approximation of the area under the precision-recall curve.
 
 !!! info
     
@@ -108,7 +125,7 @@ We also calculate the 'Mean Relative Error' as the average value of the relative
 quantification error for each samples:
 
 $$
-MRE= \sum_{n=1}^{N} \frac{|expected-predicted|}{expected} * \frac{1}{N}
+MRE= \sum_{n=1}^{N} \frac{|expected-predicted|}{expected} \cdot \frac{1}{N}
 $$
 
 !!! note
