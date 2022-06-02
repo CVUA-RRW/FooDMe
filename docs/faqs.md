@@ -17,3 +17,8 @@ when executing snakemake.
 **Q: Can I use FooDMe for bacteria metabarcoding?**
 
 **A:** You could but it is not recommended. There are pipeline more suitables for micro-organisms out there.
+
+**Q: In the reports, some decimals are point-separated and others are comma-separated. Why is that and how do I fix it?**
+
+**A:** The comma-spearated values are generated in some cases depending on your system's langugae (e.g. French, German,...).
+To enforce point-separated values, change your system locale by modifying the `~/.bashrc` file with `LANG=C`. 
