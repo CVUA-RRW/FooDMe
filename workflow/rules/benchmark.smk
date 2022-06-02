@@ -68,7 +68,6 @@ rule yields:
     shell:
         """
         exec 2> {log}
-        LC_NUMERIC="en_US.UTF-8"
 
         # Read data in
         IFS='\t'
