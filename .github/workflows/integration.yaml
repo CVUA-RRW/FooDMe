@@ -25,24 +25,6 @@ jobs:
         stagein: |
             conda config --set channel_priority strict
     
-    - name: Report
-      uses: snakemake/snakemake-github-action@v1.24.0
-      with:
-        directory: '.tests'
-        snakefile: 'workflow/Snakefile'
-        args: "--report snkmk_report_asv.html"
-        stagein: |
-            conda config --set channel_priority strict
-    
-    - name: Archive report for checks
-      uses: actions/upload-artifact@v2
-      if: ${{ success() }}
-      with:
-        name: foodme-report-asv
-        path: |
-          .tests/snkmk_report.html
-        retention-days: 3
-    
     - name: Archive logs on fail
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
@@ -68,24 +50,6 @@ jobs:
         stagein: |
             conda config --set channel_priority strict
     
-    - name: Report
-      uses: snakemake/snakemake-github-action@v1.24.0
-      with:
-        directory: '.tests'
-        snakefile: 'workflow/Snakefile'
-        args: "--report snkmk_report_otu.html"
-        stagein: |
-            conda config --set channel_priority strict
-    
-    - name: Archive report for checks
-      uses: actions/upload-artifact@v2
-      if: ${{ success() }}
-      with:
-        name: foodme-report-otu
-        path: |
-          .tests/snkmk_report.html
-        retention-days: 3
-    
     - name: Archive logs on fail
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
@@ -110,24 +74,6 @@ jobs:
         args: "benchmark -j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config_benchmark.yaml"
         stagein: |
           conda config --set channel_priority strict
-    
-    - name: Report
-      uses: snakemake/snakemake-github-action@v1.24.0
-      with:
-        directory: '.tests'
-        snakefile: 'workflow/Snakefile'
-        args: "--report snkmk_report_bchmrk.html"
-        stagein: |
-            conda config --set channel_priority strict
-    
-    - name: Archive report for checks
-      uses: actions/upload-artifact@v2
-      if: ${{ success() }}
-      with:
-        name: foodme-report-bchmrk
-        path: |
-          .tests/snkmk_report.html
-        retention-days: 3
     
     - name: Archive logs on fail
       if: ${{ failure() }}
