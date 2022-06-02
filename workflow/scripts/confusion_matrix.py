@@ -144,10 +144,10 @@ def main(
                 ).rename(
                     columns={'ref_match': 'Taxid'}
                 ).groupby(
-                    ["Taxid", "predicted"]
+                    ["Taxid", "predicted", "match_rank"]
                 ).sum()
-    conftable = conftable.reset_index(["predicted"])
-    conftable = conftable.astype({'predicted': int, 'pred_ratio': float})
+    conftable = conftable.reset_index(["match_rank", "predicted"])
+    conftable = conftable.astype({ "match_rank": str, 'predicted': int, 'pred_ratio': float})
     exp = exp.astype({'expected': int, 'exp_ratio': float})
 
     conftable = pd.merge(
@@ -161,7 +161,7 @@ def main(
     conftable = conftable.fillna(0)
     conftable = conftable.reset_index().rename(columns={'index': 'Taxid'})
     conftable["Sample"] = sample
-    conftable = conftable[['Sample', 'Taxid', 'predicted', 'expected', 'pred_ratio', 'exp_ratio']]
+    conftable = conftable[['Sample', 'Taxid',  "match_rank", 'predicted', 'expected', 'pred_ratio', 'exp_ratio']]
 
     conftable.to_csv(output, sep="\t", header=True, index=False)
 

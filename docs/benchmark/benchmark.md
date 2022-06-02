@@ -12,25 +12,25 @@ parameter sets.
 
 The benchmarking module requires three additional paramters:
 
-* `reference`: Path to a table containing the sample composition information containing the followuing fields:
-    * `sample`: Sample name
-    * `taxid`: Taxonomic identifier
-    * `proportion`: Expected fraction of the sample made up from this component, in the interval [0, 1]
-* `threshold`: A minimal quantity for a component to be considered a 'true' result, given in percent.
-* `target_rank`: A maximum taxonomic rank for a component to be considered a 'true' result
+- `reference`: Path to a table containing the sample composition information containing the followuing fields:
+    - `sample`: Sample name
+    - `taxid`: Taxonomic identifier
+    - `proportion`: Expected fraction of the sample made up from this component, in the interval [0, 1]
+- `threshold`: A minimal quantity for a component to be considered a 'true' result, given in percent.
+- `target_rank`: A maximum taxonomic rank for a component to be considered a 'true' result
 
 !!! warning
     
     Because of limitaitons of the NCBI taxonomiy classification, only
     Linnaean ranks are supported. This means you can choose only from 
     the following (case-sensitive) options:
-    * species
-    * genus
-    * family
-    * order
-    * class
-    * phylum
-    * kingdom
+    - species
+    - genus
+    - family
+    - order
+    - class
+    - phylum
+    - kingdom
 
 ## Usage
 
@@ -49,9 +49,80 @@ or just the benchmarking module if the analysis already exists.
 
 ## Benchmarking results
 
+The benchmarking results will be saved in the `benchmarking` subfolder, including 
+tables and an interactive HTML report.
+Sample specific metrics will also be saved in each sample's folder, in a specific subfolder.
+
 ### Yield
+
+The yield is given as the amount of reads left in percent of total input reads for each of the three main 
+analytical steps:
+- Merged reads correspond to the yield of read pre-processing and merging
+- Clustered reads corresponds to the yield of all steps up to the cluster (OTU or ASV) generation
+- Assigned reads corresponds to the final yield of the analysis
+
+!!! note
+    
+    For ASV, the merged reads yield includes the denoising steps
 
 ### Metrics
 
+After filtering the analysis results with the given concentration threshold and
+maximal rank, the results are compared to a "true" composition and several metrics are 
+calculated to measure the reliability of the analysis.
+
+Metrics are calculated for each sample and an aggregated metric is also calculatedthat considers 
+the whole dataset as a single sample.
+
+#### Classification metrics
+
+Each result is categorised as either True-positive (TP), False-positive (FP), or False-Negative (FN)
+depending on wether it is considered true and expected.
+
+!!! note
+    
+    Because the number of true negative is roughly the number of taxid in the database
+    and therefore several orders of magnitude higher than the number of true positives, 
+    we do not calculate metrics reliying on the negative reuslt, such as specificity or ROC.
+
+The following metrics are then calculated as:
+- precision: part of true positives in all results predicted to be true. It is the reciprocal of the False-positve rate 
+- recall: part of real positives predicted as true. It is the reciprocal of the False-negative rate.
+- F1 score: harmonic mean of the precision and recall.
+- Average precision: summarizes the variation of precision and recall across a range of thresholds (here concentration thresholds are used).
+
+!!! info
+    
+    While the F1 score provides a direct measure of the analysis performance as it ran, 
+    the average precision reflects the overall performance independently of the thrshold. 
+    Combinations of both may be used to determine if the concentration threshold might be optimized.
+
+#### Quantification metrics
+
+Two quantification metrics are used here. The 'Distance' metric corresponds to the Euclidian distance
+of the predicted and true results. It is a reflection of how far away are the results from the 
+expected composition.
+We also calculate the 'Mean Relative Error' as the average value of the relative (to the expected value) 
+quantification error for each samples:
+
+$$
+MRE= \sum_{n=1}^{N} (|expected-predicted|/expected)/N
+$$
+
+!!! note
+    
+    While false negative results account for 0% composition, false positive results 
+    are only inderectly (through their contribution to the total composition) taken into
+    account in the quantification metrics.
+
 ### Confusion matrix
 
+The confusion table used to calculate the above mentionned metrics is given as a succint summary 
+of the results with the following information:
+- Taxid: the expected or determined taxonomic identifier
+- predicted/expected: `1`or `0` reprensenting true or false values
+- pred_ratio: the predicted amount of this component in the sample
+- exp_ratio: the expected amount of this component in the sample
+
+
+'match_rank' -> given in a normalized linnean taxonomy, is not nescessarily the rank of the match
