@@ -260,15 +260,13 @@ rule software_versions:
         """
         exec 2> {log}
 
-        echo {params.dir}
         echo "Package\tVersion" > {output.report}
         for env in $(ls {params.dir}/workflow/envs/*.yaml)
           do
-          echo $env
           cat $env \
             | tr "\n" "@" \
             | sed -E 's/(.*)dependencies:(.*)/\2/' \
-            | sed -E 's/\s{2}-\s{1}/\n/' \
+            | sed -E 's/\s{{2}}-\s{{1}}/\n/' \
             | tr -d " " \
             | tr "@" "\n" \
             | awk 'NF' \
