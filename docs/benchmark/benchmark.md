@@ -24,6 +24,7 @@ The benchmarking module requires three additional paramters:
     Because of limitaitons of the NCBI taxonomiy classification, only
     Linnaean ranks are supported. This means you can choose only from 
     the following (case-sensitive) options:
+    
     - species
     - genus
     - family
@@ -57,6 +58,7 @@ Sample specific metrics will also be saved in each sample's folder, in a specifi
 
 The yield is given as the amount of reads left in percent of total input reads for each of the three main 
 analytical steps:
+
 - Merged reads correspond to the yield of read pre-processing and merging
 - Clustered reads corresponds to the yield of all steps up to the cluster (OTU or ASV) generation
 - Assigned reads corresponds to the final yield of the analysis
@@ -106,7 +108,7 @@ We also calculate the 'Mean Relative Error' as the average value of the relative
 quantification error for each samples:
 
 $$
-MRE= \sum_{n=1}^{N} (|expected-predicted|/expected)/N
+MRE= \sum_{n=1}^{N} \frac{|expected-predicted|}{expected} * \frac{1}{N}
 $$
 
 !!! note
@@ -119,6 +121,7 @@ $$
 
 The confusion table used to calculate the above mentionned metrics is given as a succint summary 
 of the results with the following information:
+
 - `Taxid`: the expected or determined taxonomic identifier
 - `match_rank`: the rank to which a predicted result was matched to its expected value, given in the Linnaean taxonomical ranks.
 - `predicted`/`expected`: `1`or `0` reprensenting true or false values
