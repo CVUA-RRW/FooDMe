@@ -1,4 +1,4 @@
-### Dev
+### 1.5.0
 
 This update is not backwards compatible. 
 An configuration file update is nescessary.

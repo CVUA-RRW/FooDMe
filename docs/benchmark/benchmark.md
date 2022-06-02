@@ -131,7 +131,7 @@ $$
 !!! note
     
     While false negative results account for 0% composition, false positive results 
-    are only inderectly (through their contribution to the total composition) taken into
+    are only indirectly (through their contribution to the total composition) taken into
     account in the quantification metrics.
 
 ### Confusion matrix
