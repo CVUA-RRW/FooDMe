@@ -14,6 +14,10 @@ theme: default
 </style>
 
 ```{r setup, include=FALSE}
+# logging
+log = file(snakemake@log[[1]], open="wt")
+sink(log)
+sink(log, type = "message")
 
 knitr::opts_chunk$set(out.width = '80%',fig.asp= 0.5,fig.align='center',echo=FALSE, warning=FALSE, message=FALSE)
 options(markdown.HTML.header = system.file("misc", "datatables.html", package = "knitr"))
