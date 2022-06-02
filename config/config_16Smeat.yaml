@@ -95,3 +95,12 @@ blast:
     qcov: 100
     # Maximum bit-score difference with the best hit for a blast result to be included in the taxonomy consensus detemination
     bit_score_diff: 4
+
+# Benchmarking options, ignore if not using the benchmarking module
+benchmark:
+    # Path to the table of reference sample composition --> MODIFY <--
+    reference: config/reference.tsv
+    # Minimal component ratio to be considered atrue result
+    threshold: 0.1
+    # Maximal rank of component to be considered a true result
+    target_rank: genus
