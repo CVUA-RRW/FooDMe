@@ -75,7 +75,7 @@ def main(
 
     # Filter and normalize compo to range [0, 1] (input in %)
     compo_tbl = compo_tbl.loc[(compo_tbl['Taxid'] != "-")]
-    compo_tbl['Percent of assigned'] = compo_tbl['Percent of assigned']/100
+    compo_tbl['Percent of assigned'] = compo_tbl['Percent of assigned'].astype(float)/100
 
     # Preformating tables
     pred = pd.DataFrame(compo_tbl, 

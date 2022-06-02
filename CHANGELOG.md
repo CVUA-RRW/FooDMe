@@ -1,3 +1,10 @@
+### Dev
+
+#### Bug fix
+
+- Added missing parameters to meat config file
+- Fix dtype parsing in confusion matrix calculation
+
 ### 1.5.0
 
 This update is not backwards compatible. 
