@@ -119,10 +119,8 @@ $$
 
 The confusion table used to calculate the above mentionned metrics is given as a succint summary 
 of the results with the following information:
-- Taxid: the expected or determined taxonomic identifier
-- predicted/expected: `1`or `0` reprensenting true or false values
-- pred_ratio: the predicted amount of this component in the sample
-- exp_ratio: the expected amount of this component in the sample
-
-
-'match_rank' -> given in a normalized linnean taxonomy, is not nescessarily the rank of the match
+- `Taxid`: the expected or determined taxonomic identifier
+- `match_rank`: the rank to which a predicted result was matched to its expected value, given in the Linnaean taxonomical ranks.
+- `predicted`/`expected`: `1`or `0` reprensenting true or false values
+- `pred_ratio`: the predicted amount of this component in the sample
+- `exp_ratio`: the expected amount of this component in the sample
