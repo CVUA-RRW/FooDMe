@@ -35,6 +35,21 @@ rule all:
         "reports/report.html",
 
 
+rule benchmark:
+    input:
+        expand("{sample}/reports/{sample}_report.html", sample=samples.index),
+        "reports/report.html",
+        expand(
+            "{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv",
+            bchmk_sample=benchmark_index,
+        ),
+        "benchmarking/confusion_matrix.tsv",
+        "benchmarking/yield.tsv",
+        "benchmarking/metrics.tsv",
+        "benchmarking/pr_curve.tsv",
+        "benchmarking/benchmarking_report.html",
+
+
 # Includes --------------------------------------------------------------------
 
 
@@ -42,6 +57,7 @@ include: "rules/trimming.smk"
 include: "rules/vsearch.smk" if config["cluster"]["method"] == "otu" else "rules/dada2.smk"
 include: "rules/blast.smk"
 include: "rules/reports.smk"
+include: "rules/benchmark.smk"
 
 
 # Workflow --------------------------------------------------------------------

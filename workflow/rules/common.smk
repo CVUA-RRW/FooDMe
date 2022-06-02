@@ -13,11 +13,22 @@ pipe_log = os.path.join(os.getcwd(), "PIPELINE_STATUS")
 validate(config, schema="../schema/config.schema.yaml")
 
 
-# Loading and validation samples ---------------------
+# Loading and validating samples ---------------------
 sample_path = config["samples"]
 samples = pd.read_csv(sample_path, index_col="sample", sep="\t", engine="python")
 validate(samples, schema="../schema/samples.schema.yaml")
 samples.index = samples.index.astype("str", copy=False)
+
+
+# Loading and validationg benchmark reference --------
+reference_path = config["benchmark"]["reference"]
+reference = pd.read_csv(reference_path, index_col="sample", sep="\t", engine="python")
+validate(reference, schema="../schema/reference.schema.yaml")
+reference.index = reference.index.astype("str", copy=False)
+# Get union of reference and samples to use for benchmarking
+samples_set = set(samples.index)
+reference_set = set(reference.index)
+benchmark_index = list(samples_set.intersection(reference_set))
 
 
 # General puprose functions --------------------------

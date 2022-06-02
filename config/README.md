@@ -32,3 +32,9 @@ doi: 10.3390/foods10112875. PMID: 34829156; PMCID: PMC8620145.
 Add your samples to `config/samples.tsv` or use the 
 the helper script from Bundes Insitut für Risikobewertung in 
 `ressources/creat_sampleSheet.sh`.
+
+## Reference table
+
+If using the benchmark mode, sdd information for your reference samples in the `reference.tsv` template.
+Note that proportions are given as fractions in the [0, 1] interval.
+

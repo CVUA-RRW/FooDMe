@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
+import sys
+
+
 sys.stderr = open(snakemake.log[0], "w")
 
 
-import sys
 import taxidTools as txd
 from collections import Counter, defaultdict
 
