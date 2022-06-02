@@ -100,7 +100,8 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 read_tsv(
         yields,
         col_names=c('sample', 'Total', 'Merged', 'Clustered', 'Assigned'),
-        skip=1) %>% 
+        skip=1,
+        show_col_types = FALSE) %>% 
     pivot_longer(!sample, names_to="Steps", values_to="Yield") %>% 
     mutate(Steps=fct_relevel(as_factor(Steps),'Total', 'Merged', 'Clustered', 'Assigned')) %>%
     ggplot(aes(x=Steps, y=Yield, fill=Steps))+
@@ -141,7 +142,8 @@ datatable(data_table, filter = 'top', rownames = FALSE, escape = FALSE,
 
 
 ```{r metrics_plot}
-read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/metrics.tsv") %>%
+read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/metrics.tsv",
+        show_col_types = FALSE) %>%
     filter(Sample!="aggregated") %>%
     pivot_longer(!Sample, names_to="Metric", values_to="value") %>%
     filter(Metric!='Distance') %>%
@@ -152,15 +154,51 @@ read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/metrics.tsv"
     stat_summary(fun = median, geom="line", group=1)+
     stat_summary(fun = median, geom="point", group=1)+
     ylab("Value [%]")
-````
+```
 
 Classification metrics distribution (violins) and median (black point) across samples.
 Global metrics from aggregated samples and qunatification are not displayed.
 
 
 
+```{r error_plot}
+read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/metrics.tsv",
+        show_col_types = FALSE) %>%
+    filter(Sample!="aggregated") %>%
+    pivot_longer(!Sample, names_to="Metric", values_to="value") %>%
+    filter(Metric=='Error') %>%
+    mutate(value=value*100) %>%
+    ggplot(aes(x=Metric, y=value, fill=Metric))+
+    geom_violin(scale = "count")+
+    stat_summary(fun = median, geom="point", group=1)+
+    coord_flip()+
+    ylab("Value [%]")
+```
+
+Mean realtive error distribtion (violins) and median (black point) across samples.
+
+
+
+```{r distance_plot}
+read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/metrics.tsv",
+        show_col_types = FALSE) %>%
+    filter(Sample!="aggregated") %>%
+    pivot_longer(!Sample, names_to="Metric", values_to="value") %>%
+    filter(Metric=='Distance') %>%
+    ggplot(aes(x=Metric, y=value, fill=Metric))+
+    geom_violin(scale = "count")+
+    stat_summary(fun = median, geom="point", group=1)+
+    coord_flip()+
+    ylab("Value [%]")
+```
+
+Euclidian distance between predicted and expected values (violins) and median (black point) across samples.
+
+
+
 ```{r prcurve}
-read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/pr_curve.tsv") %>%
+read_tsv("/home/debian/NGS/spezies_indev/FooDMe/.tests/benchmarking/pr_curve.tsv",
+        show_col_types = FALSE) %>%
     arrange(Recall) %>%
     ggplot(aes(x=Recall, y=Precision))+
     geom_line()
