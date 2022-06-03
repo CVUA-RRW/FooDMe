@@ -107,11 +107,11 @@ $$
 F1=2\cdot\frac{P \cdot R}{P + R}
 $$
 
-- Average precision: summarizes the variation of precision and recall across a range of $n$ thresholds 
+- Average precision: summarizes the variation of precision and recall across a range of $N$ thresholds 
   (here concentration thresholds are used). It is an approximation of the area under the precision-recall curve.
 
 $$
-AP=\sum{n}(R_n - R_{n-1})P_n
+AP=\sum_{n=1}^{N} (R_n - R_{n-1})P_n
 $$
 
 !!! info
@@ -128,7 +128,7 @@ expected composition.
 We also calculate the 'Mean Absolute Error' as the average value of the difference between predicted and expected concentrations for each samples:
 
 $$
-MAE= \sum_{n=1}^{N} |expected-predicted| \cdot \frac{1}{N}
+MAE= \frac{1}{N} \sum_{n=1}^{N} |expected_n-predicted_n|
 $$
 
 !!! note
