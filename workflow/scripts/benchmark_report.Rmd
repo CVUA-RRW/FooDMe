@@ -207,9 +207,8 @@ Euclidian distance between predicted and expected values (violins) and median (b
 
 
 ```{r prcurve}
-read_tsv(metrics,
+read_tsv(pr_curve,
         show_col_types = FALSE) %>%
-    arrange(Recall) %>%
     ggplot(aes(x=Recall, y=Precision))+
     geom_line()
 ```
