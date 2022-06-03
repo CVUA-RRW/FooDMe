@@ -92,23 +92,27 @@ The following metrics are then calculated as:
 - precision: part of true positives in all results predicted to be true. It is the reciprocal of the False-positve rate 
 
 $$
-precision=\frac{TP}{TP+FP}
+P=\frac{TP}{TP+FP}
 $$
 
 - recall: part of real positives predicted as true. It is the reciprocal of the False-negative rate.
 
 $$
-recall=\frac{TP}{TP+FN}
+R=\frac{TP}{TP+FN}
 $$
 
 - F1 score: harmonic mean of the precision and recall.
 
 $$
-F1=2\cdot\frac{precision \cdot recall}{precision + recall}
+F1=2\cdot\frac{P \cdot R}{P + R}
 $$
 
-- Average precision: summarizes the variation of precision and recall across a range of thresholds 
+- Average precision: summarizes the variation of precision and recall across a range of $n$ thresholds 
   (here concentration thresholds are used). It is an approximation of the area under the precision-recall curve.
+
+$$
+AP=\sum{n}(R_n - R_{n-1})P_n
+$$
 
 !!! info
     
@@ -121,11 +125,10 @@ $$
 Two quantification metrics are used here. The 'Distance' metric corresponds to the Euclidian distance
 of the predicted and true results. It is a reflection of how far away are the results from the 
 expected composition.
-We also calculate the 'Mean Relative Error' as the average value of the relative (to the expected value) 
-quantification error for each samples:
+We also calculate the 'Mean Absolute Error' as the average value of the difference between predicted and expected concentrations for each samples:
 
 $$
-MRE= \sum_{n=1}^{N} \frac{|expected-predicted|}{expected} \cdot \frac{1}{N}
+MAE= \sum_{n=1}^{N} |expected-predicted| \cdot \frac{1}{N}
 $$
 
 !!! note
