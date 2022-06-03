@@ -4,6 +4,7 @@
 
 - Added missing parameters to meat config file
 - Fix dtype parsing in confusion matrix calculation
+- Fix package version reporting
 
 ### 1.5.0
 

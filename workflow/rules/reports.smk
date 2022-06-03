@@ -251,30 +251,13 @@ rule software_versions:
     message:
         "Collecting software versions"
     params:
-        dir={workflow.basedir},
+        dir=workflow.basedir,
     conda:
         "../envs/pandas.yaml"
     log:
         "logs/common/software_version.log",
-    shell:
-        """
-        exec 2> {log}
-
-        echo "Package\tVersion" > {output.report}
-        for env in $(ls {params.dir}/workflow/envs/*.yaml)
-          do
-          cat $env \
-            | tr "\n" "@" \
-            | sed -E 's/(.*)dependencies:(.*)/\2/' \
-            | sed -E 's/\s{{2}}-\s{{1}}/\n/' \
-            | tr -d " " \
-            | tr "@" "\n" \
-            | awk 'NF' \
-            | tr "=" "\t" \
-            | sed -E 's/^-//' \
-            >> {output.report}
-        done
-        """
+    script:
+        "../scripts/conda_collector.py"
 
 
 rule database_version:
