@@ -176,7 +176,10 @@ read_tsv(metrics,
     geom_violin(scale = "count")+
     stat_summary(fun = median, geom="point", group=1)+
     coord_flip()+
-    ylab("Value [%]")
+    ylab("Mean Absolute Error [%]")+
+    theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
 ```
 
 Mean realtive error distribtion (violins) and median (black point) across samples.
@@ -193,7 +196,10 @@ read_tsv(metrics,
     geom_violin(scale = "count")+
     stat_summary(fun = median, geom="point", group=1)+
     coord_flip()+
-    ylab("Value [%]")
+    ylab("L2 Distance")+
+    theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
 ```
 
 Euclidian distance between predicted and expected values (violins) and median (black point) across samples.
