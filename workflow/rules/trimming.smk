@@ -34,9 +34,9 @@ rule cutadapt:
         trash_R1_3p=temp("{sample}/trimmed/{sample}_noprimer3p_R1.fastq.gz"),
         trash_R2_3p=temp("{sample}/trimmed/{sample}_noprimer3p_R2.fastq.gz"),
     params:
-        error_rate=config["trimming"]["primer_error_rate"],
-        primer_3p=config["trimming"]["primers_3end"],
-        primers=config["trimming"]["primers_fasta"],
+        error_rate=config["primer_error_rate"],
+        primer_3p=config["trim_primers_3end"],
+        primers=config["primers_fasta"],
     message:
         "Trimming primers on {wildcards.sample}"
     conda:
@@ -137,10 +137,10 @@ rule run_fastp:
         json="{sample}/trimmed/{sample}.json",
         html="{sample}/trimmed/{sample}.html",
     params:
-        length_required=config["trimming"]["length_required"],
-        qualified_quality_phred=config["trimming"]["qualified_quality_phred"],
-        window_size=config["trimming"]["window_size"],
-        mean_qual=config["trimming"]["mean_quality"],
+        length_required=config["read_length_required"],
+        qualified_quality_phred=config["qualified_quality_phred"],
+        window_size=config["qctrim_window_size"],
+        mean_qual=config["qctrim_mean_quality"],
     threads: config["threads_sample"]
     message:
         "Running fastp on {wildcards.sample}"

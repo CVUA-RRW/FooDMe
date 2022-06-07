@@ -92,7 +92,7 @@ rule summary_report:
     message:
         "Summarizing statistics for {wildcards.sample}"
     params:
-        method=config["cluster"]["method"],
+        method=config["cluster_method"],
     conda:
         "../envs/pandas.yaml"
     log:
@@ -183,7 +183,7 @@ rule report_sample:
         soft="reports/software_versions.tsv",
         krona="{sample}/reports/{sample}_krona_chart.html",
     params:
-        method=config["cluster"]["method"],
+        method=config["cluster_method"],
         workdir=config["workdir"],
         version=version,
         sample=lambda w, input: w.sample,
@@ -221,7 +221,7 @@ rule report_all:
         soft="reports/software_versions.tsv",
         krona="reports/krona_chart.html",
     params:
-        method=config["cluster"]["method"],
+        method=config["cluster_method"],
         workdir=config["workdir"],
         version=version,
         sample="all",
@@ -266,10 +266,10 @@ rule database_version:
     message:
         "Collecting databases versions"
     params:
-        blast=config["blast"]["blast_DB"],
-        taxdb=config["blast"]["taxdb"],
-        taxdump_nodes=config["taxonomy"]["nodes_dmp"],
-        taxdump_lin=config["taxonomy"]["rankedlineage_dmp"],
+        blast=config["blast_DB"],
+        taxdb=config["taxdb"],
+        taxdump_nodes=config["nodes_dmp"],
+        taxdump_lin=config["rankedlineage_dmp"],
     conda:
         "../envs/pandas.yaml"
     log:

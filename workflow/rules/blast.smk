@@ -8,9 +8,9 @@ rule prep_taxonomy:
     output:
         tax="common/taxonomy.json",
     params:
-        nodes=config["taxonomy"]["nodes_dmp"],
-        rankedlineage=config["taxonomy"]["rankedlineage_dmp"],
-        taxid=config["blast"]["taxid_filter"],
+        nodes=config["nodes_dmp"],
+        rankedlineage=config["rankedlineage_dmp"],
+        taxid=config["taxid_filter"],
     message:
         "Preparing taxonomy definitions"
     conda:
@@ -25,8 +25,8 @@ rule get_taxid_from_db:
     output:
         taxlist="common/taxid_list.txt",
     params:
-        blast_DB=config["blast"]["blast_DB"],
-        taxdb=config["blast"]["taxdb"],
+        blast_DB=config["blast_DB"],
+        taxdb=config["taxdb"],
     message:
         "Collecting BLAST database entries"
     conda:
@@ -53,7 +53,7 @@ rule create_blast_mask:
     message:
         "Masking BLAST Database"
     params:
-        taxid=config["blast"]["taxid_filter"],
+        taxid=config["taxid_filter"],
     message:
         "Preparing list of searchable taxids"
     conda:
@@ -116,17 +116,17 @@ rule no_blocklist:
 rule blast_otus:
     input:
         query="{sample}/clustering/{sample}_OTUs.fasta"
-        if config["cluster"]["method"] == "otu"
+        if config["cluster_method"] == "otu"
         else "{sample}/denoising/{sample}_ASVs.fasta",
         mask="common/blast_mask.txt",
     output:
         report="{sample}/taxonomy/{sample}_blast_report.tsv",
     params:
-        blast_DB=config["blast"]["blast_DB"],
-        taxdb=config["blast"]["taxdb"],
-        e_value=config["blast"]["e_value"],
-        perc_identity=config["blast"]["perc_identity"],
-        qcov=config["blast"]["qcov"],
+        blast_DB=config["blast_DB"],
+        taxdb=config["taxdb"],
+        e_value=config["blast_evalue"],
+        perc_identity=config["blast_identity"],
+        qcov=config["blast_qcov"],
     threads: config["threads"]
     message:
         "BLASTing {wildcards.sample} clusters against local database"
@@ -166,7 +166,7 @@ rule filter_blast:
     output:
         filtered="{sample}/taxonomy/{sample}_blast_report_filtered.tsv",
     params:
-        bit_diff=config["blast"]["bit_score_diff"],
+        bit_diff=config["bit_score_diff"],
     message:
         "Filtering BLAST results for {wildcards.sample}"
     conda:
@@ -184,7 +184,7 @@ rule find_consensus:
     output:
         consensus="{sample}/taxonomy/{sample}_consensus_table.tsv",
     params:
-        min_consensus=config["taxonomy"]["min_consensus"],
+        min_consensus=config["min_consensus"],
     message:
         "Consensus taxonomy determination"
     log:
@@ -201,7 +201,7 @@ rule find_consensus:
 rule blast_stats:
     input:
         otus="{sample}/clustering/{sample}_OTUs.fasta"
-        if config["cluster"]["method"] == "otu"
+        if config["cluster_method"] == "otu"
         else "{sample}/denoising/{sample}_ASVs.fasta",
         blast="{sample}/taxonomy/{sample}_blast_report.tsv",
         filtered="{sample}/taxonomy/{sample}_blast_report_filtered.tsv",
@@ -209,7 +209,7 @@ rule blast_stats:
     output:
         "{sample}/reports/{sample}_blast_stats.tsv",
     params:
-        bit_diff=config["blast"]["bit_score_diff"],
+        bit_diff=config["bit_score_diff"],
     message:
         "Collecting BLAST stats for {wildcards.sample}"
     conda:

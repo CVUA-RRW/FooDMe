@@ -13,8 +13,8 @@ rule confusion_matrix:
     output:
         confmat="{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv",
     params:
-        threshold=config["benchmark"]["threshold"],
-        target_rank=config["benchmark"]["target_rank"],
+        threshold=config["benchmark_threshold"],
+        target_rank=config["benchmark_rank"],
         sample=lambda w: w.bchmk_sample,
     message:
         "Calculating confusion table for {wildcards.bchmk_sample}"
