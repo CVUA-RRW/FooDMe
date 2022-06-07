@@ -50,7 +50,7 @@ rule denoise:
         max_EE=config["max_expected_errors"],
         min_length=config["amplicon_min_length"],
         max_length=config["amplicon_max_length"],
-        chimera=config["chimera"],
+        chimera=config["remove_chimera"],
         max_mismatch=config["merging_max_mismatch"],
     log:
         "logs/{sample}/denoising.log",

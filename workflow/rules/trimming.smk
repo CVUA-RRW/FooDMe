@@ -8,7 +8,7 @@ rule get_primer_revcomp:
     output:
         primers_rc=temp("common/primer_revcomp.fa"),
     params:
-        primers=config["trimming"]["primers_fasta"],
+        primers=config["primers_fasta"],
     message:
         "Reverse-complementing primers"
     conda:

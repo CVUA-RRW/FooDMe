@@ -32,7 +32,6 @@ def main(report, basedir):
     ]
     df = []
     for ef in envs:
-        print(extract_package_version(ef))
         for p,v in extract_package_version(ef):
             df.append({'Package': p, 'Version':v})
     df = pd.DataFrame(df)

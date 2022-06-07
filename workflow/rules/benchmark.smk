@@ -8,7 +8,7 @@ shell.executable("bash")
 rule confusion_matrix:
     input:
         compo="{bchmk_sample}/reports/{bchmk_sample}_composition.tsv",
-        truth=config["benchmark"]["reference"],
+        truth=config["benchmark_reference"],
         tax="common/taxonomy.json",
     output:
         confmat="{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv",

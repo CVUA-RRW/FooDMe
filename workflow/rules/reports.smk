@@ -80,11 +80,11 @@ rule summary_report:
     input:
         fastp="{sample}/reports/{sample}_trimmed.tsv",
         merging="{sample}/reports/{sample}_merging.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "{sample}/reports/{sample}_denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "{sample}/reports/{sample}_denoising.tsv",
         clustering="{sample}/reports/{sample}_clustering.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "{sample}/reports/{sample}_denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "{sample}/reports/{sample}_denoising.tsv",
         tax="{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
         compo="{sample}/reports/{sample}_composition.tsv",
     output:
@@ -171,11 +171,11 @@ rule report_sample:
         summary="{sample}/reports/{sample}_summary.tsv",
         fastp="{sample}/reports/{sample}_trimmed.tsv",
         qc_filtering="{sample}/reports/{sample}_merging.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "{sample}/reports/{sample}_denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "{sample}/reports/{sample}_denoising.tsv",
         clustering="{sample}/reports/{sample}_clustering.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "{sample}/reports/{sample}_denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "{sample}/reports/{sample}_denoising.tsv",
         blast_rep="{sample}/reports/{sample}_blast_stats.tsv",
         taxonomy="{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
         result="{sample}/reports/{sample}_composition.tsv",
@@ -209,11 +209,11 @@ rule report_all:
         summary="reports/summary.tsv",
         fastp="reports/fastp_stats.tsv",
         qc_filtering="reports/merging_stats.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "reports/denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "reports/denoising.tsv",
         clustering="reports/clustering_stats.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "reports/denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "reports/denoising.tsv",
         blast_rep="reports/blast_stats.tsv",
         taxonomy="reports/taxonomy_assignement_stats.tsv",
         result="reports/composition_summary.tsv",
