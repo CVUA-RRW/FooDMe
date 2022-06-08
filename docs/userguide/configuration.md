@@ -52,36 +52,39 @@ This will create a file called `samples.tsv` in the `raw_data` folder.
 ## List of parameters
 
 
-| Category | Parameter                 | Expected values           | Description |
-| --- | ---                       | ---                       | --- |
-| | `workdir`                 | Path                      | Path to the output directory, will be created if <br>it doesn´t exist |
-| | `samples`                 | Path                      | Path to the sample sheet                           |
-| | `threads_sample`          | Number                    | Number of threads assigned to each job             |
-| | `threads`                 | Number                    | Number of threads assigned to the workflow         |
-| `trimming` | `length_required`         | Number                    | Minimal length of the reads after primer trimming  |
-| `trimming` | `qualifier-quality-phred` | Number                    | Minimal quality value per nucleotide               |
-| `trimming` | `window-size`             | Number                    | Size of the sliding window for 3´ quality trimming |
-| `trimming` | `mean_quality`            | Number                    | Minimal quality thresold for sliding average       |
-| `trimming` | `primers_fasta`           | Path                      | Path to the fasta file containing primer sequences |
-| `trimming` | `primers_end`             | True/False                | Should primers be trimmed on the 3´ end of <br>the reads? Only relevant if the sequencing length is <br>larger than the amplicon length |
-| `trimming` | `primer_error_rate`       | Number [0, 1]             | Maximum error-rate allowed for primer matching     |
-| `read_filter` | `min_length`              | Number                    | Minimal length of the merge reads or <br>ASV sequences |
-| `read_filter` | `max_length`              | Number                    | Maximal lenght of the merge reads or <br>ASV sequences |
-| `read_filter` | `max_expected_errors`     | Number                    | Maximum number of expected errors allowed in <br>merged reads (OTUs) or trimmed reads (ASVs) |
-| `read_filter` | `max_ns`                  | Number                    | Maximal number of undetermined `N` nucleotide <br>per sequence. This will automatically be set <br>to 0 for ASVs |
-| `cluster` | `method`                  | `otu` or `asv`            | Clustering method |
-| `cluster` | `cluster_identity`        | Number [0, 1]             | OTU identity threshold. Only for OTU |
-| `cluster` | `cluster_minsize`         | Number                    | Minimal size of clusters to keep |
-| `cluster` | `max_mismatch`            | Number                    | Maximum number of mismatch allowed in the<br> overlap between reads. Only for ASV |
-| | `chimera`                 | True/False                | Should predicted chimeric sequences be removed? |
-| `taxonomy` | `rankedlineage_dmp`       | Path                      | Path to the `rankedlineage.dmp` file from the <br>`taxdump` archive |
-| `taxonomy` | `nodes_dmp`               | Path                      | Path to the `nodes.dmp` file from <br>the `taxdump` archive |
-| `taxonomy` | `min_consensus`           | Number [0.51, 1]          | Minimal agreement for taxonomic consensus <br>determination. 0.51 is a majority vote and 1.0 is<br> a last common ancestor determination |
-| `blast` | `blast_DB`                | Path                      | Path to the BLAST database in the form <br>`path/to/folder/db-name` |
-| `blast` | `taxdb`                   | Path                      | Path to the folder containing the `taxdb`files |
-| `blast` | `taxid_filter`            | Taxonomic identifier      | Node under which to perform the BLAST search. <br>Equivalent to pruning the taxonomy above <br>this node |
-| `blast` | `blocklist`               | `extinct` or custom path  | Path to a list of taxonomic identifier to exclude <br>from the BLAST search |
-| `blast` | `e_value`                 | Number (scientific)       | Minimal E-value threshold for the BLAST search |
-| `blast` | `perc_identity`           | Number [0, 100]           | Minimal identity (in percent) between the query and <br>hit sequence for the BLAST search |
-| `blast` | `qcov`                    | Number [0, 100]           | Percent of the query to be covered by the hit <br>sequence for the BLAST search |
-| `blast` | `bit_score_diff`          | Number                    | Maximum bit-score difference between the best<br> and last hit to keep for each query after the <br>BLAST search |
+| Parameter                 | Expected values           | Description |
+| ---                       | ---                       | --- |
+| `workdir`                 | Path                      | Path to the output directory, will be created if <br>it doesn´t exist |
+| `samples`                 | Path                      | Path to the sample sheet                           |
+| `threads_sample`          | Number                    | Number of threads assigned to each job             |
+| `threads`                 | Number                    | Number of threads assigned to the workflow         |
+| `primers_fasta`           | Path                      | Path to the fasta file containing primer sequences |
+| `blast_DB`                | Path                      | Path to the BLAST database in the form <br>`path/to/folder/db-name` |
+| `taxdb`                   | Path                      | Path to the folder containing the `taxdb`files |
+| `rankedlineage_dmp`       | Path                      | Path to the `rankedlineage.dmp` file from the <br>`taxdump` archive |
+| `nodes_dmp`               | Path                      | Path to the `nodes.dmp` file from <br>the `taxdump` archive | 
+| `read_length_required`         | Number                    | Minimal length of the reads after primer trimming  |
+| `qualifier-quality-phred` | Number                    | Minimal quality value per nucleotide               |
+| `qctrim_window-size`             | Number                    | Size of the sliding window for 3´ quality trimming |
+| `qctrim_mean_quality`            | Number                    | Minimal quality thresold for sliding average       |
+| `trim_primers_3end`             | True/False                | Should primers be trimmed on the 3´ end of <br>the reads? Only relevant if the sequencing length is <br>larger than the amplicon length |
+| `primer_error_rate`       | Number [0, 1]             | Maximum error-rate allowed for primer matching     |
+| `amplicon_min_length`              | Number                    | Minimal length of the merge reads or <br>ASV sequences |
+| `amplicon_max_length`              | Number                    | Maximal lenght of the merge reads or <br>ASV sequences |
+| `max_expected_errors`     | Number                    | Maximum number of expected errors allowed in <br>merged reads (OTUs) or trimmed reads (ASVs) |
+| `max_ns`                  | Number                    | Maximal number of undetermined `N` nucleotide <br>per sequence. This will automatically be set <br>to 0 for ASVs |
+| `cluster_method`                  | `otu` or `asv`            | Clustering method |
+| `cluster_identity`        | Number [0, 1]             | OTU identity threshold. Only for OTU | 
+| `cluster_minsize`         | Number                    | Minimal size of clusters to keep |
+| `merging_max_mismatch`            | Number                    | Maximum number of mismatch allowed in the<br> overlap between reads. Only for ASV |
+| `remove_chimera`                 | True/False                | Should predicted chimeric sequences be removed? |
+| `min_consensus`           | Number [0.51, 1]          | Minimal agreement for taxonomic consensus <br>determination. 0.51 is a majority vote and 1.0 is<br> a last common ancestor determination |
+| `taxid_filter`            | Taxonomic identifier      | Node under which to perform the BLAST search. <br>Equivalent to pruning the taxonomy above <br>this node |
+| `blocklist`               | `extinct` or custom path  | Path to a list of taxonomic identifier to exclude <br>from the BLAST search |
+| `blast_evalue`                 | Number (scientific)       | Minimal E-value threshold for the BLAST search |
+| `blast_identity`           | Number [0, 100]           | Minimal identity (in percent) between the query and <br>hit sequence for the BLAST search |
+| `blast_qcov`                    | Number [0, 100]           | Percent of the query to be covered by the hit <br>sequence for the BLAST search |
+| `bit_score_diff`          | Number                    | Maximum bit-score difference between the best<br> and last hit to keep for each query after the <br>BLAST search |
+| `benchmark_reference` | Path | Path to benchmarking reference table (see [Benchmark mode](../benchmark/benchmark.md)). |
+| `benchmark_threshold`| Number [0, 100] | Lower limit for benchmarking (see [Benchmark mode](../benchmark/benchmark.md)). |
+| `benchmark_rank` | String | Highest rank for benchmarking (see [Benchmark mode](../benchmark/benchmark.md)). |
