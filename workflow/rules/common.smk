@@ -21,7 +21,7 @@ samples.index = samples.index.astype("str", copy=False)
 
 
 # Loading and validationg benchmark reference --------
-reference_path = config["benchmark"]["reference"]
+reference_path = config["benchmark_reference"]
 reference = pd.read_csv(reference_path, index_col="sample", sep="\t", engine="python")
 validate(reference, schema="../schema/reference.schema.yaml")
 reference.index = reference.index.astype("str", copy=False)
@@ -42,16 +42,16 @@ def get_fastq(wildcards, read_pair="fq1"):
 
 
 def get_mask():
-    if config["blast"]["taxid_filter"] == "None":
+    if config["taxid_filter"] == "None":
         return "common/nomask"
     else:
         return "common/taxid_mask.txt"
 
 
 def get_blocklist():
-    if config["blast"]["blocklist"] == "None":
+    if config["blocklist"] == "None":
         return "common/noblock"
-    elif config["blast"]["blocklist"] == "extinct":
+    elif config["blocklist"] == "extinct":
         return os.path.join(workflow.basedir, "..", "data", "blocklist.txt")
     else:
-        return config["blast"]["blocklist"]
+        return config["blocklist"]

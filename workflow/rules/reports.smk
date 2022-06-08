@@ -80,11 +80,11 @@ rule summary_report:
     input:
         fastp="{sample}/reports/{sample}_trimmed.tsv",
         merging="{sample}/reports/{sample}_merging.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "{sample}/reports/{sample}_denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "{sample}/reports/{sample}_denoising.tsv",
         clustering="{sample}/reports/{sample}_clustering.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "{sample}/reports/{sample}_denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "{sample}/reports/{sample}_denoising.tsv",
         tax="{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
         compo="{sample}/reports/{sample}_composition.tsv",
     output:
@@ -92,7 +92,7 @@ rule summary_report:
     message:
         "Summarizing statistics for {wildcards.sample}"
     params:
-        method=config["cluster"]["method"],
+        method=config["cluster_method"],
     conda:
         "../envs/pandas.yaml"
     log:
@@ -171,11 +171,11 @@ rule report_sample:
         summary="{sample}/reports/{sample}_summary.tsv",
         fastp="{sample}/reports/{sample}_trimmed.tsv",
         qc_filtering="{sample}/reports/{sample}_merging.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "{sample}/reports/{sample}_denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "{sample}/reports/{sample}_denoising.tsv",
         clustering="{sample}/reports/{sample}_clustering.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "{sample}/reports/{sample}_denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "{sample}/reports/{sample}_denoising.tsv",
         blast_rep="{sample}/reports/{sample}_blast_stats.tsv",
         taxonomy="{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
         result="{sample}/reports/{sample}_composition.tsv",
@@ -183,7 +183,7 @@ rule report_sample:
         soft="reports/software_versions.tsv",
         krona="{sample}/reports/{sample}_krona_chart.html",
     params:
-        method=config["cluster"]["method"],
+        method=config["cluster_method"],
         workdir=config["workdir"],
         version=version,
         sample=lambda w, input: w.sample,
@@ -209,11 +209,11 @@ rule report_all:
         summary="reports/summary.tsv",
         fastp="reports/fastp_stats.tsv",
         qc_filtering="reports/merging_stats.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "reports/denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "reports/denoising.tsv",
         clustering="reports/clustering_stats.tsv"
-        if config["cluster"]["method"] == "otu"
-        else "reports/denoising.tsv",
+            if config["cluster_method"] == "otu"
+            else "reports/denoising.tsv",
         blast_rep="reports/blast_stats.tsv",
         taxonomy="reports/taxonomy_assignement_stats.tsv",
         result="reports/composition_summary.tsv",
@@ -221,7 +221,7 @@ rule report_all:
         soft="reports/software_versions.tsv",
         krona="reports/krona_chart.html",
     params:
-        method=config["cluster"]["method"],
+        method=config["cluster_method"],
         workdir=config["workdir"],
         version=version,
         sample="all",
@@ -266,10 +266,10 @@ rule database_version:
     message:
         "Collecting databases versions"
     params:
-        blast=config["blast"]["blast_DB"],
-        taxdb=config["blast"]["taxdb"],
-        taxdump_nodes=config["taxonomy"]["nodes_dmp"],
-        taxdump_lin=config["taxonomy"]["rankedlineage_dmp"],
+        blast=config["blast_DB"],
+        taxdb=config["taxdb"],
+        taxdump_nodes=config["nodes_dmp"],
+        taxdump_lin=config["rankedlineage_dmp"],
     conda:
         "../envs/pandas.yaml"
     log:

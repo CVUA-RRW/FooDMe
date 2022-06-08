@@ -58,10 +58,10 @@ rule quality_filter:
         filtered=temp("{sample}/pseudo_reads/{sample}_filtered.fasta"),
         discarded=temp("{sample}/pseudo_reads/{sample}_discarded.fasta"),
     params:
-        minlen=config["read_filter"]["min_length"],
-        maxlen=config["read_filter"]["max_length"],
-        maxee=config["read_filter"]["max_expected_errors"],
-        maxns=config["read_filter"]["max_ns"],
+        minlen=config["amplicon_min_length"],
+        maxlen=config["amplicon_max_length"],
+        maxee=config["max_expected_errors"],
+        maxns=config["max_ns"],
     message:
         "Quality filtering {wildcards.sample}"
     conda:
@@ -190,7 +190,7 @@ rule cluster:
         centroids=temp("{sample}/clustering/{sample}_clusters.fasta"),
         stat="{sample}/clustering/{sample}_clustertab.txt",
     params:
-        clusterID=config["cluster"]["cluster_identity"],
+        clusterID=config["cluster_identity"],
     conda:
         "../envs/vsearch.yaml"
     threads: config["threads"]
@@ -215,7 +215,7 @@ rule sort_otu:
     output:
         sorted="{sample}/clustering/{sample}_clusters_sorted.fasta",
     params:
-        min_size=config["cluster"]["cluster_minsize"],
+        min_size=config["cluster_minsize"],
     conda:
         "../envs/vsearch.yaml"
     threads: config["threads"]
@@ -238,7 +238,7 @@ rule sort_otu:
 
 
 rule chimera_denovo:
-    # should be skipped if config["chimera"] is False
+    # should be skipped if config["remove_chimera"] is False
     input:
         sorted="{sample}/clustering/{sample}_clusters_sorted.fasta",
     output:
@@ -264,7 +264,7 @@ rule chimera_denovo:
 rule relabel_otu:
     input:
         fasta="{sample}/clustering/{sample}_clusters_nonchimera.fasta"
-        if config["chimera"]
+        if config["remove_chimera"]
         else "{sample}/clustering/{sample}_clusters_sorted.fasta",
     output:
         renamed="{sample}/clustering/{sample}_OTUs.fasta",
