@@ -27,7 +27,7 @@ def main(
         tbl=pd.read_csv(fin, sep="\t")
         for k,v in pspace.items():
             tbl[k] = v
-        tbl.to_csv(fout, sep="\t")
+        tbl.to_csv(fout, sep="\t", header=True, index=False)
 
 
 if __name__ == '__main__':
