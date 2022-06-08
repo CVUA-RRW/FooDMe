@@ -13,9 +13,6 @@ import yaml
 import pandas as pd
 
 
-basedir="/home/debian/NGS/spezies_indev/FooDMe/workflow"
-
-
 def extract_package_version(envfile):
     with open(envfile, 'r') as stream:
         env = yaml.safe_load(stream)

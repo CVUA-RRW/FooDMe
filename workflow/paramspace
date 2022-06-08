@@ -1,6 +1,7 @@
 from snakemake.utils import Paramspace
 from snakemake.utils import min_version
 import pandas as pd
+import os
 
 
 # Settings --------------------------------------------------------------------
@@ -23,11 +24,12 @@ workdir: config["workdir"]
 
 rule all:
     input:
-        "aggregated/runtime.tsv",
-        "aggregated/confusion_matrix.tsv",
-        "aggregated/yield.tsv",
-        "aggregated/metrics.tsv",
-        "aggregated/pr_curve.tsv",
+        expand("foodme_runs/{params}/benchmarking/confusion_matrix.tsv", params=paramspace.instance_patterns),
+        # "aggregated/runtime.tsv",
+        # "aggregated/confusion_matrix.tsv",
+        # "aggregated/yield.tsv",
+        # "aggregated/metrics.tsv",
+        # "aggregated/pr_curve.tsv",
 
 
 # Workflow --------------------------------------------------------------------
@@ -37,52 +39,59 @@ rule create_configs:
     input:
         conffile=config["foodme_config"],
     output:
-        conf="foodme_runs/{paramspace.wildcard_pattern}/config.yaml",
+        conf=f"foodme_runs/{paramspace.wildcard_pattern}/config.yaml",
     params:
-        pspace=config['paramspace'],
+        pspace=paramspace.instance,
     log:
-        "logs/config_writer.log"
+        f"logs/{paramspace.wildcard_pattern}/config_writer.log"
     script:
-        ""
+        "scripts/config_writer.py"
 
 
 rule run_foodme_benchmark:
     input:
-        config="foodme_runs/{paramspace.wildcard_pattern}/config.yaml"
+        config=f"foodme_runs/{paramspace.wildcard_pattern}/config.yaml",
     output:
-        runtime="foodme_runs/{paramspace.wildcard_pattern}/runtime.tsv",
-        confmat="foodme_runs/{paramspace.wildcard_pattern}/benchmarking/confusion_matrix.tsv",
-        yield="foodme_runs/{paramspace.wildcard_pattern}/benchmarking/yield.tsv",
-        metrics="foodme_runs/{paramspace.wildcard_pattern}/benchmarking/metrics.tsv",
-        pr_curve="foodme_runs/{paramspace.wildcard_pattern}/benchmarking/pr_curve.tsv",
-    log:
-        "logs/foodme_runs/{paramspace.wildcard_pattern}/snakemake.log"
-    shell:
-        """
-        time start
-        exec snakemake
-        time end
-        """
-
-
-rule aggregate_metrics:
-    input:
-        runtime=expand("foodme_runs/{params}/runtime.tsv", params=paramspace.instance_patterns),
-        confmat=expand("foodme_runs/{params}benchmarking/confusion_matrix.tsv", params=paramspace.instance_patterns),
-        yield=expand("foodme_runs/{params}benchmarking/yield.tsv", params=paramspace.instance_patterns),
-        metrics=expand("foodme_runs/{params}benchmarking/metrics.tsv", params=paramspace.instance_patterns),
-        pr_curve=expand("foodme_runs/{params}benchmarking/pr_curve.tsv", params=paramspace.instance_patterns),
-    output:
-        runtime="aggregated/runtime.tsv",
-        confmat="aggregated/confusion_matrix.tsv",
-        yield="aggregated/yield.tsv",
-        metrics="aggregated/metrics.tsv",
-        pr_curve="aggregated/pr_curve.tsv",
+        confmat=f"foodme_runs/{paramspace.wildcard_pattern}/benchmarking/confusion_matrix.tsv",
+        yields=f"foodme_runs/{paramspace.wildcard_pattern}/benchmarking/yield.tsv",
+        metrics=f"foodme_runs/{paramspace.wildcard_pattern}/benchmarking/metrics.tsv",
+        pr_curve=f"foodme_runs/{paramspace.wildcard_pattern}/benchmarking/pr_curve.tsv",
+    benchmark:
+        f"benchmark/{paramspace.wildcard_pattern}/ressource_usage.tsv"
     params:
-        pspace=config['paramspace'],
-    log:
-        "logs/aggregate_metrics.log"
+        workdir=f"foodme_runs/{paramspace.wildcard_pattern}",
+        snakefile=os.path.join(workflow.basedir, "Snakefile"),
+        cores=workflow.cores,
+        conda_prefix=workflow.conda_prefix,
+    # log:
+        # f"logs/{paramspace.wildcard_pattern}/snakemake.log"
     shell:
         """
-        aggregate all
+        snakemake -s {params.snakefile} \
+            --use-conda --conda-prefix {params.conda_prefix} \
+            --cores {params.cores} --configfile {input.config} \
+            --config workdir={params.workdir}
         """
+
+
+# rule aggregate_metrics:
+    # input:
+        # runtime=expand("foodme_runs/{params}/runtime.tsv", params=paramspace.instance_patterns),
+        # confmat=expand("foodme_runs/{params}benchmarking/confusion_matrix.tsv", params=paramspace.instance_patterns),
+        # yield=expand("foodme_runs/{params}benchmarking/yield.tsv", params=paramspace.instance_patterns),
+        # metrics=expand("foodme_runs/{params}benchmarking/metrics.tsv", params=paramspace.instance_patterns),
+        # pr_curve=expand("foodme_runs/{params}benchmarking/pr_curve.tsv", params=paramspace.instance_patterns),
+    # output:
+        # runtime="aggregated/runtime.tsv",
+        # confmat="aggregated/confusion_matrix.tsv",
+        # yield="aggregated/yield.tsv",
+        # metrics="aggregated/metrics.tsv",
+        # pr_curve="aggregated/pr_curve.tsv",
+    # params:
+        # pspace=config['paramspace'],
+    # log:
+        # "logs/aggregate_metrics.log"
+    # shell:
+        # """
+        # aggregate all
+        # """
