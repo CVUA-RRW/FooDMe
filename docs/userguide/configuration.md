@@ -88,3 +88,9 @@ This will create a file called `samples.tsv` in the `raw_data` folder.
 | `benchmark_reference` | Path | Path to benchmarking reference table (see [Benchmark mode](../benchmark/benchmark.md)). |
 | `benchmark_threshold`| Number [0, 100] | Lower limit for benchmarking (see [Benchmark mode](../benchmark/benchmark.md)). |
 | `benchmark_rank` | String | Highest rank for benchmarking (see [Benchmark mode](../benchmark/benchmark.md)). |
+
+!!! note
+    
+    Unless you are running foodme in `benchmark` mode, you do not need to modify the values
+    of the `benchmark_*` arguments.
+    See [Benchmark mode](../benchmark/benchmark.md) for more details.
