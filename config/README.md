@@ -6,7 +6,7 @@ To configure the workflow, modifiy `config/config.yaml` according
 to your needs.
 
 For specific details about the parameters 
-check the main README.
+check the documentation.
 
 ### Optimized configuration for 16S birds and mammals metabarcoding
 
@@ -37,4 +37,12 @@ the helper script from Bundes Insitut für Risikobewertung in
 
 If using the benchmark mode, sdd information for your reference samples in the `reference.tsv` template.
 Note that proportions are given as fractions in the [0, 1] interval.
+
+## Parameter space exploration configuration
+
+To configure a parameter space exploration analysis, modify the file 
+`config_paramspace.yaml` according to your needs.
+
+For specific details about the parameters 
+check the documentation.
 
