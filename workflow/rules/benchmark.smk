@@ -8,13 +8,13 @@ shell.executable("bash")
 rule confusion_matrix:
     input:
         compo="{bchmk_sample}/reports/{bchmk_sample}_composition.tsv",
-        truth=config["benchmark"]["reference"],
+        truth=config["benchmark_reference"],
         tax="common/taxonomy.json",
     output:
         confmat="{bchmk_sample}/benchmarking/{bchmk_sample}_confusion_matrix.tsv",
     params:
-        threshold=config["benchmark"]["threshold"],
-        target_rank=config["benchmark"]["target_rank"],
+        threshold=config["benchmark_threshold"],
+        target_rank=config["benchmark_rank"],
         sample=lambda w: w.bchmk_sample,
     message:
         "Calculating confusion table for {wildcards.bchmk_sample}"

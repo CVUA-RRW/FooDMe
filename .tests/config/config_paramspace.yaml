@@ -1,0 +1,4 @@
+workdir: .tests/
+foodme_config: config/config_foodme_paramspace.yaml
+paramspace: config/params.tsv
+force_rerun: False

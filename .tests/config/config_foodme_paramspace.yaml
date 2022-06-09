@@ -1,12 +1,14 @@
+# Modified config with relpath for continuous integration of paramspace exploration. 
+# Do not reprodcue at home, always use absolute paths!
 workdir: .tests/
-samples: config/samples.tsv
+samples: ../../../config/samples_paramspace.tsv
 threads_sample: 1
 threads: 1
 read_length_required: 50
 qualified_quality_phred: 20
 qctrim_window_size: 4
 qctrim_mean_quality: 25
-primers_fasta: data/primers/16S.fa
+primers_fasta: ../../../data/primers/16S.fa
 trim_primers_3end: True
 primer_error_rate: 0.1
 amplicon_min_length: 70
@@ -18,17 +20,17 @@ cluster_identity: 1
 cluster_minsize: 2
 merging_max_mismatch: 0
 remove_chimera: True
-rankedlineage_dmp: data/minitaxdump/minirankedlineage.dmp
-nodes_dmp: data/minitaxdump/mininodes.dmp
+rankedlineage_dmp: ../../../data/minitaxdump/minirankedlineage.dmp
+nodes_dmp: ../../../data/minitaxdump/mininodes.dmp
 min_consensus: 0.7
-blast_DB: data/miniblast/miniblast
-taxdb: data/miniblast
+blast_DB: ../../../data/miniblast/miniblast
+taxdb: ../../../data/miniblast
 taxid_filter: 7742
 blocklist: extinct
 blast_evalue: 1e-10
 blast_identity: 97
 blast_qcov: 100
 bit_score_diff: 2
-benchmark_reference: config/reference.tsv
+benchmark_reference: ../../../config/reference.tsv
 benchmark_threshold: 0.1
 benchmark_rank: genus

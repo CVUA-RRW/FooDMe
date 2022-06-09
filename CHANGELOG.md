@@ -1,3 +1,25 @@
+### 1.6.0
+
+**This update is not backwards compatible.**
+**A configuration file update is nescessary.**
+
+#### New features
+
+- Added a new Snakefile for parameter space exploration.
+  Basically acts as a wrapper around the foodme benchmark workflow 
+  for parameter grid search using snakemake's `Paramspcae` utility.
+
+#### Non backward compatible changes
+
+- Flattened the parameter structure in the configuration.
+  This is more compatible with the `--config` CLI argument and
+  was required for the implementation of the parameter space exploration workflow.
+  This requires users to update their configurations.
+
+#### Documentation
+
+- Added documentation for the `paramspace` workflow.
+
 ### 1.5.1
 
 #### Bug fix
@@ -10,8 +32,8 @@
 
 ### 1.5.0
 
-This update is not backwards compatible. 
-An configuration file update is nescessary.
+**This update is not backwards compatible.**
+**A configuration file update is nescessary.**
 
 #### New features
 

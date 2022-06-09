@@ -23,7 +23,7 @@ workdir: config["workdir"]
 report: "report/workflow.rst"
 
 
-# Input rule ------------------------------------------------------------------
+# Input rules ------------------------------------------------------------------
 
 
 include: "rules/common.smk"
@@ -54,7 +54,7 @@ rule benchmark:
 
 
 include: "rules/trimming.smk"
-include: "rules/vsearch.smk" if config["cluster"]["method"] == "otu" else "rules/dada2.smk"
+include: "rules/vsearch.smk" if config["cluster_method"] == "otu" else "rules/dada2.smk"
 include: "rules/blast.smk"
 include: "rules/reports.smk"
 include: "rules/benchmark.smk"

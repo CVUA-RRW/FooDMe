@@ -13,9 +13,6 @@ import yaml
 import pandas as pd
 
 
-basedir="/home/debian/NGS/spezies_indev/FooDMe/workflow"
-
-
 def extract_package_version(envfile):
     with open(envfile, 'r') as stream:
         env = yaml.safe_load(stream)
@@ -32,7 +29,6 @@ def main(report, basedir):
     ]
     df = []
     for ef in envs:
-        print(extract_package_version(ef))
         for p,v in extract_package_version(ef):
             df.append({'Package': p, 'Version':v})
     df = pd.DataFrame(df)

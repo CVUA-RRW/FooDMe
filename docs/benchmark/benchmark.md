@@ -10,7 +10,7 @@ parameter sets.
 
 ## Benchmarking parameters
 
-The benchmarking module requires three additional parameters:
+The benchmarking module requires three additional parameters (see [Configuration](../userguide/configuration.md)):
 
 - `reference`: Path to a table containing the sample composition information containing the followuing fields:
     - `sample`: Sample name

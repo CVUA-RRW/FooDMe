@@ -1,0 +1,13 @@
+# Configuration file template for parameter space exploration
+# Modify the values below as deemed nescessary
+# See README.md in this repository for more informations
+# ------------------------------------------------------------------------------
+
+# Path to the output directory, will be created if it doesn´t exist
+workdir: path/to/workdir
+# Path to the FooDMe configuration file - make sure it contains only absolute paths
+foodme_config: path/to/foodme/configfile.yaml
+# Path to the parameter grid 
+paramspace: /path/to/params.tsv
+# Force recalculation of foodme outputs? True/False
+force_rerun: False
