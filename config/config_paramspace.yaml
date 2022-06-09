@@ -4,10 +4,10 @@
 # ------------------------------------------------------------------------------
 
 # Path to the output directory, will be created if it doesn´t exist
-workdir: .tests/
+workdir: path/to/workdir
 # Path to the FooDMe configuration file - make sure it contains only absolute paths
-foodme_config: /home/debian/NGS/spezies_indev/FooDMe/.tests/config/config_foodme_paramspace.yaml
+foodme_config: path/to/foodme/configfile.yaml
 # Path to the parameter grid 
-paramspace: /home/debian/NGS/spezies_indev/FooDMe/.tests/config/params.tsv
+paramspace: /path/to/params.tsv
 # Force recalculation of foodme outputs? True/False
 force_rerun: False

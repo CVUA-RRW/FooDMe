@@ -1,4 +1,4 @@
 workdir: .tests/
-foodme_config: /home/debian/NGS/spezies_indev/FooDMe/.tests/config/config_foodme_paramspace.yaml
-paramspace: /home/debian/NGS/spezies_indev/FooDMe/.tests/config/params.tsv
+foodme_config: config/config_foodme_paramspace.yaml
+paramspace: config/params.tsv
 force_rerun: False

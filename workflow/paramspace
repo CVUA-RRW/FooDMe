@@ -10,13 +10,14 @@ min_version("6.3.0")
 
 shell.executable("bash")
 
-paramspace = Paramspace(pd.read_csv(config['paramspace'], sep="\t"))
-
 
 configfile: os.path.join(workflow.basedir, "..", ".tests", "config", "config_paramspace.yaml")
 
 
 workdir: config["workdir"]
+
+
+paramspace = Paramspace(pd.read_csv(config['paramspace'], sep="\t"))
 
 
 # Input rule ------------------------------------------------------------------
@@ -78,7 +79,7 @@ rule run_foodme_benchmark:
         snakemake -s {params.snakefile} -R benchmark \
             --use-conda --conda-prefix {params.conda_prefix} \
             --cores {params.cores} --configfile {input.config} \
-            --config workdir={params.workdir} {params.force-rerun}
+            --config workdir={params.workdir} {params.force_rerun}
         """
 
 
