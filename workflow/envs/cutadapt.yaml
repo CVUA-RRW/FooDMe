@@ -4,4 +4,4 @@ channels:
   - biooconda
   - defaults
 dependencies:
-  - cutadapt=4.1
+  - cutadapt=4.0
