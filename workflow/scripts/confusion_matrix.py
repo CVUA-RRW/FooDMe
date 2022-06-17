@@ -33,6 +33,7 @@ def format_rank(taxid, tax, ranks): # ranks can pass custom classification
     # Missing ranks ranks are replaced by DummyNodes
     try:
         next_node = [node for node in l if not isinstance(node, txd.DummyNode)][0]
+        
         return next_node.rank
     except IndexError:
         return "root"
@@ -108,8 +109,6 @@ def main(
         lambda x: format_rank(tax.lca([int(x['taxid']),int(x['ref_match'])]), tax, ranks),
         axis=1,
     )
-    # lambda x: format_rank(tax.get(str(int(x['taxid']))), tax, ranks) if tax.isAncestorOf(int(x['ref_match']),int(x['taxid']))
-            # else format_rank(tax.lca([int(x['taxid']),int(x['ref_match'])]), tax, ranks),
 
     # Drop unnescessary columns
     pred = pred.set_index(
