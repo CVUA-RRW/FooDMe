@@ -28,11 +28,14 @@ def format_rank(taxid, tax, ranks): # ranks can pass custom classification
     """
     Return next corresponding rank for given taxid and rank list
     """
-    l=txd.Lineage(taxid)
-    l.filter(ranks)
-    # Missing ranks ranks are replaced by DummyNodes
-    next_node= [node for node in l if not isinstance(node, txd.DummyNode)][0]
-    return next_node.rank
+    try:
+        l=txd.Lineage(taxid)
+        l.filter(ranks)
+        # Missing ranks ranks are replaced by DummyNodes
+        next_node = [node for node in l if not isinstance(node, txd.DummyNode)][0]
+        return next_node.rank
+    except:
+        print(taxid)
 
 
 def main(
@@ -58,7 +61,7 @@ def main(
     # hard-code an extendended rank list to use to filter the ranks?
     try:
         assert(target_rank in txd.linne())
-        ranks =  txd.linne()
+        ranks =  txd.linne()+['root']
     except AssertionError:
         raise ValueError(f"Parameter 'target_rank' must be in {txd.linne()}")
 
@@ -103,10 +106,11 @@ def main(
 
     # Get Lca of exp and pred matches to know what ranks correspond
     pred['match_rank'] = pred.apply(
-        lambda x: format_rank(tax.get(str(int(x['taxid']))), tax, ranks) if tax.isAncestorOf(int(x['ref_match']),int(x['taxid']))
-            else format_rank(tax.lca([int(x['taxid']),int(x['ref_match'])]), tax, ranks),
+        lambda x: format_rank(tax.lca([int(x['taxid']),int(x['ref_match'])]), tax, ranks),
         axis=1,
     )
+    # lambda x: format_rank(tax.get(str(int(x['taxid']))), tax, ranks) if tax.isAncestorOf(int(x['ref_match']),int(x['taxid']))
+            # else format_rank(tax.lca([int(x['taxid']),int(x['ref_match'])]), tax, ranks),
 
     # Drop unnescessary columns
     pred = pred.set_index(
@@ -176,11 +180,3 @@ if __name__ == '__main__':
         target_rank = snakemake.params['target_rank'],
         taxonomy = snakemake.input['tax']
         )
-
-### DEBUG
-compo="Lasagne_clean/reports/Lasagne_clean_composition.tsv"
-truth="config/reference.tsv"
-sample="Lasagne_clean"
-threshold=0.1
-target_rank="genus"
-taxonomy="common/taxonomy.json"

@@ -1,3 +1,9 @@
+### 1.6.1
+
+#### Bug fix
+
+- Fixed handling of last common node calculation in confusion matrix where last common ancesotr is the root node.
+
 ### 1.6.0
 
 **This update is not backwards compatible.**
