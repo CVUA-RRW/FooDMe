@@ -28,15 +28,14 @@ def format_rank(taxid, tax, ranks): # ranks can pass custom classification
     """
     Return next corresponding rank for given taxid and rank list
     """
+    l=txd.Lineage(taxid)
+    l.filter(ranks)
+    # Missing ranks ranks are replaced by DummyNodes
     try:
-        l=txd.Lineage(taxid)
-        l.filter(ranks)
-        # Missing ranks ranks are replaced by DummyNodes
         next_node = [node for node in l if not isinstance(node, txd.DummyNode)][0]
         return next_node.rank
-    except:
-        print(taxid)
-
+    except IndexError:
+        return "root"
 
 def main(
         compo,

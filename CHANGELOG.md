@@ -3,6 +3,7 @@
 #### Bug fix
 
 - Fixed handling of last common node calculation in confusion matrix where last common ancesotr is the root node.
+- Modified dependencies in environement definition files to solve some issues in conda solving
 
 ### 1.6.0
 

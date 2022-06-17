@@ -1,5 +1,6 @@
 name: seqtk
 channels:
+  - conda-forge
   - bioconda
   - defaults
 dependencies:

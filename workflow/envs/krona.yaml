@@ -1,7 +1,7 @@
 name: krona
 channels:
+  - conda-forge
   - bioconda
-  - anaconda
   - defaults
 dependencies:
   - krona=2.8.1
