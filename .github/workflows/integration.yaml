@@ -29,7 +29,7 @@ jobs:
       uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: '.tests'
-        snakefile: 'workflow/Snakefile'
+        snakefile: 'workflow/benchmark'
         args: "benchmark -j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config.yaml"
         stagein: |
           conda config --set channel_priority strict
@@ -63,7 +63,7 @@ jobs:
       uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: '.tests'
-        snakefile: 'workflow/Snakefile'
+        snakefile: 'workflow/benchmark'
         args: "benchmark -j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config_otu.yaml"
         stagein: |
           conda config --set channel_priority strict
@@ -88,7 +88,7 @@ jobs:
       uses: snakemake/snakemake-github-action@v1.24.0
       with:
         directory: '.tests'
-        snakefile: 'workflow/Snakefile'
+        snakefile: 'workflow/paramspace'
         args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config_paramspace.yaml"
         stagein: |
             conda config --set channel_priority strict
@@ -97,7 +97,7 @@ jobs:
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
       with:
-        name: foodme-fail-otu
+        name: foodme-fail-pspace
         path: .tests/logs/
         if-no-files-found: error
         retention-days: 3
