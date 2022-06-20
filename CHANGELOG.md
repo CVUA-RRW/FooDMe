@@ -4,6 +4,7 @@
 
 - Moved the benchmark module form a rule to a workflow. THis allows to ignore the benchmark arguments when running routine
   analysis, as originally intended. Benchmarking is now called with the  `-s path/to/FooDMe/woorkflow/benchmark` argument.
+  This has no impact on the basic analysis (no `-s` argument) or the paramspace analysis (`-s path/to/FooDMe/woorkflow/paramspace`).
 
 #### Documentation
 
