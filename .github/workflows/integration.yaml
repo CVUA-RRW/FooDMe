@@ -25,15 +25,6 @@ jobs:
         stagein: |
             conda config --set channel_priority strict
     
-    - name: Test benchmark
-      uses: snakemake/snakemake-github-action@v1.23.0
-      with:
-        directory: '.tests'
-        snakefile: 'workflow/benchmark'
-        args: "benchmark -j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config.yaml"
-        stagein: |
-          conda config --set channel_priority strict
-    
     - name: Archive logs on fail
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
@@ -59,12 +50,28 @@ jobs:
         stagein: |
             conda config --set channel_priority strict
     
+    - name: Archive logs on fail
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: foodme-fail-otu
+        path: .tests/logs/
+        if-no-files-found: error
+        retention-days: 3
+  
+  Testing_benchmark:
+    runs-on: ubuntu-latest
+    steps:
+        
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    
     - name: Test benchmark
       uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: '.tests'
         snakefile: 'workflow/benchmark'
-        args: "benchmark -j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config_otu.yaml"
+        args: "-j 1 --use-conda --conda-cleanup-pkgs cache --conda-prefix envs --show-failed-logs --configfile .tests/config/config.yaml"
         stagein: |
           conda config --set channel_priority strict
     
@@ -72,7 +79,7 @@ jobs:
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
       with:
-        name: foodme-fail-otu
+        name: foodme-fail-benchmark
         path: .tests/logs/
         if-no-files-found: error
         retention-days: 3

@@ -1,3 +1,15 @@
+### 1.6.2
+
+#### Bug fix
+
+- Moved the benchmark module form a rule to a workflow. THis allows to ignore the benchmark arguments when running routine
+  analysis, as originally intended. Benchmarking is now called with the  `-s path/to/FooDMe/woorkflow/benchmark` argument.
+
+#### Documentation
+
+- Fixed a few errors in the `config.yaml` comments
+- Modified documentation of the `benchmark` module
+
 ### 1.6.1
 
 #### Bug fix

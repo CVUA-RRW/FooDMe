@@ -76,7 +76,7 @@ rule run_foodme_benchmark:
         """
         exec 2> {log}
 
-        snakemake -s {params.snakefile} -R benchmark \
+        snakemake -s {params.snakefile} \
             --use-conda --conda-prefix {params.conda_prefix} \
             --cores {params.cores} --configfile {input.config} \
             --config workdir={params.workdir} {params.force_rerun}

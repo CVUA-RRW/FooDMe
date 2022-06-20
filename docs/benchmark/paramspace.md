@@ -53,7 +53,7 @@ the `--config` argument.
 
 ## Running a parameter space analyis
 
-The parameter space analysis is organized in a separate workflow from foodem, it is
+The parameter space analysis is organized in a separate workflow from foodme, it is
 therefore nescessary to point snakemake to the correct workflow definition:
 
 ```
