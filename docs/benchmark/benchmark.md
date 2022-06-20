@@ -35,12 +35,12 @@ The benchmarking module requires three additional parameters (see [Configuration
 
 ## Usage
 
-The basic usage only differs to the basic analysis by specifying the `benchmark` 
-target directly after the `snakemake` call:
+The usage only differs to the basic analysis by pointing snakemake to the `benchmark` workflow
+rather than the default `Snakefile`:
 
 ```bash
 conda activate snakemake
-snakemake benchmark \
+snakemake -s ~/FooDMe/workflow/benchmark \
   --use-conda --conda-prefix ~/conda-envs --cores 1 \
   --configfile ~/FooDMe/config/myconfig.yaml
 ```

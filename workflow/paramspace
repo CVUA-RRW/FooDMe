@@ -66,7 +66,7 @@ rule run_foodme_benchmark:
         f"benchmark/{paramspace.wildcard_pattern}/ressource_usage.tsv"
     params:
         workdir=f"foodme_runs/{paramspace.wildcard_pattern}",
-        snakefile=os.path.join(workflow.basedir, "Snakefile"),
+        snakefile=os.path.join(workflow.basedir, "benchmark"),
         cores=workflow.cores,
         conda_prefix=workflow.conda_prefix,
         force_rerun="--forceall" if config["force_rerun"] else ""
@@ -76,7 +76,7 @@ rule run_foodme_benchmark:
         """
         exec 2> {log}
 
-        snakemake -s {params.snakefile} -R benchmark \
+        snakemake -s {params.snakefile} \
             --use-conda --conda-prefix {params.conda_prefix} \
             --cores {params.cores} --configfile {input.config} \
             --config workdir={params.workdir} {params.force_rerun}

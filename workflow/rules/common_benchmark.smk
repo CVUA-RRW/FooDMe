@@ -20,6 +20,17 @@ validate(samples, schema="../schema/samples.schema.yaml")
 samples.index = samples.index.astype("str", copy=False)
 
 
+# Loading and validationg benchmark reference --------
+reference_path = config["benchmark_reference"]
+reference = pd.read_csv(reference_path, index_col="sample", sep="\t", engine="python")
+validate(reference, schema="../schema/reference.schema.yaml")
+reference.index = reference.index.astype("str", copy=False)
+# Get union of reference and samples to use for benchmarking
+samples_set = set(samples.index)
+reference_set = set(reference.index)
+benchmark_index = list(samples_set.intersection(reference_set))
+
+
 # General puprose functions --------------------------
 def get_local_time():
     return time.asctime(time.localtime(time.time()))
