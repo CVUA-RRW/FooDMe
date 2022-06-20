@@ -41,9 +41,9 @@ primers_fasta: /path/to/primer/fasta --> MODIFY <--
 blast_DB: /path/to/BLAST_folder/db_base_name --> MODIFY <--
 # Path to the folder containing the `taxdb`files
 taxdb: /path/to/taxdb_folder --> MODIFY <--
-# Path to the nodes.dmp file
+# Path to the rankedlineage.dmp.dmp file
 rankedlineage_dmp: /path/to/rankedlineage.dmp --> MODIFY <--
-# Path to the names.dmp file
+# Path to the nodes.dmp file
 nodes_dmp: /path/to/nodes.dmp --> MODIFY <--
 
 # Analysis parameters
@@ -98,6 +98,9 @@ bit_score_diff: 4
 
 # Benchmarking parameters
 # -----------------------
+
+## DO NOT DELETE the parameters below.
+## Leave the default values if not using benchmarking
 
 # Path to the table of reference sample composition
 benchmark_reference: config/reference.tsv
