@@ -263,7 +263,7 @@ rule collect_blast_stats:
             "reports/blast_stats.tsv",
             caption="../report/blast_stats.rst",
             category="Quality controls",
-        ),
+        )
     message:
         "Aggregating BLAST stats"
     conda:
@@ -272,10 +272,9 @@ rule collect_blast_stats:
         "logs/all/blast_stats.log",
     shell:
         """
-        exec 2> {log}
-        cat {input.report[0]} | head -n 1 > {output.agg}
+        head -n 1 {input.report[0]} > {output.agg}
         for i in {input.report}; do 
-            cat ${{i}} | tail -n +2 >> {output.agg}
+          cat ${{i}} | tail -n +2 >> {output.agg}
         done
         """
 

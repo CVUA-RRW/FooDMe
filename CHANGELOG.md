@@ -1,3 +1,10 @@
+### Dev
+
+#### Bug fix
+
+- Small fix to report aggregation rules for a rarely happening failure
+- Fixed composition summary when input is empty
+
 ### 1.6.2
 
 #### Bug fix

@@ -34,7 +34,7 @@ def main(compo, report, sample):
     if len(df["Query"]) == 1 and df["Query"].head(1).item() == "-":
         with open(report, "w") as fout:
             fout.write(
-                "Sample\tConsensus\tRank\tTaxid\tCount\tDisambiguation\tPercent of total"
+                "Sample\tConsensus\tRank\tTaxid\tCount\tDisambiguation\tPercent of total\tPercent of assigned"
             )
 
     else:

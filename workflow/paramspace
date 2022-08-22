@@ -131,27 +131,27 @@ rule aggregate_metrics:
         """
         exec 2> {log}
 
-        cat {input.benchmark[0]} | head -n 1 > {output.benchmark}
+        head -n 1  {input.benchmark[0]} > {output.benchmark}
         for i in {input.benchmark}; do 
             cat ${{i}} | tail -n +2 >> {output.benchmark}
         done
 
-        cat {input.confmat[0]} | head -n 1 > {output.confmat}
+        head -n 1  {input.confmat[0]}  > {output.confmat}
         for i in {input.confmat}; do 
             cat ${{i}} | tail -n +2 >> {output.confmat}
         done
 
-        cat {input.yields[0]} | head -n 1 > {output.yields}
+        head -n 1  {input.yields[0]} > {output.yields}
         for i in {input.yields}; do 
             cat ${{i}} | tail -n +2 >> {output.yields}
         done
 
-        cat {input.metrics[0]} | head -n 1 > {output.metrics}
+        head -n 1  {input.metrics[0]} > {output.metrics}
         for i in {input.metrics}; do 
             cat ${{i}} | tail -n +2 >> {output.metrics}
         done
 
-        cat {input.pr_curve[0]} | head -n 1 > {output.pr_curve}
+        head -n 1  {input.pr_curve[0]} > {output.pr_curve}
         for i in {input.pr_curve}; do 
             cat ${{i}} | tail -n +2 >> {output.pr_curve}
         done
