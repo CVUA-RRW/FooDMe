@@ -1,11 +1,17 @@
 ---
 name: Question
 about: Ask a question about this project
-title: ''
+title: '[Question] Question title'
 labels: question
 assignees: ''
 
 ---
+
+--->
+To use this template, make sure you provide a meaningful title (please leave the tag within the brackets)
+to this report, fill in the informations below and delete this message.
+<---
+
 
 **Checklist**
 

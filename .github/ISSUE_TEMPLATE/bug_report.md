@@ -1,11 +1,17 @@
 ---
-name: Bug report
+name: Bug report 
 about: Something isn´t working
-title: ''
+title: '[BUG] Problem title'
 labels: bug
 assignees: ''
-
 ---
+
+
+--->
+To use this template, make sure you provide a meaningful title (please leave the tag within the brackets)
+to this report, fill in the informations below and delete this message.
+<---
+
 
 **Version**
 

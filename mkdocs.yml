@@ -80,7 +80,7 @@ extra:
           data: 0
           note: >-
             Thanks for your feedback! Help us improve this page by 
-            <a href="https://github.com/CVUA-RRW/FooDMe/issues/new/?title=[Feedback]+{title}+-+{url}" target="_blank" rel="noopener">telling us what you need</a>.
+            <a href="https://github.com/CVUA-RRW/FooDMe/issues/new/?title=[Webdoc Feedback]+{title}+-+{url}" target="_blank" rel="noopener">telling us what you need</a>.
   consent:
     title: Cookie consent
     description: >-
@@ -88,6 +88,7 @@ extra:
       as to measure the effectiveness of our documentation and whether users
       find what they're searching for. With your consent, you're helping us to
       make our documentation better.
+      You can change your cookie settings at any time.
 
 markdown_extensions:
   - attr_list
