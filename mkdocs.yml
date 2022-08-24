@@ -64,6 +64,30 @@ extra:
   version:
     provider: mike
     default: stable
+  analytics:
+    provider: google
+    property: G-Q2XQTDWNGB
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/thumb-up-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/thumb-down-outline
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback! Help us improve this page by 
+            <a href="https://github.com/CVUA-RRW/FooDMe/issues/new/?title=[Feedback]+{title}+-+{url}" target="_blank" rel="noopener">telling us what you need</a>.
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
 
 markdown_extensions:
   - attr_list
@@ -88,5 +112,7 @@ extra_javascript:
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
-copyright: Copyright &copy; 2020 - 2022 Grégoire Denay
+copyright: >
+  Copyright &copy; 2020 - 2022 Grégoire Denay -
+  <a href="#__consent">Change cookie settings</a>
 
