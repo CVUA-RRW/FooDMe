@@ -2,7 +2,7 @@
 
 #### Bug fix
 
-- Fixed major porblem in confusion matrix determnination for the benchmark module. Confusion matrix and calculated metrics were wrong prior to this fix.
+- Fixed major porblem in confusion matrix determnination for the benchmark module. Prior to this fix, False negatives are not correctly reported !.
 - Small fix to report aggregation rules for a rarely happening failure
 - Fixed composition summary when input is empty
 

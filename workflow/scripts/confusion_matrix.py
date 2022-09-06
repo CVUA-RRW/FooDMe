@@ -24,19 +24,24 @@ def closest_node(taxid, ref_taxids, tax):
     return ref_taxids[np.argmin(dists)]
 
 
-def format_rank(taxid, tax, ranks): # ranks can pass custom classification
+def format_rank(taxid, tax, ranks, target_rank): # ranks can pass custom classification
     """
-    Return next corresponding rank for given taxid and rank list
+    Return node corresponding to target rank if it exists, otherwise
+    return node at next corresponding rank for given taxid and rank list
     """
     l=txd.Lineage(taxid)
     l.filter(ranks)
     # Missing ranks ranks are replaced by DummyNodes
     try:
-        next_node = [node for node in l if not isinstance(node, txd.DummyNode)][0]
-        
-        return next_node.rank
+        target_node = [node for node in l if node.rank == target_rank][0]
+        if target_node and not isinstance(target_node, txd.DummyNode):
+            return target_node
+        else:
+            next_node = [node for node in l if not isinstance(node, txd.DummyNode)][0]
+            return next_node
     except IndexError:
         return "root"
+
 
 def main(
         compo,
@@ -98,42 +103,58 @@ def main(
 
     ### Part2: Checking the acceptability of predictions ---------------------
 
+    # Normalize ranks to rank threshold if lower
+    pred['norm_taxid'] = pred.apply(
+        lambda x: format_rank(tax.get(str(x['taxid'])), tax, ranks, target_rank).taxid,
+        axis=1,
+    )
+
+    pred['norm_rank'] = pred.apply(
+        lambda x: tax.getRank(x['norm_taxid']),
+        axis=1,
+    )
+
+    exp['norm_taxid'] = exp.apply(
+        lambda x: format_rank(tax.get(str(x['taxid'])), tax, ranks, target_rank).taxid,
+        axis=1,
+    )
+
     # Find matches 
     pred['ref_match'] = pred.apply(
-        lambda x: closest_node(int(x['taxid']), exp.loc[:,'taxid'].astype(int).to_list(), tax), 
+        lambda x: closest_node(int(x['norm_taxid']), exp.loc[:,'norm_taxid'].astype(int).to_list(), tax), 
         axis=1,
     )
 
-    # Format pred_rank
-    pred['pred_rank'] = pred.apply(
-        lambda x: format_rank(tax.get(str(x['taxid'])), tax, ranks),
-        axis=1,
-    )
-    
     # Get Lca of exp and pred matches to know what ranks correspond
     pred['match_rank'] = pred.apply(
-        lambda x: format_rank(tax.lca([int(x['taxid']),int(x['ref_match'])]), tax, ranks),
+        lambda x: format_rank(tax.lca([int(x['taxid']),int(x['ref_match'])]), tax, ranks, target_rank).rank,
         axis=1,
     )
 
-    # Drop unnescessary columns
+    # Reindex pred
     pred = pred.set_index(
-        'taxid'
-        ).filter(
-            items=['pred_ratio', 'pred_rank', 'ref_match', 'match_rank']
-         )
-
-    # Counts as predicted only if quantif above threshold and prediction rank (NOT matching rank) is above min rank
+            'norm_taxid'
+            ).filter(
+                items=['pred_ratio', 'norm_rank', 'ref_match', 'match_rank']
+             )
+    # Counts as predicted only if quantif above threshold and norm rank (NOT matching rank) is above min rank
     # Index of max accepted rank
     max_index = ranks.index(target_rank)
-    
+
     pred['predicted'] = pred.apply(
-        lambda x: 1 if (x['pred_ratio']>=threshold) and (ranks.index(x['pred_rank'])<= max_index) else 0,
+        lambda x: 1 if (float(x['pred_ratio'])>=float(threshold)) and (ranks.index(x['norm_rank'])<= max_index) else 0,
         axis=1
     )
 
-    exp = exp.set_index('taxid'
-        ).filter(items=['exp_ratio']
+    # Reindex exp
+    exp = exp.astype(
+            {'norm_taxid':int}
+        ).rename(
+            columns={'norm_taxid': 'Taxid'}
+        ).set_index(
+            'Taxid'
+        ).filter(
+            items=['exp_ratio']
         )
     exp['expected'] = 1
 
@@ -142,8 +163,8 @@ def main(
     # reindex predicted using ref_match, keep taxid as info and sum ratios below the rank limit
     # This is to avoid merging data on assignement with too high rank for duplicated taxa
     pred['ref_match'] = [
-        match_val if ranks.index(match_rank) <= max_index
-        else taxid_val
+        match_val if ranks.index(match_rank) <= max_index # Leave as is if matching rank is under threshold
+        else taxid_val  # Otherwise take the normalized taxid  
         for taxid_val, match_val, match_rank in zip(pred.index, pred['ref_match'], pred['match_rank'])
         ]
 
@@ -151,6 +172,8 @@ def main(
                     drop=True
                 ).rename(
                     columns={'ref_match': 'Taxid'}
+                ).astype(
+                    {'Taxid':int}
                 ).groupby(
                     ["Taxid", "predicted", "match_rank"]
                 ).sum()
@@ -158,12 +181,8 @@ def main(
     conftable = conftable.astype({ "match_rank": str, 'predicted': int, 'pred_ratio': float})
     exp = exp.astype({'expected': int, 'exp_ratio': float})
 
-    conftable = pd.merge(
-        conftable, 
-        exp,
-        how='outer',
-        left_index=True,
-        right_index=True)
+    conftable = conftable.join(exp,
+        how='outer')
 
     # Missing values are missagnignements!
     conftable = conftable.fillna(0)
