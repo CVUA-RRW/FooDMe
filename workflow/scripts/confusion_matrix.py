@@ -104,6 +104,12 @@ def main(
         axis=1,
     )
 
+    # Format pred_rank
+    pred['pred_rank'] = pred.apply(
+        lambda x: format_rank(tax.get(str(x['taxid'])), tax, ranks),
+        axis=1,
+    )
+    
     # Get Lca of exp and pred matches to know what ranks correspond
     pred['match_rank'] = pred.apply(
         lambda x: format_rank(tax.lca([int(x['taxid']),int(x['ref_match'])]), tax, ranks),
@@ -114,15 +120,15 @@ def main(
     pred = pred.set_index(
         'taxid'
         ).filter(
-            items=['pred_ratio', "ref_match", "match_rank"]
+            items=['pred_ratio', 'pred_rank', 'ref_match', 'match_rank']
          )
 
-    # Counts as predicted only if quantif above threshold and rank under limit
+    # Counts as predicted only if quantif above threshold and prediction rank (NOT matching rank) is above min rank
     # Index of max accepted rank
     max_index = ranks.index(target_rank)
     
     pred['predicted'] = pred.apply(
-        lambda x: 1 if (x['pred_ratio']>=threshold) and (ranks.index(x['match_rank'])<= max_index) else 0,
+        lambda x: 1 if (x['pred_ratio']>=threshold) and (ranks.index(x['pred_rank'])<= max_index) else 0,
         axis=1
     )
 
