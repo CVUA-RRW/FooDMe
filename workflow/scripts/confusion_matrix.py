@@ -175,9 +175,15 @@ def main(
                 ).astype(
                     {'Taxid':int}
                 ).groupby(
-                    ["Taxid", "predicted", "match_rank"]
+                    ["Taxid", "match_rank"]
                 ).sum()
-    conftable = conftable.reset_index(["match_rank", "predicted"])
+
+    conftable['predicted'] = conftable.apply(
+        lambda x: 1 if x['predicted']>=1 else 0,
+        axis=1
+    )
+
+    conftable = conftable.reset_index(["match_rank"])
     conftable = conftable.astype({ "match_rank": str, 'predicted': int, 'pred_ratio': float})
     exp = exp.astype({'expected': int, 'exp_ratio': float})
 

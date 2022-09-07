@@ -1,8 +1,8 @@
-### Dev
+### 1.6.3
 
 #### Bug fix
 
-- Fixed major porblem in confusion matrix determnination for the benchmark module. Prior to this fix, False negatives are not correctly reported !.
+- Fixed major problem in confusion matrix determnination for the benchmark module. Prior to this fix, False negatives were not correctly reported.
 - Small fix to report aggregation rules for a rarely happening failure
 - Fixed composition summary when input is empty
 
