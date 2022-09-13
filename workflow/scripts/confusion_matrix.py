@@ -27,20 +27,29 @@ def closest_node(taxid, ref_taxids, tax):
 def format_rank(taxid, tax, ranks, target_rank): # ranks can pass custom classification
     """
     Return node corresponding to target rank if it exists, otherwise
-    return node at next corresponding rank for given taxid and rank list
+    return node at next corresponding rank for given taxid and rank list.
+    
+    If target_rank is None, returns node at next corresponding rank for given taxid and rank list.
     """
     l=txd.Lineage(taxid)
     l.filter(ranks)
     # Missing ranks ranks are replaced by DummyNodes
-    try:
-        target_node = [node for node in l if node.rank == target_rank][0]
-        if target_node and not isinstance(target_node, txd.DummyNode):
-            return target_node
-        else:
+    if target_rank:
+        try:
+            target_node = [node for node in l if node.rank == target_rank][0]
+            if target_node and not isinstance(target_node, txd.DummyNode):
+                return target_node
+            else:
+                next_node = [node for node in l if not isinstance(node, txd.DummyNode)][0]
+                return next_node
+        except IndexError:
+            return tax.get('1')
+    else:
+        try:
             next_node = [node for node in l if not isinstance(node, txd.DummyNode)][0]
             return next_node
-    except IndexError:
-        return "root"
+        except IndexError:
+            return tax.get('1')
 
 
 def main(
@@ -66,7 +75,7 @@ def main(
     # hard-code an extendended rank list to use to filter the ranks?
     try:
         assert(target_rank in txd.linne())
-        ranks =  txd.linne()+['root']
+        ranks =  txd.linne()+['no rank']
     except AssertionError:
         raise ValueError(f"Parameter 'target_rank' must be in {txd.linne()}")
 
@@ -103,6 +112,12 @@ def main(
 
     ### Part2: Checking the acceptability of predictions ---------------------
 
+    # Adding prediction rank INDEX in the rank list
+    pred['pred_rank'] = pred.apply(
+        lambda x: ranks.index(format_rank(tax.get(str(x['taxid'])), tax, ranks, None).rank),
+        axis=1,
+    )
+
     # Normalize ranks to rank threshold if lower
     pred['norm_taxid'] = pred.apply(
         lambda x: format_rank(tax.get(str(x['taxid'])), tax, ranks, target_rank).taxid,
@@ -135,7 +150,7 @@ def main(
     pred = pred.set_index(
             'norm_taxid'
             ).filter(
-                items=['pred_ratio', 'norm_rank', 'ref_match', 'match_rank']
+                items=['pred_ratio', 'pred_rank', 'norm_rank', 'ref_match', 'match_rank']
              )
     # Counts as predicted only if quantif above threshold and norm rank (NOT matching rank) is above min rank
     # Index of max accepted rank
@@ -176,15 +191,12 @@ def main(
                     {'Taxid':int}
                 ).groupby(
                     ["Taxid", "match_rank"]
-                ).sum()
-
-    conftable['predicted'] = conftable.apply(
-        lambda x: 1 if x['predicted']>=1 else 0,
-        axis=1
-    )
+                ).agg({'pred_ratio': 'sum',
+                       'pred_rank': lambda x: ranks[x.min()],
+                       'predicted': lambda x: 1 if x.max() >0 else 0})
 
     conftable = conftable.reset_index(["match_rank"])
-    conftable = conftable.astype({ "match_rank": str, 'predicted': int, 'pred_ratio': float})
+    conftable = conftable.astype({ "match_rank": str, 'predicted': int, 'pred_ratio': float, 'pred_rank': str})
     exp = exp.astype({'expected': int, 'exp_ratio': float})
 
     conftable = conftable.join(exp,
@@ -194,7 +206,7 @@ def main(
     conftable = conftable.fillna(0)
     conftable = conftable.reset_index().rename(columns={'index': 'Taxid'})
     conftable["Sample"] = sample
-    conftable = conftable[['Sample', 'Taxid',  "match_rank", 'predicted', 'expected', 'pred_ratio', 'exp_ratio']]
+    conftable = conftable[['Sample', 'Taxid',  'match_rank', 'pred_rank', 'predicted', 'expected', 'pred_ratio', 'exp_ratio']]
 
     conftable.to_csv(output, sep="\t", header=True, index=False)
 

@@ -1,5 +1,8 @@
 ### 1.6.3
 
+#### Improvements
+- Benchmarking: confusion table now reports prediction rank as well
+
 #### Bug fix
 
 - Fixed major problem in confusion matrix determnination for the benchmark module. Prior to this fix, False negatives were not correctly reported.
