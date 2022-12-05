@@ -145,7 +145,13 @@ def main(
         lambda x: format_rank(tax.lca([int(x['taxid']),int(x['ref_match'])]), tax, ranks, target_rank).rank,
         axis=1,
     )
-
+    
+    # Handle case where ref > normalized rank (e.g. looking for taxa at genus level but reference given at fam level)
+    pred['norm_taxid'] = pred.apply(
+        lambda x: x['ref_match'] if tax.isAncestorOf(int(x['ref_match']), int(x['norm_taxid'])) else x['norm_taxid'],
+        axis=1,
+    )
+    
     # Reindex pred
     pred = pred.set_index(
             'norm_taxid'
@@ -206,7 +212,8 @@ def main(
     conftable = conftable.fillna(0)
     conftable = conftable.reset_index().rename(columns={'index': 'Taxid'})
     conftable["Sample"] = sample
-    conftable = conftable[['Sample', 'Taxid',  'match_rank', 'pred_rank', 'predicted', 'expected', 'pred_ratio', 'exp_ratio']]
+    conftable['Name'] = conftable.apply(lambda x: tax.getName(int(x['Taxid'])), axis=1)
+    conftable = conftable[['Sample', 'Taxid', 'Name', 'match_rank', 'pred_rank', 'predicted', 'expected', 'pred_ratio', 'exp_ratio']]
 
     conftable.to_csv(output, sep="\t", header=True, index=False)
 
