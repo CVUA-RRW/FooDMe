@@ -10,7 +10,7 @@ rule get_primer_revcomp:
     params:
         primers=config["primers_fasta"],
     message:
-        "Reverse-complementing primers"
+        "[Common][trimming] reverse-complementing primers"
     conda:
         "../envs/seqtk.yaml"
     log:
@@ -38,7 +38,7 @@ rule cutadapt:
         primer_3p=config["trim_primers_3end"],
         primers=config["primers_fasta"],
     message:
-        "Trimming primers on {wildcards.sample}"
+        "[{wildcards.sample}][trimming] trimming primers"
     conda:
         "../envs/cutadapt.yaml"
     log:
@@ -95,7 +95,7 @@ rule primer_trimming_stats:
     output:
         report=temp("{sample}/trimmed/{sample}_primer_trimming.tsv"),
     message:
-        "Collecting primer trimming statisctics for {wildcards.sample}"
+        "[{wildcards.sample}][trimming] collecting primer trimming statisctics"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -143,7 +143,7 @@ rule run_fastp:
         mean_qual=config["qctrim_mean_quality"],
     threads: config["threads_sample"]
     message:
-        "Running fastp on {wildcards.sample}"
+        "[{wildcards.sample}][trimming] running fastp"
     conda:
         "../envs/fastp.yaml"
     log:
@@ -172,7 +172,7 @@ rule parse_fastp:
     output:
         tsv=temp("{sample}/trimmed/{sample}_fastp.tsv"),
     message:
-        "Parsing fastp json report for {wildcards.sample}"
+        "[{wildcards.sample}][trimming] parsing fastp json report"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -191,7 +191,7 @@ rule trimming_stats:
     output:
         report="{sample}/reports/{sample}_trimmed.tsv",
     message:
-        "Merging trimming stats for {wildcards.sample}"
+        "[{wildcards.sample}][trimming] merging trimming stats"
     log:
         "logs/{sample}/trimming_stats.log",
     conda:
@@ -212,7 +212,7 @@ rule collect_trimming_stats:
             category="Quality controls",
         ),
     message:
-        "Aggregating fastp stats"
+        "[All][trimming] aggregating fastp stats"
     log:
         "logs/all/trimming_stats.log",
     conda:

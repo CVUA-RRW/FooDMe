@@ -12,7 +12,7 @@ rule prep_taxonomy:
         rankedlineage=config["rankedlineage_dmp"],
         taxid=config["taxid_filter"],
     message:
-        "Preparing taxonomy definitions"
+        "[Common][assignement] preparing taxonomy definitions"
     conda:
         "../envs/taxidtools.yaml"
     log:
@@ -28,7 +28,7 @@ rule get_taxid_from_db:
         blast_DB=config["blast_DB"],
         taxdb=config["taxdb"],
     message:
-        "Collecting BLAST database entries"
+        "[Common][assignement] collecting BLAST database entries"
     conda:
         "../envs/blast.yaml"
     log:
@@ -51,7 +51,7 @@ rule create_blast_mask:
     output:
         mask="common/taxid_mask.txt",
     message:
-        "Masking BLAST Database"
+        "[Common][assignement] masking BLAST Database"
     params:
         taxid=config["taxid_filter"],
     message:
@@ -71,7 +71,7 @@ rule apply_blocklist:
     output:
         mask="common/blast_mask.txt",
     message:
-        "Applying taxid blocklist"
+        "[Common][assignement] applying taxid blocklist"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -84,7 +84,7 @@ rule no_masking:
     output:
         mask=temp("common/nomask"),
     message:
-        "Skipping BLAST database masking"
+        "[Common][assignement] Skipping BLAST database masking"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -99,7 +99,7 @@ rule no_blocklist:
     output:
         block=temp("common/noblock"),
     message:
-        "Skipping taxid blocklist cration"
+        "[Common][assignement] skipping taxid blocklist cration"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -129,7 +129,7 @@ rule blast_otus:
         qcov=config["blast_qcov"],
     threads: config["threads"]
     message:
-        "BLASTing {wildcards.sample} clusters against local database"
+        "[{wildcards.sample}][assignement] BLASTing clusters against local database"
     conda:
         "../envs/blast.yaml"
     log:
@@ -168,7 +168,7 @@ rule filter_blast:
     params:
         bit_diff=config["bit_score_diff"],
     message:
-        "Filtering BLAST results for {wildcards.sample}"
+        "[{wildcards.sample}][assignement] filtering BLAST results"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -186,7 +186,7 @@ rule find_consensus:
     params:
         min_consensus=config["min_consensus"],
     message:
-        "Consensus taxonomy determination"
+        "[{wildcards.sample}][assignement] consensus taxonomy determination"
     log:
         "logs/{sample}/find_consensus.log",
     conda:
@@ -211,7 +211,7 @@ rule blast_stats:
     params:
         bit_diff=config["bit_score_diff"],
     message:
-        "Collecting BLAST stats for {wildcards.sample}"
+        "[{wildcards.sample}][assignement] collecting BLAST stats"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -265,7 +265,7 @@ rule collect_blast_stats:
             category="Quality controls",
         )
     message:
-        "Aggregating BLAST stats"
+        "[All][assignement] aggregating BLAST stats"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -285,7 +285,7 @@ rule tax_stats:
     output:
         "{sample}/reports/{sample}_taxonomy_assignement_stats.tsv",
     message:
-        "Collecting taxonomy assignement stats for {wildcards.sample}"
+        "[{wildcards.sample}][assignement] collecting taxonomy assignement stats"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -332,7 +332,7 @@ rule collect_tax_stats:
             category="Quality controls",
         ),
     message:
-        "Collecting taxonomy assignement stats"
+        "[All][assignement] collecting taxonomy assignement stats"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -360,7 +360,7 @@ rule summarize_results:
     params:
         sample_name=lambda w, input: w.sample,
     message:
-        "Summarizing results for {wildcards.sample}"
+        "[{wildcards.sample}][assignement] summarizing results"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -380,7 +380,7 @@ rule collect_results:
             subcategory="Global",
         ),
     message:
-        "Aggregating compositions"
+        "[All][assignement] aggregating compositions"
     conda:
         "../envs/pandas.yaml"
     log:

@@ -17,7 +17,7 @@ rule confusion_matrix:
         target_rank=config["benchmark_rank"],
         sample=lambda w: w.bchmk_sample,
     message:
-        "Calculating confusion table for {wildcards.bchmk_sample}"
+        "[{wildcards.bchmk_sample}][benchamrking] calculating confusion table"
     conda:
         "../envs/taxidtools.yaml"
     log:
@@ -39,7 +39,7 @@ rule collect_confusion_matrices:
             category="Benchmarking",
         ),
     message:
-        "Collecting confusion tables"
+        "[All][benchamrking] collecting confusion tables"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -60,7 +60,7 @@ rule yields:
     output:
         yields="{bchmk_sample}/benchmarking/{bchmk_sample}_yield.tsv",
     message:
-        "Calculating yield for {wildcards.bchmk_sample}"
+        "[{wildcards.bchmk_sample}][benchamrking] calculating yield"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -104,7 +104,7 @@ rule collect_yield:
             category="Benchmarking",
         ),
     message:
-        "Collecting yield reports"
+        "[All][benchamrking] collecting yield reports"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -127,7 +127,7 @@ rule metrics_sample:
     params:
         sample=lambda w: w.bchmk_sample,
     message:
-        "Calculating metrics for {wildcards.bchmk_sample}"
+        "[{wildcards.bchmk_sample}][benchamrking] calculating metrics for {wildcards.bchmk_sample}"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -144,7 +144,7 @@ rule metrics_global:
     params:
         sample="all",
     message:
-        "Calculating metrics for aggregated samples"
+        "[All][benchamrking] calculating metrics for aggregated samples"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -167,7 +167,7 @@ rule collect_benchmarking_metrics:
             category="Benchmarking",
         ),
     message:
-        "Collecting metrics reports"
+        "[All][benchamrking] collecting metrics reports"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -188,7 +188,7 @@ rule prcurve:
     output:
         pr_curve="benchmarking/pr_curve.tsv",
     message:
-        "Calculating precision-recall curve"
+        "[All][benchamrking] calculating precision-recall curve"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -216,7 +216,7 @@ rule benchmarking_report:
         version=version,
         logo=f"{workflow.basedir}/../docs/logo.png",
     message:
-        "Creating benchmarking report"
+        "[All][benchamrking] creating benchmarking report"
     conda:
         "../envs/rmarkdown.yaml"
     log:

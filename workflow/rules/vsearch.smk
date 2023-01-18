@@ -15,7 +15,7 @@ rule merge_reads:
         notmerged_rev=temp("{sample}/pseudo_reads/{sample}_notmerged_rev.fasta"),
     threads: config["threads_sample"]
     message:
-        "Merging reads on {wildcards.sample}"
+        "[{wildcards.sample}] merging reads"
     conda:
         "../envs/vsearch.yaml"
     log:
@@ -38,7 +38,7 @@ rule qual_stat:
     output:
         stat="{sample}/pseudo_reads/{sample}_merged_qual.txt",
     message:
-        "Collecting quality statistics for {wildcards.sample}"
+        "[{wildcards.sample}] collecting quality statistics"
     conda:
         "../envs/vsearch.yaml"
     log:
@@ -63,7 +63,7 @@ rule quality_filter:
         maxee=config["max_expected_errors"],
         maxns=config["max_ns"],
     message:
-        "Quality filtering {wildcards.sample}"
+        "[{wildcards.sample}] quality filtering"
     conda:
         "../envs/vsearch.yaml"
     log:
@@ -87,7 +87,7 @@ rule dereplicate:
     output:
         derep="{sample}/pseudo_reads/{sample}_derep.fasta",
     message:
-        "Dereplicating {wildcards.sample}"
+        "[{wildcards.sample}] dereplicating"
     conda:
         "../envs/vsearch.yaml"
     log:
@@ -113,7 +113,7 @@ rule qc_stats:
     output:
         merging="{sample}/reports/{sample}_merging.tsv",
     message:
-        "Collecting quality filtering summary for {wildcards.sample}"
+        "[{wildcards.sample}] collecting quality filtering summary "
     log:
         "logs/{sample}/qc_stats.log",
     shell:
@@ -166,7 +166,7 @@ rule collect_qc_stats:
             category="Quality controls",
         ),
     message:
-        "Collecting quality filtering stats"
+        "[All] collecting quality filtering stats"
     log:
         "logs/all/qc_stats.log",
     shell:
@@ -195,7 +195,7 @@ rule cluster:
         "../envs/vsearch.yaml"
     threads: config["threads"]
     message:
-        "Distance greedy clustering sequences for {wildcards.sample}"
+        "[{wildcards.sample}] distance greedy clustering sequences"
     log:
         "logs/{sample}/clustering.log",
     shell:
@@ -220,7 +220,7 @@ rule sort_otu:
         "../envs/vsearch.yaml"
     threads: config["threads"]
     message:
-        "Sorting centroids and size-filtering for {wildcards.sample}"
+        "[{wildcards.sample}] sorting centroids and size-filtering"
     log:
         "logs/{sample}/sort_otu.log",
     shell:
@@ -247,7 +247,7 @@ rule chimera_denovo:
     conda:
         "../envs/vsearch.yaml"
     message:
-        "De novo chimera detection for {wildcards.sample}"
+        "[{wildcards.sample}] de novo chimera detection"
     log:
         "logs/{sample}/denovo_chimera.log",
     shell:
@@ -271,7 +271,7 @@ rule relabel_otu:
     conda:
         "../envs/vsearch.yaml"
     message:
-        "Relabelling OTUs  for {wildcards.sample}"
+        "[{wildcards.sample}] relabelling OTUs"
     log:
         "logs/{sample}/relabel_otus.log",
     shell:
@@ -290,7 +290,7 @@ rule create_otu_tab:
     output:
         tab="{sample}/clustering/{sample}_OTUs.txt",
     message:
-        "Export OTU table for {wildcards.sample}"
+        "[{wildcards.sample}] export OTU table"
     log:
         "logs/{sample}/out_tab.log",
     shell:
@@ -312,7 +312,7 @@ rule clustering_stats:
     output:
         report="{sample}/reports/{sample}_clustering.tsv",
     message:
-        "Collecting clustering stats  for {wildcards.sample}"
+        "[{wildcards.sample}] collecting clustering stats"
     log:
         "logs/{sample}/cluastering_stats.log",
     shell:
@@ -383,7 +383,7 @@ rule collect_clustering_stats:
             category="Quality controls",
         ),
     message:
-        "collecting clustering stats"
+        "[All] collecting clustering stats"
     log:
         "logs/all/clustering_stats.log",
     shell:

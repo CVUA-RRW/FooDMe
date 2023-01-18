@@ -12,7 +12,7 @@ rule unpack_fastq:
         r1=temp("{sample}/trimmed/{sample}_R1.fastq"),
         r2=temp("{sample}/trimmed/{sample}_R2.fastq"),
     message:
-        "Unpacking fastq files for sample {wildcards.sample}"
+        "[{wildcards.sample}][denoising] unpacking fastq files"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -41,7 +41,7 @@ rule denoise:
         report="{sample}/reports/{sample}_denoising.tsv",
         chimeras="{sample}/denoising/{sample}_chimeras.fasta",
     message:
-        "Denoising and filtering {wildcards.sample}"
+        "[{wildcards.sample}][denoising] denoising and filtering"
     threads: config["threads_sample"]
     conda:
         "../envs/dada2.yaml"
@@ -68,7 +68,7 @@ rule collect_denoising_stats:
             category="Quality controls",
         ),
     message:
-        "Aggregating denoising stats"
+        "[All][denoising] aggregating denoising stats"
     conda:
         "../envs/pandas.yaml"
     log:

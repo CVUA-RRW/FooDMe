@@ -12,7 +12,7 @@ rule krona_table:
     output:
         krt="{sample}/krona/{sample}_krona_table.txt",
     message:
-        "Exporting {wildcards.sample} in Krona input format"
+        "[{wildcards.sample}][reporting] exporting data in Krona input format"
     conda:
         "../envs/taxidtools.yaml"
     log:
@@ -32,7 +32,7 @@ rule krona:
             subcategory="{wildcards.sample}",
         ),
     message:
-        "Producing graphical summary for {wildcards.sample}"
+        "[{wildcards.sample}][reporting] producing graphical summary "
     conda:
         "../envs/krona.yaml"
     log:
@@ -54,7 +54,7 @@ rule krona_all:
     params:
         samples.index,
     message:
-        "Producing graphical summary result"
+        "[All][reporting] producing graphical summary result"
     conda:
         "../envs/krona.yaml"
     log:
@@ -90,7 +90,7 @@ rule summary_report:
     output:
         report="{sample}/reports/{sample}_summary.tsv",
     message:
-        "Summarizing statistics for {wildcards.sample}"
+        "[{wildcards.sample}][reporting] summarizing statistics"
     params:
         method=config["cluster_method"],
     conda:
@@ -148,7 +148,7 @@ rule collect_summaries:
             category="Quality controls",
         ),
     message:
-        "Aggregating summary reports"
+        "[All][reporting] aggregating summary reports"
     conda:
         "../envs/pandas.yaml"
     log:
@@ -200,7 +200,7 @@ rule report_sample:
     log:
         "logs/{sample}/report.log",
     message:
-        "Generating html report for {wildcards.sample}"
+        "[{wildcards.sample}][reporting] generating html report"
     script:
         "../scripts/write_report.Rmd"
 
@@ -239,7 +239,7 @@ rule report_all:
     log:
         "logs/all/report.log",
     message:
-        "Generating global html report"
+        "[All][reporting] generating global html report"
     script:
         "../scripts/write_report.Rmd"
 
@@ -251,7 +251,7 @@ rule software_versions:
     output:
         report="reports/software_versions.tsv",
     message:
-        "Collecting software versions"
+        "[Common][reporting] Collecting software versions"
     params:
         dir=workflow.basedir,
     conda:
@@ -266,7 +266,7 @@ rule database_version:
     output:
         report="reports/db_versions.tsv",
     message:
-        "Collecting databases versions"
+        "[Common][reporting] collecting databases versions"
     params:
         blast=config["blast_DB"],
         taxdb=config["taxdb"],
