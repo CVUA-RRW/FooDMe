@@ -214,6 +214,7 @@ rule benchmarking_report:
     params:
         workdir=config["workdir"],
         version=version,
+        logo=f"{workflow.basedir}/../docs/logo.png",
     message:
         "Creating benchmarking report"
     conda:

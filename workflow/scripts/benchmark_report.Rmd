@@ -1,15 +1,19 @@
 ---
 title: "FooDMe - Food DNA Metabarcoding - benchmarking report"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
-theme: default
+output: 
+    html_document:
+        theme: paper
 ---
 
 <style type="text/css">
-.main-container {
-  max-width: 1800px;
-  margin-left: auto;
-  margin-right: auto;
+    .main-container {
+    max-width: 1800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+    body{
+    font-size: 12pt;
 }
 </style>
 
@@ -31,6 +35,18 @@ executor <- Sys.info()["user"]
 ---
 author: `r paste0(executor)`
 ---
+
+```{r logo, echo=FALSE}
+htmltools::a(
+    href="https://cvua-rrw.github.io/FooDMe/",
+    htmltools::img(
+        src = knitr::image_uri(snakemake@params[['logo']]), 
+        alt = 'FooDMe documentation', 
+        style = 'position:absolute; top:0; right:0; padding:10px;',
+        width=200
+    )
+)
+```
 
 ```{r init}
 workdir <- snakemake@params[["workdir"]]
@@ -258,6 +274,9 @@ knitr::kable(soft_table)
 ```
 
 ## Help
+
+[Documentation](https://cvua-rrw.github.io/FooDMe/)
+
 
 [Link to the repository](https://github.com/CVUA-RRW/FooDMe)
 

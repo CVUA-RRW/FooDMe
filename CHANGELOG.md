@@ -3,8 +3,10 @@
 #### Fixes
 - Fixed confusion matrix calculation when the expected taxid rank is above the target rank
 
-#### Imporvements
+#### Improvements
 - Taxa names are now displayed in the benchmarking report
+- Few changes in the documentation
+- Improved report aesthetics
 
 ### 1.6.3
 

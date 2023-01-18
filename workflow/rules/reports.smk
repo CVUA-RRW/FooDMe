@@ -187,6 +187,7 @@ rule report_sample:
         workdir=config["workdir"],
         version=version,
         sample=lambda w, input: w.sample,
+        logo=f"{workflow.basedir}/../docs/logo.png",
     output:
         report=report(
             "{sample}/reports/{sample}_report.html",
@@ -225,6 +226,7 @@ rule report_all:
         workdir=config["workdir"],
         version=version,
         sample="all",
+        logo=f"{workflow.basedir}/../docs/logo.png",
     output:
         report=report(
             "reports/report.html",

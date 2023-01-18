@@ -1,15 +1,19 @@
 ---
 title: "FooDMe - Food DNA Metabarcoding - analysis report"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
-theme: default
+output: 
+    html_document:
+        theme: paper
 ---
 
 <style type="text/css">
-.main-container {
-  max-width: 1800px;
-  margin-left: auto;
-  margin-right: auto;
+    .main-container {
+    max-width: 1800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+    body{
+    font-size: 12pt;
 }
 </style>
 
@@ -24,6 +28,7 @@ options(markdown.HTML.header = system.file("misc", "datatables.html", package = 
 
 library(DT, quietly = T)
 library(tidyverse, quietly = T)
+library(htmltools, quietly = T)
 
 executor <- Sys.info()["user"]
 ```
@@ -31,6 +36,18 @@ executor <- Sys.info()["user"]
 ---
 author: `r paste0(executor)`
 ---
+
+```{r logo, echo=FALSE}
+htmltools::a(
+    href="https://cvua-rrw.github.io/FooDMe/",
+    htmltools::img(
+        src = knitr::image_uri(snakemake@params[['logo']]), 
+        alt = 'FooDMe documentation', 
+        style = 'position:absolute; top:0; right:0; padding:10px;',
+        width=200
+    )
+)
+```
 
 ```{r init}
 workdir <- snakemake@params[["workdir"]]
@@ -58,6 +75,7 @@ nsamples <- nrow(read.csv(file = overview, sep = "\t", check.names=FALSE))
 ```
 
 # Analysis report for run: `r run` {.tabset}
+
 
 ## Overview
 
@@ -335,6 +353,9 @@ knitr::kable(soft_table)
 
 ## Help
 
+[Documentation](https://cvua-rrw.github.io/FooDMe/)
+
+
 [Link to the repository](https://github.com/CVUA-RRW/FooDMe)
 
 
@@ -342,3 +363,4 @@ knitr::kable(soft_table)
 
 
 [Last release](https://github.com/CVUA-RRW/FooDMe/releases)
+
