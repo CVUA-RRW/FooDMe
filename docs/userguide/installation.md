@@ -81,13 +81,6 @@ For an installation guide, see the [Bioconda documentation](https://bioconda.git
     conda config --add channels conda-forge
     ```
 
-The newer versions on Snakemake also require that conda be set in strict channel priority mode.
-This can be done by changing the conda configuration:
-
-```bash
-conda config --set channel_priority strict
-```
-
 The dependency solver of conda being notoriously slow and helpless in front 
 of complex environments, it is advised to supplement the conda installation 
 with a better solver called [mamba](https://github.com/mamba-org/mamba):
@@ -139,7 +132,7 @@ The snakemake environment can then be toggled on and off with:
 
 ```bash 
 conda activate snakemake
-conda deactivate snakemake
+conda deactivate
 ```
 
 ## Test the installation

@@ -20,7 +20,7 @@ is available with FooDMe:
 ```bash
 cd ~
 mkdir blast_nt
-bash ~/FooDMe/ressources/fetch-nt-blast.sh -d blast-nt
+bash ~/FooDMe/ressources/fetch_nt_blast.sh -d blast-nt
 ```
 
 Running the above commands will create the blast_nt directory and retrieve all the 
@@ -28,7 +28,7 @@ nescessary files from the NCBI servers.
 
 !!! warning 
 
-    Downloading the BLAST NT database will require about 150Gb of available memory
+    Downloading the BLAST NT database will require about 500Gb of available memory
     and take several hours. 
 
 ### Custom databases
@@ -44,7 +44,7 @@ mamba create -n blast -c conda-forge -c bioconda blast
 conda activate blast
 cd ~
 mkdir refseq
-bash ~/FooDMe/ressources/create-RefSeq-blastdb.sh -d refseq -t
+bash ~/FooDMe/ressources/create_RefSeq_blastdb.sh -d refseq -t
 ```
 
 Additionally it is possible to format any sequence collection in a BLAST compliant format.
