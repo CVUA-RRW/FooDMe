@@ -109,6 +109,21 @@ rule no_blocklist:
         touch {output.block} > {log}
         """
 
+# FIXME
+rule accession_blocklist:
+    output:
+        block=temp("common/negative_accessions"),
+    message:
+        "[Common][assignement] preparing negative accessions list"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/common/acc_blocklist.log",
+    shell:
+        """
+        touch {output.block} > {log}
+        """
+
 
 # Rules Blast -----------------------------------------------------------------
 
@@ -160,9 +175,29 @@ rule blast_otus:
         """
 
 
-rule filter_blast:
+rule filter_blast_acc:
     input:
         report="{sample}/taxonomy/{sample}_blast_report.tsv",
+    output:
+        report="{sample}/taxonomy/{sample}_blast_report_prefiltered.tsv",
+    params:
+        acc_list=config["seq_blocklist"],
+    message:
+        "[{wildcards.sample}][assignement] remove negative sequences from BLAST results"
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/{sample}/filter_blast_acc.log",
+    shell:
+        """
+        exec 2> {log}
+        grep -F -v -f {params.acc_list} {input.report} > {output.report}
+        """
+
+
+rule filter_blast_bitscores:
+    input:
+        report="{sample}/taxonomy/{sample}_blast_report_prefiltered.tsv",
     output:
         filtered="{sample}/taxonomy/{sample}_blast_report_filtered.tsv",
     params:
@@ -172,7 +207,7 @@ rule filter_blast:
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/{sample}/filter_blast.log",
+        "logs/{sample}/filter_blast_bitscore.log",
     script:
         "../scripts/filter_blast.py"
 

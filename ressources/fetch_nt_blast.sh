@@ -118,13 +118,13 @@ while IFS= read -r part; do
     if [ $? -ne 0 ]; then
       # Re download and check md5
       echo "Checksum invalid, redownlaoding $part"
-      wget --quiet --tries 3 -i $part
+      wget --quiet --tries 3 $part
       md5sum -c --ignore-missing checksums.md5
     fi
   else
     # download and check md5
     echo "Downloading $part"
-    wget --quiet --tries 3 -i $part
+    wget --quiet --tries 3 $part
     md5sum -c --ignore-missing checksums.md5
   fi
   
