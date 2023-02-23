@@ -9,6 +9,7 @@
 - Taxa names are now displayed in the benchmarking report
 - Fixed many typos and errors in the documentation
 - Improved report aesthetics
+- About halved fetch_nt_blast.sh scripts storage space requirements by chaining downloads, unpacks and cleanup.
 
 ### 1.6.3
 
