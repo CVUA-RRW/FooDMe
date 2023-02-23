@@ -21,7 +21,7 @@ The benchmarking module requires three additional parameters (see [Configuration
 
 !!! warning
     
-    Because of limitaitons of the NCBI taxonomiy classification, only
+    Because of limitations of the NCBI taxonomy classification, only
     Linnaean ranks are supported. This means you can choose only from 
     the following (case-sensitive) options:
     

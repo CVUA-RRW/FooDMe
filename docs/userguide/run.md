@@ -21,7 +21,7 @@ snakemake --use-conda --conda-prefix ~/conda-envs --cores 1 \
 
 !!! info
 
-    Specifying a prefix for the conda environment is not nescessary but will allow you to recycle created environments 
+    Specifying a prefix for the conda environment is not nescessary but will allow you to reuse created environments 
     between runs. Doing so will save up, time, ressources, and memory on each execution.
 
 ## Run-specific parameters
@@ -36,7 +36,7 @@ SAMPLES=~/raw_data/samples.tsv
 
 snakemake --use-conda --conda-prefix ~/conda-envs --cores 1 \
   --configfile ~/FooDMe/config/myconfig.yaml \
-  --config workdir=$WORKDIR samples=$SAMPLES
+  --config workdir=${WORKDIR} samples=${SAMPLES}
 ```
 
 The above example will use the sample sheet located under `~/raw_data/samples.tsv`
@@ -52,5 +52,5 @@ seen using the `--help` argument or in the [online documentation](https://snakem
 A few notables commands are:
 
 - `--forceall` will force the recalculation of all the workflow steps. Usefull to repeat an analysis when something went wrong.
-- `--notemp` will disable temporary file removal. THis will considerably increase the size of the output be can be usefull to troubleshoot an analysis or puzzling results.
+- `--notemp` will disable temporary file removal. This will considerably increase the size of the output but can be useful to troubleshoot an analysis or puzzling results.
 - `--report` will output run statistics.

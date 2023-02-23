@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 
+import sys
+
+
 sys.stderr = open(snakemake.log[0], "w")
 
 
 import os
-import sys
 import json
 import csv
 import pandas as pd

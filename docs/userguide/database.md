@@ -5,14 +5,14 @@ Below are the instructions to retrieve standard databases and how to create cust
 
 ## BLAST database
 
-The sequence comparison step as implemented uses the BLAST tool. This requires that the 
+The sequence comparison step as implemented uses the BLAST command line tools. This requires that the 
 nucleotide database is indexed and formatted in a BLAST-specific way.
 
 ### Preformatted databases
 
 A large pre-formatted nucleotide sequence database is freely available from the NCBI
 servers. The BLAST NT database contains a collection of sequences from different sources
-and can be downloaded directly for the [NCBI servers](https://ftp.ncbi.nlm.nih.gov/blast/db/). 
+and can be downloaded directly from the [NCBI servers](https://ftp.ncbi.nlm.nih.gov/blast/db/). 
 
 A script to fetch the BLAST NT database and additional required taxonomic definitions 
 is available with FooDMe:
@@ -28,7 +28,7 @@ nescessary files from the NCBI servers.
 
 !!! warning 
 
-    Downloading the BLAST NT database will require about 500Gb of available memory
+    Downloading the BLAST NT database will require a large chunk of available memory
     and take several hours. 
 
 ### Custom databases
@@ -53,7 +53,7 @@ A User Guide therefore is available from the [BLAST documentation](https://www.n
 ## Additonal files
 
 In addition to the nucleotide collection, several taxonomy definition files are nescessary.
-These are easy to get from the NCBI servers and can be used with other sources.
+These are available from the NCBI servers and can be used with other sources.
 
 !!! warning 
 

@@ -6,8 +6,10 @@ This ensures reproducible analysis of different samples over time.
 
 A template of such a configuration file is stored in the repository under `FooDME/config/config.yaml`.
 
-The `config` folder will be populated with configuration sets for specific experiments.
-Feel free to submit yours!
+We include an optimized configuration file for use in 16S meat metabarcoding experiments with the 
+Dobrovolny et al. (2019) method.
+The `config` folder will be populated with configuration sets for other matrices when possible.
+Feel free to [submit yours](https://github.com/CVUA-RRW/FooDMe/issues/new?assignees=&labels=question&template=question.md&title=%5BQuestion%5D+Question+title)!
 
 !!! warning 
 
@@ -17,7 +19,7 @@ Feel free to submit yours!
 ## How to use to configuration file
 
 Modify the values of each parameters as you need (see table below).
-Then save your own configuration locally (for example unde `FooDme/config/`).
+Then save your own configuration locally (for example under `FooDme/config/`).
 This configuration can be reused for successive analysis.
 
 ## Sample sheet

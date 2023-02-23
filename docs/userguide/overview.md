@@ -1,6 +1,6 @@
 # Overview
 
-Welcome to the User Manual of FooDme.
+Welcome to the User Manual of FooDMe.
 This documentation will guide you through your first steps with the pipeline.
 
 ## Aim
@@ -20,9 +20,9 @@ See the [configuration help](configuration.md) for more details.
 
 ### Pre-processing
 
-As a first analysis step, primers will be trimmed form the reads. By default primers are only matched on 
+As a first analysis step, primers will be trimmed from the reads. By default primers are only matched on 
 the 5' end of the reads. In some cases (e.g. Sequencing is longer than the amplicon length) one may want
-to trim primers on the 3' end as well. This behaviour is supported and can be triggered in the [parameters](configuration.md). 
+to trim primers on the 3' end as well. This behaviour is supported and can be enabled in the [parameters](configuration.md). 
 
 The reads will then be pre-processed for quality trimming on the 3' end using a sliding window checking for minimal 
 quality requirements.
@@ -52,8 +52,8 @@ This is effectively implemented as an identity clustering strategy with 100% ide
 This is more suitable for high sensitivity identification of amplicons but
 the sequencing noise will not be filtered.
 
-Due to the large number of clusters resulting form this strategy this is also the most 
-computive intensive of the three.
+Due to the large number of clusters resulting from this strategy this is also the most 
+computationally expensive of the three.
 
 #### Denoising
 
@@ -74,9 +74,9 @@ close to the biological reality of the sample.
 
 The representative sequences for each cluster are compaired to a user-provided nucleotide
 database using Basic Local Alignment Search (BLAST) and references satisfying specified 
-similiraty critera are recovered.
+similarity critera are recovered.
 
-In most cases, only part of the database is relevant for each application. For this puprose it is 
+In most cases, only part of the database is relevant for each application. For this purpose it is 
 possible to specify a taxonomic node (for example Vertebrates) to which to limit the BLAST search.
 
 Specific taxa can also be irrelevant, such as common contaminants or extinct species. This taxa can
@@ -94,7 +94,7 @@ can be post-filtered based on their alignment quality as measured by the alignem
 
 As this process often results in a unclear mix of taxa, a consensus can be determined based 
 on the underlying taxonomic hierachy and a minimal agreement level that can be freely set
-between strict majority (0.51) to last-common ancestor (1.0).
+between strict majority (0.51) and last-common ancestor (1.0).
 
 ### Ouput
 

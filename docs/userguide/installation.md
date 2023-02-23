@@ -1,20 +1,20 @@
 # Installation
 
-Below is a detialled installation guide.
+Below is a detailled installation guide.
 Beginners are encouraged to follow this guide step by step. 
 
 !!! note 
 
-    The examples below will describe an installation in the `/home/user` folder.
+    The examples below will describe an installation in the `/home/username`.
     It is assumed that raw sequencing data are stored in the `raw_data` folder in the user´s home directory.
 
 ## Requirements
 
-Becausesome of the tools used by the workflow only work in a UNIX environment,
+Because some of the tools used by the workflow only work in a UNIX environment,
 Windows OS is *not* supported.
 
 The ressources needed to run the pipeline vary according to the nucleotide database used.
-In general be sure to have enought hard-drive space to store the databases and the raw data plus 
+In general be sure to have enough hard-drive space to store the databases and the raw data plus 
 space to store the results. 
 
 The workflow will remove tempory intermediate files on the fly to minimize the memory footprint.
@@ -27,13 +27,16 @@ The workflow will remove tempory intermediate files on the fly to minimize the m
 Additionally the BLAST step will require an amount of virtual memory equivalent to the size of 
 the database. This can be either hard drive space or RAM.
 
-A minimal configuration for working with the BLAST nt database is therefore:
-
-- 500 Gb Hard drive
-- 8 Gb RAM
-
 Increasing the number of cores will considerably speed up the workflow by taking advantage of 
 parallelization.
+
+!!! info
+
+    Minimal configuration:
+    
+    - 500 Gb Hard drive space 
+    - 8 Gb RAM
+
 
 The workflow can therefore run on a medium range laptop, even within a Virtual Machine
 emulating Linux. 
@@ -161,7 +164,7 @@ before analyzing the three examples samples in the `.tests` folder.
 !!! warning 
 
     The `.tests` folder might be hidden on your file explorer. If you don´t see it,
-    enable `view hidden file` in the options.
+    enable 'view hidden files' in the options.
 
 Feel free to explore the files produced by this first run in the `.tests` folder. 
 More details about the [output](results.md) and the [use of snakemake](run.md) will be given in the later sections

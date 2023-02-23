@@ -13,7 +13,7 @@ containing default values and a parameter grid containing a set of parameters to
 
 ## Parameter grid
 
-The paraneter grid should be organized as a tab-delimited text file where
+The parameter grid should be organized as a tab-delimited text file where
 the first row contains the name of the parameters to vary. Each row then contains 
 a set of parameter that will be used to update the default configuration.
 
@@ -43,7 +43,7 @@ the `--config` argument.
     
     As parameter space exploration only makes sense if you can compare the results 
     to known sample compositions, it is required to provide values for the `benchmark_*`
-    paramters. These values can be part of the parameter space exploration too!
+    parameters. These values can be part of the parameter space exploration too!
 
 
 !!! warning
@@ -51,7 +51,7 @@ the `--config` argument.
     In the parameter space mode, the foodme configuration file only supports
     **absolute** file paths. Relative paths will result in errors, you've been warned.
 
-## Running a parameter space analyis
+## Running a parameter space analysis
 
 The parameter space analysis is organized in a separate workflow from foodme, it is
 therefore nescessary to point snakemake to the correct workflow definition:

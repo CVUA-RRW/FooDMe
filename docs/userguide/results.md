@@ -5,7 +5,7 @@ as well as some of the processed data at different steps of the analysis.
 
 !!! note
 
-    By default, large files are removed during the analysis
+    By default, large files such as trimmed FASTQ are removed during the analysis
     use snakemake´s `--notemp` to keep all files.
 
 ## Folder structure
