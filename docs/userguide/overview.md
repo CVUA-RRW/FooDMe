@@ -125,7 +125,8 @@ flowchart TD
     E2 ---> F
     Y[(Taxonomy definitions)] ---> H(Consensus determination)
     subgraph Taxonomic assignement
-    F ---> G(Bitscore filtering)
+    F ---> J(Accession filtering)
+    J ---> G(Bitscore filtering)
     G ---> H
     end
     H ---> I[Report]

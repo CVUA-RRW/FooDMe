@@ -81,8 +81,9 @@ This will create a file called `samples.tsv` in the `raw_data` folder.
 | `merging_max_mismatch`            | Number                    | Maximum number of mismatch allowed in the<br> overlap between reads. Only for ASV |
 | `remove_chimera`                 | True/False                | Should predicted chimeric sequences be removed? |
 | `min_consensus`           | Number [0.51, 1]          | Minimal agreement for taxonomic consensus <br>determination. 0.51 is a majority vote and 1.0 is<br> a last common ancestor determination |
-| `taxid_filter`            | Taxonomic identifier      | Node under which to perform the BLAST search. <br>Equivalent to pruning the taxonomy above <br>this node |
+| `taxid_filter`            | Taxonomic identifier      | Node under which to perform the BLAST search. <br>Equivalent to pruning the taxonomy above <br>this node. Use the Root Node number to keep <br>the entire taxonomy |
 | `blocklist`               | `extinct` or custom path  | Path to a list of taxonomic identifier to exclude <br>from the BLAST search |
+| `seq_blocklist`           | `None` or custom path | Path to a list of sequence accessions (e.g. `NC_0016400`) <br>to exclude from the results |
 | `blast_evalue`                 | Number (scientific)       | Minimal E-value threshold for the BLAST search |
 | `blast_identity`           | Number [0, 100]           | Minimal identity (in percent) between the query and <br>hit sequence for the BLAST search |
 | `blast_qcov`                    | Number [0, 100]           | Percent of the query to be covered by the hit <br>sequence for the BLAST search |

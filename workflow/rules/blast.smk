@@ -109,21 +109,6 @@ rule no_blocklist:
         touch {output.block} > {log}
         """
 
-# FIXME
-rule accession_blocklist:
-    output:
-        block=temp("common/negative_accessions"),
-    message:
-        "[Common][assignement] preparing negative accessions list"
-    conda:
-        "../envs/pandas.yaml"
-    log:
-        "logs/common/acc_blocklist.log",
-    shell:
-        """
-        touch {output.block} > {log}
-        """
-
 
 # Rules Blast -----------------------------------------------------------------
 
@@ -191,13 +176,17 @@ rule filter_blast_acc:
     shell:
         """
         exec 2> {log}
-        grep -F -v -f {params.acc_list} {input.report} > {output.report}
+        if [ -s {input.report} ]; then
+          grep -v -f {params.acc_list} {input.report} > {output.report}
+        else
+          touch {output.report}
+        fi
         """
 
 
 rule filter_blast_bitscores:
     input:
-        report="{sample}/taxonomy/{sample}_blast_report_prefiltered.tsv",
+        report=lambda wildcards: get_acc_blocklist(wildcards),
     output:
         filtered="{sample}/taxonomy/{sample}_blast_report_filtered.tsv",
     params:
@@ -238,7 +227,7 @@ rule blast_stats:
         otus="{sample}/clustering/{sample}_OTUs.fasta"
         if config["cluster_method"] == "otu"
         else "{sample}/denoising/{sample}_ASVs.fasta",
-        blast="{sample}/taxonomy/{sample}_blast_report.tsv",
+        blast=lambda wildcards: get_acc_blocklist(wildcards),
         filtered="{sample}/taxonomy/{sample}_blast_report_filtered.tsv",
         lca="{sample}/taxonomy/{sample}_consensus_table.tsv",
     output:

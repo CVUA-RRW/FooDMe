@@ -118,6 +118,7 @@ while IFS=$'\t' read -r part md5; do
     if [ $? -ne 0 ]; then
       # Re download and check md5
       echo "[$( date -I'minutes')][WARNING] Checksum invalid, redownloading $(basename ${part})"
+      rm $(basename ${part})
       wget --quiet --tries 3 $part
       md5sum --quiet -c $(basename ${md5})
       

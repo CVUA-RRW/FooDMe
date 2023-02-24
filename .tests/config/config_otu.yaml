@@ -25,6 +25,7 @@ blast_DB: data/miniblast/miniblast
 taxdb: data/miniblast
 taxid_filter: 7742
 blocklist: extinct
+seq_blocklist: None
 blast_evalue: 1e-10
 blast_identity: 97
 blast_qcov: 100

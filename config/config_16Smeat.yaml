@@ -87,6 +87,9 @@ taxid_filter: 32524
 # "extinct" will use the distributed list of extinct species
 # Provide a path for a custom list or use None to skip filtering
 blocklist: extinct
+# Sequence Accessions blocklist, prevents specific accessions to show up in the results.
+# None or path to a user provided list of accessions
+seq_blocklist: None
 # E-value threshold for blast results
 blast_evalue: 1e-20
 # Minimal identity between the hit and query for blast results (in percent)

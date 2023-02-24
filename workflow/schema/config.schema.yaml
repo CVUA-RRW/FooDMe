@@ -120,6 +120,10 @@ properties:
     type: string
     description: Exclude some accessions form the results. "extinct" will use the distributed list of extinct species, provide a path for a custom list, or use None to skip filtering
   
+  seq_blocklist:
+    type: string
+    description: Exclude specific sequence accessions from the results. None or path to a user provided list of accessions.
+  
   blast_evalue:
     type: 
       - number
@@ -183,6 +187,7 @@ properties:
     - min_consensus
     - taxid_filter
     - blocklist
+    - seq_blocklist
     - blast_evalue
     - blast_identity
     - blast_qcov

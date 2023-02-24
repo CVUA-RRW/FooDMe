@@ -44,3 +44,10 @@ def get_blocklist():
         return os.path.join(workflow.basedir, "..", "data", "blocklist.txt")
     else:
         return config["blocklist"]
+
+
+def get_acc_blocklist(wildcards):
+    if config["seq_blocklist"] == "None":
+        return f"{wildcards.sample}/taxonomy/{wildcards.sample}_blast_report.tsv"
+    else:
+        return f"{wildcards.sample}/taxonomy/{wildcards.sample}_blast_report_prefiltered.tsv"

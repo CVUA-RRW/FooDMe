@@ -65,11 +65,14 @@ remove_chimera: True
 # Minimal taxid frequency to reach consensus (1 to use last common ancestor)
 min_consensus: 0.7
 # Limit BLAST search to the taxids under the given node
-taxid_filter: 0
+taxid_filter: 1
 # Use a Blocklist to prevent some taxid from appearing in the results?
 # "extinct" will use the distributed list of extinct species
 # Provide a path for a custom list or use None to skip filtering
 blocklist: extinct
+# Exclude specific sequence accessions from the results.
+# None or path to a user provided list of accessions
+seq_blocklist: None
 # E-value threshold for blast results
 blast_evalue: 1e-10
 # Minimal identity between the hit and query for blast results (in percent)
