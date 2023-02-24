@@ -6,7 +6,7 @@
 # Fetch the pre-built BLAST nt database and taxdump files
 # Author: G. Denay, gregoire.denay@cvua-rrw.de
 
-VERSION=2.0
+VERSION=2.1
 
 # URLs -------------------------------------------------------------
 
@@ -66,87 +66,113 @@ else
   directory="$PWD"
 fi
 
-echo "Database will be created to $directory"
+echo "[$( date -I'minutes')][INFO] Using following URLS, check if up-to-date:"
+echo "[$( date -I'minutes')][INFO] BLAST: https://ftp.ncbi.nlm.nih.gov/blast/db/"
+echo "[$( date -I'minutes')][INFO] TAXDUMP https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/"
+
+echo "[$( date -I'minutes')][INFO] Database will be created to $directory"
 cd "$directory"
 
 # Main script ------------------------------------------------------------
 
-# Get Readme
-wget --quiet --tries 3 -O README.html ${BLAST}README
-
 # Get directory listing in html format
-echo "Retrieving remote directory ${BLAST}"
+echo "[$( date -I'minutes')][INFO] Retrieving remote directory ${BLAST}"
 if curl ${BLAST} --fail --silent > ftp_dir.html; then :
 else
-  echo "ERROR: URL does not exist: ${BLAST}"
+  echo "[$( date -I'minutes')][ERROR] URL does not exist: ${BLAST}"
   exit 1
 fi
 
+# Get Readme
+wget --quiet --tries 3 -O README.html ${BLAST}README
+
+# Cleanup older links
+if [ -f links ]; then
+  rm links
+fi
+
+
 # Extract checksums and fasta links
-if [ -f checksums.links ]; then
-  rm checksums.links
-fi
-if [ -f parts.links ]; then
-  rm parts.links
-fi
-
-echo "Extracting links"
-grep -E "\"nt\.[0-9]+\.tar\.gz\"" ftp_dir.html \
+echo "[$( date -I'minutes')][INFO] Extracting links"
+paste \
+  <(grep -E "\"nt\.[0-9]+\.tar\.gz\"" ftp_dir.html \
+    | cut -d'"' -f2 \
+    | awk  -v blast=${BLAST} '{print blast$0}' \
+    | sort -d ) \
+  <(grep -E "\"nt\.[0-9]+\.tar\.gz\.md5\"" ftp_dir.html \
   | cut -d'"' -f2 \
   | awk  -v blast=${BLAST} '{print blast$0}' \
-  | sort -d \
-  >> parts.links
-grep -E "\"nt\.[0-9]+\.tar\.gz\.md5\"" ftp_dir.html \
-  | cut -d'"' -f2 \
-  | awk  -v blast=${BLAST} '{print blast$0}' \
-  | sort -d \
-  >> checksums.links
+  | sort -d ) \
+  > links
 
-echo "Fetching cheksums"
-wget --quiet --tries 3 -i checksums.links -O checksums.md5
-
-# Fetching parts one by one
-echo "Fetching remote database"
-while IFS= read -r part; do
+while IFS=$'\t' read -r part md5; do
+  # Getting checksum (always fresh)
+  wget -N --quiet --tries 3 $md5
+  
   # check if file exist
-  echo $(basename ${part})
   if [ -f $(basename ${part}) ]; then
-    echo "$part already exists"
-    # check md5
-    md5sum -c --ignore-missing checksums.md5
+    echo "[$( date -I'minutes')][WARNING] $(basename ${part}) already exists"
+    md5sum --quiet -c $(basename ${md5})
+    
     # md5 exit status should be 0 if everything is ok
     if [ $? -ne 0 ]; then
       # Re download and check md5
-      echo "Checksum invalid, redownlaoding $part"
+      echo "[$( date -I'minutes')][WARNING] Checksum invalid, redownloading $(basename ${part})"
       wget --quiet --tries 3 $part
-      md5sum -c --ignore-missing checksums.md5
+      md5sum --quiet -c $(basename ${md5})
+      
+      # Check md5 status and exit on error
+      if [ $? -ne 0 ]; then
+        echo "[$( date -I'minutes')][ERROR] md5 checksum invalid for file $(basename ${part})"
+        exit 1
+      else
+        echo "[$( date -I'minutes')][INFO] $(basename ${part}): checksum OK"
+      fi
+      
+    else
+      echo "[$( date -I'minutes')][INFO] $(basename ${part}): checksum OK"
     fi
+    
   else
     # download and check md5
-    echo "Downloading $part"
+    echo "[$( date -I'minutes')][INFO] Downloading $(basename ${part})"
     wget --quiet --tries 3 $part
-    md5sum -c --ignore-missing checksums.md5
+    md5sum --quiet -c $(basename ${md5})
+    
+    # Check md5 status and exit on error
+    if [ $? -ne 0 ]; then
+      echo "[$( date -I'minutes')][ERROR] md5 checksum invalid for file $(basename ${part})"
+      exit 1
+    else
+      echo "[$( date -I'minutes')][INFO] $(basename ${part}): checksum OK"
+    fi
+  
   fi
   
-  # Check md5 status and exit on error
-  if [ $? -ne 0 ]; then
-    echo "ERROR: md5 checksum invalid for file $part"
-    exit 1
-  fi
-  
-  # Unpack and clean up
-  tar -xzf $part \
-    && rm $part
-done < parts.links
+done < links
 
 ## Taxdump
-echo "Fetching Taxdump"
-wget --quiet --tries 3 -nc ${TAXDUMP}new_taxdump.tar.gz
-wget --quiet --tries 3 -O txd_checksum.md5 ${TAXDUMP}new_taxdump.tar.gz.md5
-
-md5sum -c txd_checksum.md5
-if [ $? -ne 0 ]; then
-   "ERROR: md5 checksum invalid for file taxdump"
+echo "[$( date -I'minutes')][Info] Fetching Taxdump"
+# Check if URL valid
+if curl --output /dev/null -silent --head --fail ${TAXDUMP}new_taxdump.tar.gz.md5; then 
+  wget --quiet --tries 3 ${TAXDUMP}new_taxdump.tar.gz
+  wget --quiet --tries 3 ${TAXDUMP}new_taxdump.tar.gz.md5
 fi
 
-echo "done"
+# Checksum
+md5sum --quiet -c new_taxdump.tar.gz.md5
+if [ $? -ne 0 ]; then
+  "[$( date -I'minutes')][ERROR] md5 checksum invalid for new_taxdump.tar.gz"
+  exit 1
+else
+  echo "[$( date -I'minutes')][INFO] new_taxdump.tar.gz: checksum OK"
+fi
+
+# Unpack and clean all
+echo "[$( date -I'minutes')][INFO] Unpacking and cleaning up archives"
+for f in *.tar.gz; do
+	tar -xzvf $f \
+	&& rm $f
+done
+
+echo "[$( date -I'minutes')][INFO] DONE"
