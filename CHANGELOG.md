@@ -1,8 +1,8 @@
 ### 1.6.4 dev
 
-#### Fixes
+#### New features
 
-- Fixed confusion matrix calculation when the expected taxid rank is above the target rank
+- It is now possible to filter specific sequences form the database using a list of accession provided in a text file using the `seq_blocklist` parameter (#60).
 
 #### Improvements
 
@@ -10,6 +10,10 @@
 - Fixed many typos and errors in the documentation
 - Improved report aesthetics
 - Improved the fetch_nt_blast.sh script to make it easier to resume interupted processes, also more robust
+
+#### Fixes
+
+- Fixed confusion matrix calculation when the expected taxid rank is above the target rank
 
 ### 1.6.3
 
