@@ -1,4 +1,10 @@
-### 1.6.4 dev
+### 1.6.4
+
+Benchmarking paper for 16S Metabarcoding of meat products is online:
+
+Denay, G.; Preckel, L.; Petersen, H.; Pietsch, K.; Wöhlke, A.; Brünen-Nieweler, C. 
+Benchmarking and Validation of a Bioinformatics Workflow for Meat Species Identification Using 16S rDNA Metabarcoding. 
+Foods 2023, 12, 968. https://doi.org/10.3390/foods12050968 
 
 #### New features
 

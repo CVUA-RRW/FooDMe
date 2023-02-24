@@ -37,8 +37,15 @@ FooDMe processes paired-end Illumina reads in the following way:
 
 ## Citation
 
-If you use FooDMe for reasearch please cite the project using the 
-DOI at the top of this page.
+If you use FooDMe for research please cite us!
+
+The source code is deposited on Zenodo and citable using the DOI at the top of this page (Last release)
+
+We also published a benchmarking study for 16S Metabarcoding of meat products:
+
+Denay, G.; Preckel, L.; Petersen, H.; Pietsch, K.; Wöhlke, A.; Brünen-Nieweler, C. 
+Benchmarking and Validation of a Bioinformatics Workflow for Meat Species Identification Using 16S rDNA Metabarcoding. 
+Foods 2023, 12, 968. https://doi.org/10.3390/foods12050968 
 
 ---
 

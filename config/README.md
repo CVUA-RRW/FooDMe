@@ -16,16 +16,10 @@ included in this folder.
 **You will still need to modify the indicated paths to match your own folder structure.**
 
 See for reference:
-* Dobrovolny S, Blaschitz M, Weinmaier T, Pechatschek J, Cichna-Markl M, Indra A,  
-Hufnagl P, Hochegger R. Development of a DNA metabarcoding method for the  
-identification of fifteen mammalian and six poultry species in food. Food Chem.  
-2019 Jan 30;272:354-361. doi: 10.1016/j.foodchem.2018.08.032.   
-Epub 2018 Aug 9. PMID: 30309555.
 
-* Preckel L, Bruenen-Nieweler C, Denay G, Petersen H, Cichna-Markl M, Dobrovolny S,  
-Hochegger R. Identification of Mammalian and Poultry Species in Food and Pet Food  
-Samples Using 16S rDNA Metabarcoding. Foods. 2021 Nov 20;10(11):2875.  
-doi: 10.3390/foods10112875. PMID: 34829156; PMCID: PMC8620145.
+Denay, G.; Preckel, L.; Petersen, H.; Pietsch, K.; Wöhlke, A.; Brünen-Nieweler, C. 
+Benchmarking and Validation of a Bioinformatics Workflow for Meat Species Identification Using 16S rDNA Metabarcoding. 
+Foods 2023, 12, 968. https://doi.org/10.3390/foods12050968 
 
 ## Sample sheet
 
