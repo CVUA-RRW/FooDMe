@@ -127,7 +127,7 @@ rule blast_otus:
         e_value=config["blast_evalue"],
         perc_identity=config["blast_identity"],
         qcov=config["blast_qcov"],
-    threads: config["threads"]
+    threads: config["threads_sample"]
     message:
         "[{wildcards.sample}][assignement] BLASTing clusters against local database"
     conda:

@@ -1,3 +1,9 @@
+### 1.6.5
+
+#### Fixes
+
+- BLAST rule now correctly uses the `threads_sample` parameter instead of `threads`. This results in better ressource management for the BLAST rule.
+
 ### 1.6.4
 
 Benchmarking paper for 16S Metabarcoding of meat products is online:
