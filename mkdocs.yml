@@ -22,6 +22,7 @@ nav:
     - FAQs: faqs.md
     - Getting help: help.md
   - About: 
+      - Contributing: about/contributing.md
       - References and links: about/references_links.md
       - License: about/license.md
       - Release notes: about/changelog.md
