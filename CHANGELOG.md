@@ -3,7 +3,7 @@
 #### Fixes
 
 - Corrects parsing of the `trim_primers_3end` parameter (#64)
-- Added a primer disambiguation step that converts primers sequences in the IUPAC ambiguous nucleotide format to their explicit forms.
+- Added a primer disambiguation step that converts primers sequences in the IUPAC ambiguous nucleotide format to their explicit forms (#63)
 
 ### 1.6.5
 
