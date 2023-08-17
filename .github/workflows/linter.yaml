@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-formatting:
+  formatting:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,7 +34,7 @@ formatting:
         VALIDATE_PYTHON_FLAKE8: true
         VALIDATE_R: true
         VALIDATE_MARKDOWN: true
-  
+
   linting:
     runs-on: ubuntu-latest
     steps:
