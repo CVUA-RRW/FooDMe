@@ -14,7 +14,8 @@ from itertools import product
 
 def extend_ambiguous_dna(seq):
     """return list of all possible sequences given an ambiguous DNA input"""
-    d = {'A': 'A',
+    d = {
+        'A': 'A',
         'C': 'C',
         'G': 'G',
         'T': 'T',
@@ -28,7 +29,8 @@ def extend_ambiguous_dna(seq):
         'H': ['A', 'C', 'T'],
         'D': ['A', 'G', 'T'],
         'B': ['C', 'G', 'T'],
-        'N': ['G', 'A', 'T', 'C']}
+        'N': ['G', 'A', 'T', 'C']
+    }
     return list(map("".join, product(*map(d.get, seq))))
 
 
