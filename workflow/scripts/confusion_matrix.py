@@ -166,7 +166,7 @@ def main(
     max_index = ranks.index(target_rank)
 
     pred['predicted'] = pred.apply(
-        lambda x: 1 if (float(x['pred_ratio']) >= float(threshold)) and \
+        lambda x: 1 if (float(x['pred_ratio']) >= float(threshold)) and 
             (ranks.index(x['norm_rank']) <= max_index) else 0,
         axis=1
     )
