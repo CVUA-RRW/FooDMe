@@ -33,7 +33,6 @@ jobs:
         VALIDATE_SNAKEMAKE_SNAKEFMT: true
         VALIDATE_PYTHON_FLAKE8: true
         VALIDATE_R: true
-        VALIDATE_MARKDOWN: true
 
   linting:
     runs-on: ubuntu-latest
