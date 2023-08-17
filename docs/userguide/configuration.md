@@ -60,7 +60,7 @@ This will create a file called `samples.tsv` in the `raw_data` folder.
 | `samples`                 | Path                      | Path to the sample sheet                           |
 | `threads_sample`          | Number                    | Number of threads assigned to each job             |
 | `threads`                 | Number                    | Number of threads assigned to the workflow         |
-| `primers_fasta`           | Path                      | Path to the fasta file containing primer sequences |
+| `primers_fasta`           | Path                      | Path to the fasta file containing primer sequences.<br>IUPAC ambiguous nuclotides are accepted.|
 | `blast_DB`                | Path                      | Path to the BLAST database in the form <br>`path/to/folder/db-name` |
 | `taxdb`                   | Path                      | Path to the folder containing the `taxdb`files |
 | `rankedlineage_dmp`       | Path                      | Path to the `rankedlineage.dmp` file from the <br>`taxdump` archive |
