@@ -18,19 +18,19 @@ def extract_package_version(envfile):
         env = yaml.safe_load(stream)
         for dep in env['dependencies']:
             p, v = dep.split("=")
-            yield p,v
+            yield p, v
 
 
 def main(report, basedir):
     mypath = os.path.join(basedir, "envs")
     envs = [
-        os.path.join(mypath, f) for f in os.listdir(mypath) 
+        os.path.join(mypath, f) for f in os.listdir(mypath)
         if os.path.isfile(os.path.join(mypath, f)) and f.lower().endswith(('.yaml', '.yml'))
     ]
     df = []
     for ef in envs:
-        for p,v in extract_package_version(ef):
-            df.append({'Package': p, 'Version':v})
+        for p, v in extract_package_version(ef):
+            df.append({'Package': p, 'Version': v})
     df = pd.DataFrame(df)
     df.sort_values('Package').to_csv(report, sep="\t", header=True, index=False)
 

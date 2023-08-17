@@ -26,7 +26,7 @@ def main(taxid_file, parent, output, taxonomy):
                 else:
                     pass
             except KeyError:
-                pass  # Ignoring missing taxids as they are either not in the 
+                pass  # Ignoring missing taxids as they are either not in the
                 # taxdumps or actively filtered by the user.
 
 

@@ -11,14 +11,17 @@ sys.stderr = open(snakemake.log[0], "w")
 import os
 import json
 import csv
-import pandas as pd
 
 
 def main(injson, inhtml, outtsv):
     with open(injson, "r") as handle:
         data = json.load(handle)
         link_path = os.path.join("..", inhtml)
-        header = "Total bases before quality trim\tTotal reads after quality trim\tTotal bases after quality trim\tQ20 rate after\tQ30 rate after\tDuplication rate\tInsert size peak\tlink_to_report"
+        header = (
+            f"Total bases before quality trim\tTotal reads after quality trim"
+            f"\tTotal bases after quality trim\tQ20 rate after\tQ30 rate after"
+            f"\tDuplication rate\tInsert size peak\tlink_to_report"
+        )
         datalist = [
             data["summary"]["before_filtering"]["total_bases"],
             data["summary"]["after_filtering"]["total_reads"],

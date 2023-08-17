@@ -16,26 +16,21 @@ def main(report, filtered, bit_diff):
     if stat(report).st_size == 0:
         with open(filtered, "w") as fout:
             fout.write(
-                "query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\tsubject_taxid\talignment_length\tmismatch\tgaps\tsubject_name"
+                f"query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\t"
+                f"subject_taxid\talignment_length\tmismatch\tgaps\tsubject_name"
             )
     else:
         df = pd.read_csv(report, sep="\t", header=0)
-        
         if df.empty:
             df.to_csv(filtered, sep="\t", header=True, index=False)
-        
         else:
             sd = dict(tuple(df.groupby("query")))
-            
             dfout = pd.DataFrame()
-            
             for key, val in sd.items():
-                dfout = pd.concat([dfout, 
-                                   val[val["bitscore"] >= max(val["bitscore"]) - bit_diff]]
+                dfout = pd.concat(
+                    [dfout, val[val["bitscore"] >= max(val["bitscore"]) - bit_diff]]
                 )
-            
             dfout["query"] = dfout["query"].str.split(";").str[0]
-            
             dfout.to_csv(filtered, sep="\t", header=True, index=False)
 
 
