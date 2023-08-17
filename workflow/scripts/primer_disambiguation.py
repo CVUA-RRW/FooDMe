@@ -8,13 +8,13 @@ import sys
 sys.stderr = open(snakemake.log[0], "w")
 
 
-from Bio import Seq, SeqIO
+from Bio import SeqIO
 from itertools import product
 
 
 def extend_ambiguous_dna(seq):
-   """return list of all possible sequences given an ambiguous DNA input"""
-   d = {'A': 'A',
+    """return list of all possible sequences given an ambiguous DNA input"""
+    d = {'A': 'A',
         'C': 'C',
         'G': 'G',
         'T': 'T',
@@ -23,13 +23,13 @@ def extend_ambiguous_dna(seq):
         'W': ['A', 'T'],
         'S': ['C', 'G'],
         'Y': ['C', 'T'],
-        'K': ['G','T'],
+        'K': ['G', 'T'],
         'V': ['A', 'C', 'G'],
-        'H': ['A','C','T'],
-        'D': ['A','G','T'],
-        'B': ['C', 'G','T'],
+        'H': ['A', 'C', 'T'],
+        'D': ['A', 'G', 'T'],
+        'B': ['C', 'G', 'T'],
         'N': ['G', 'A', 'T', 'C']}
-   return list(map("".join, product(*map(d.get, seq))))
+    return list(map("".join, product(*map(d.get, seq))))
 
 
 def primers_to_fasta(name, seq_list):
@@ -49,5 +49,5 @@ def main(fastain, fastaout):
 
 
 if __name__ == '__main__':
-    main(snakemake.params['primers'], 
+    main(snakemake.params['primers'],
          snakemake.output['primers'])

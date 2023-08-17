@@ -104,12 +104,13 @@ def main(
         'Taxid': 'taxid',
         'Count': 'read_count',
         'Percent of assigned': 'pred_ratio'
-        }, axis = 1)
+        }, axis=1)
 
-    exp = pd.DataFrame(truth_tbl, 
+    exp = pd.DataFrame(
+        truth_tbl,
         columns=['sample', 'taxid', 'proportion'],
-        copy = True
-    ).rename({'proportion': 'exp_ratio'}, axis = 1)
+        copy=True
+    ).rename({'proportion': 'exp_ratio'}, axis=1)
 
     # Part2: Checking the acceptability of predictions ---------------------
 
@@ -137,13 +138,13 @@ def main(
 
     # Find matches
     pred['ref_match'] = pred.apply(
-        lambda x: closest_node(int(x['norm_taxid']), exp.loc[:,'norm_taxid'].astype(int).to_list(), tax),
+        lambda x: closest_node(int(x['norm_taxid']), exp.loc[:, 'norm_taxid'].astype(int).to_list(), tax),
         axis=1,
     )
 
     # Get Lca of exp and pred matches to know what ranks correspond
     pred['match_rank'] = pred.apply(
-        lambda x: format_rank(tax.lca([int(x['taxid']),int(x['ref_match'])]), tax, ranks, target_rank).rank,
+        lambda x: format_rank(tax.lca([int(x['taxid']), int(x['ref_match'])]), tax, ranks, target_rank).rank,
         axis=1,
     )
 
@@ -165,13 +166,13 @@ def main(
     max_index = ranks.index(target_rank)
 
     pred['predicted'] = pred.apply(
-        lambda x: 1 if (float(x['pred_ratio'])>=float(threshold)) and (ranks.index(x['norm_rank'])<= max_index) else 0,
+        lambda x: 1 if (float(x['pred_ratio']) >= float(threshold)) and (ranks.index(x['norm_rank']) <= max_index) else 0,
         axis=1
     )
 
     # Reindex exp
     exp = exp.astype(
-        {'norm_taxid':int}
+        {'norm_taxid': int}
     ).rename(
         columns={'norm_taxid': 'Taxid'}
     ).set_index(
@@ -186,7 +187,7 @@ def main(
     # reindex predicted using ref_match, keep taxid as info and sum ratios below the rank limit
     # This is to avoid merging data on assignement with too high rank for duplicated taxa
     pred['ref_match'] = [
-        match_val if ranks.index(match_rank) <= max_index # Leave as is if matching rank is under threshold
+        match_val if ranks.index(match_rank) <= max_index  # Leave as is if matching rank is under threshold
         else taxid_val  # Otherwise take the normalized taxid
         for taxid_val, match_val, match_rank in zip(pred.index, pred['ref_match'], pred['match_rank'])
     ]
@@ -196,37 +197,49 @@ def main(
     ).rename(
         columns={'ref_match': 'Taxid'}
     ).astype(
-        {'Taxid':int}
+        {'Taxid': int}
     ).groupby(
         ["Taxid", "match_rank"]
     ).agg({'pred_ratio': 'sum',
            'pred_rank': lambda x: ranks[x.min()],
-           'predicted': lambda x: 1 if x.max() >0 else 0})
+           'predicted': lambda x: 1 if x.max() > 0 else 0})
 
     conftable = conftable.reset_index(["match_rank"])
-    conftable = conftable.astype({ "match_rank": str, 'predicted': int, 'pred_ratio': float, 'pred_rank': str})
+    conftable = conftable.astype({"match_rank": str, 'predicted': int, 'pred_ratio': float, 'pred_rank': str})
     exp = exp.astype({'expected': int, 'exp_ratio': float})
 
-    conftable = conftable.join(exp,
-        how='outer')
+    conftable = conftable.join(
+        exp,
+        how='outer'
+    )
 
     # Missing values are missagnignements!
     conftable = conftable.fillna(0)
     conftable = conftable.reset_index().rename(columns={'index': 'Taxid'})
     conftable["Sample"] = sample
     conftable['Name'] = conftable.apply(lambda x: tax.getName(int(x['Taxid'])), axis=1)
-    conftable = conftable[['Sample', 'Taxid', 'Name', 'match_rank', 'pred_rank', 'predicted', 'expected', 'pred_ratio', 'exp_ratio']]
+    conftable = conftable[[
+        'Sample',
+        'Taxid',
+        'Name',
+        'match_rank',
+        'pred_rank',
+        'predicted',
+        'expected',
+        'pred_ratio',
+        'exp_ratio'
+    ]]
 
     conftable.to_csv(output, sep="\t", header=True, index=False)
 
 
 if __name__ == '__main__':
     main(
-        compo = snakemake.input['compo'],
-        truth = snakemake.input['truth'],
-        output = snakemake.output['confmat'],
-        sample = snakemake.params['sample'],
-        threshold = snakemake.params['threshold'],
-        target_rank = snakemake.params['target_rank'],
-        taxonomy = snakemake.input['tax']
-        )
+        compo=snakemake.input['compo'],
+        truth=snakemake.input['truth'],
+        output=snakemake.output['confmat'],
+        sample=snakemake.params['sample'],
+        threshold=snakemake.params['threshold'],
+        target_rank=snakemake.params['target_rank'],
+        taxonomy=snakemake.input['tax']
+    )

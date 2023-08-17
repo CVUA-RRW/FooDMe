@@ -7,21 +7,22 @@ import pandas as pd
 from sklearn.metrics import precision_recall_curve
 
 
-
 sys.stderr = open(snakemake.log[0], "w")
 
 
 def main(confmat, output):
     conf_table = pd.read_csv(confmat, sep="\t")
-    
+
     # get classification metrics
     pr, rec, thr = precision_recall_curve(conf_table['expected'], conf_table['pred_ratio'])
     thr = np.append(thr, [1.0])  # Because scikit
-    
-    #Creating df from lists
-    df = pd.DataFrame(list(zip(pr, rec, thr)),
-            columns =['Precision', 'Recall', 'Theshold'])
-    
+
+    # Creating df from lists
+    df = pd.DataFrame(
+        list(zip(pr, rec, thr)),
+        columns=['Precision', 'Recall', 'Theshold']
+    )
+
     df.to_csv(output, sep="\t", header=True, index=False)
 
 

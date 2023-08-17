@@ -16,8 +16,8 @@ def main(report, filtered, bit_diff):
     if stat(report).st_size == 0:
         with open(filtered, "w") as fout:
             fout.write(
-                f"query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\t"
-                f"subject_taxid\talignment_length\tmismatch\tgaps\tsubject_name"
+                "query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\t"
+                "subject_taxid\talignment_length\tmismatch\tgaps\tsubject_name"
             )
     else:
         df = pd.read_csv(report, sep="\t", header=0)
