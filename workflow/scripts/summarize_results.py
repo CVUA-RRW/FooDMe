@@ -16,7 +16,7 @@ def concatenate_uniq(entries):
     df = pd.DataFrame(
         [e.rsplit(" (", 1) for e in s.split("; ")], columns=["name", "freq"]
         )  # parenthesis in names
-    df.loc[:,"freq"] = df["freq"].str.replace(")", "", regex=False).astype(float)
+    df.loc[:, "freq"] = df["freq"].str.replace(")", "", regex=False).astype(float)
     # Aggreagte, normalize, and sort
     tot = df["freq"].sum()
     df = df.groupby("name").apply(lambda x: x.sum() / tot)
@@ -58,7 +58,7 @@ def main(compo, report, sample):
         # Formatting
         groups.insert(0, "Sample", sample)
         groups.rename(columns={"perc": "Percent of total",
-                               "perc_ass": "Percent of assigned"}, 
+                               "perc_ass": "Percent of assigned"},
                       inplace=True)
         groups["Consensus"].replace({"-": "No match"}, inplace=True)
         groups["Taxid"].replace({0: "-"}, inplace=True)

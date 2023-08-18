@@ -9,7 +9,6 @@ sys.stderr = open(snakemake.log[0], "w")
 
 
 import yaml
-import pandas as pd
 
 
 def main(default_config_file, params, output):
@@ -22,7 +21,7 @@ def main(default_config_file, params, output):
 
     config.update(params)
 
-    dump = "\n".join([f"{k}: {v}" for k,v in config.items()])
+    dump = "\n".join([f"{k}: {v}" for k, v in config.items()])
     with open(output, 'w') as stream:
         stream.write(dump)
 
@@ -33,5 +32,3 @@ if __name__ == '__main__':
         params=snakemake.params['pspace'],
         output=snakemake.output['conf'],
     )
-
-

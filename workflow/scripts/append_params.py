@@ -15,17 +15,17 @@ def main(
     benchmarkin, confmatin, yieldsin, metricsin, pr_curvein,
     benchmarkout, confmatout, yieldsout, metricsout, pr_curveout,
     pspace,
-    ):
-    
+):
+
     for fin, fout in [
         (benchmarkin, benchmarkout),
         (confmatin, confmatout),
         (yieldsin, yieldsout),
         (metricsin, metricsout),
         (pr_curvein, pr_curveout),
-        ]:
-        tbl=pd.read_csv(fin, sep="\t")
-        for k,v in pspace.items():
+    ]:
+        tbl = pd.read_csv(fin, sep="\t")
+        for k, v in pspace.items():
             tbl[k] = v
         tbl.to_csv(fout, sep="\t", header=True, index=False)
 

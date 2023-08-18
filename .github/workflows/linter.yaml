@@ -12,34 +12,28 @@ on:
 jobs:
   formatting:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+    
     steps:
     
     - name: Checkout Code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     
     - name: Lint
-      uses: github/super-linter@v4
+      uses: github/super-linter@v5
       env:
-        VALIDATE_ALL_CODEBASE: false
+        VALIDATE_ALL_CODEBASE: true
         DEFAULT_BRANCH: master
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VALIDATE_SNAKEMAKE_SNAKEFMT: true
+        VALIDATE_PYTHON_FLAKE8: true
+        VALIDATE_R: true
 
-# jobs:
-  # formatting:
-    # runs-on: ubuntu-latest
-    # steps:
-    # - uses: actions/checkout@v2
-    # - name: Checkout code
-      # uses: textbook/git-checkout-submodule-action@2.0.0
-    # - name: Formatting
-      # uses: github/super-linter@v4
-      # env:
-        # VALIDATE_ALL_CODEBASE: false
-        # DEFAULT_BRANCH: master
-        # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # VALIDATE_SNAKEMAKE_SNAKEFMT: true
-  
   linting:
     runs-on: ubuntu-latest
     steps:

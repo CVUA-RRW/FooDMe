@@ -4,11 +4,24 @@ shell.executable("bash")
 # Rules primers trimming
 
 
-rule get_primer_revcomp:
+rule primer_disambiguation:
     output:
-        primers_rc=temp("common/primer_revcomp.fa"),
+        primers=temp("common/primer_explicit.fa"),
     params:
         primers=config["primers_fasta"],
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/primer_disambiguation.log",
+    script:
+        "../scripts/primer_disambiguation.py"
+
+
+rule get_primer_revcomp:
+    input:
+        primers="common/primer_explicit.fa",
+    output:
+        primers_rc=temp("common/primer_revcomp.fa"),
     message:
         "[Common][trimming] reverse-complementing primers"
     conda:
@@ -17,7 +30,7 @@ rule get_primer_revcomp:
         "logs/common/primer_revcomp.log",
     shell:
         """
-        seqtk seq -r {params.primers} 1> {output.primers_rc} 2> {log}
+        seqtk seq -r {input.primers} 1> {output.primers_rc} 2> {log}
         """
 
 
@@ -46,7 +59,7 @@ rule cutadapt:
     shell:
         """
         # Simple case only 5p trimming
-        if [[ {params.primer_3p} == false ]]
+        if [[ {params.primer_3p} == False ]]
         then
             cutadapt {input.r1} \
                 {input.r2} \

@@ -287,7 +287,7 @@ rule collect_blast_stats:
             "reports/blast_stats.tsv",
             caption="../report/blast_stats.rst",
             category="Quality controls",
-        )
+        ),
     message:
         "[All][assignement] aggregating BLAST stats"
     conda:
