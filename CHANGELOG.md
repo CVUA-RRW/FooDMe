@@ -1,3 +1,17 @@
+### 1.7.0
+
+#### Incompatible changes
+
+This version introduces a new parameter `use_blastn`, which enables user to switch from the default 'megablast' search
+for cluster sequence matching to a search using the 'blastn' algorithm. This can help find sequences with lower homology 
+than what is possible with the megablast algorithm. 
+
+Configuration files fron the 1.6.x versions can be updated by adding the following line:
+
+```{yaml}
+use_blastn: False
+```
+
 ### 1.6.6
 
 #### Fixes
