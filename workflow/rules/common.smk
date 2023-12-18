@@ -51,3 +51,10 @@ def get_acc_blocklist(wildcards):
         return f"{wildcards.sample}/taxonomy/{wildcards.sample}_blast_report.tsv"
     else:
         return f"{wildcards.sample}/taxonomy/{wildcards.sample}_blast_report_prefiltered.tsv"
+
+
+def get_blast_strategy(wildcards):
+    if config["use_blastn"]:
+        return 'blastn'
+    else:
+        return 'megablast'
