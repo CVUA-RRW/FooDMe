@@ -127,6 +127,7 @@ rule blast_otus:
         e_value=config["blast_evalue"],
         perc_identity=config["blast_identity"],
         qcov=config["blast_qcov"],
+        low_complexity=get_low_complexity_filter_params,
     threads: config["threads_sample"]
     message:
         "[{wildcards.sample}][assignement] BLASTing clusters against local database"
@@ -148,7 +149,7 @@ rule blast_otus:
         blastn -db {params.blast_DB} \
             -query {input.query} \
             -out {output.report} \
-            -task 'megablast' \
+            -task 'megablast' {params.low_complexity} \
             -evalue {params.e_value} \
             -perc_identity {params.perc_identity} \
             -qcov_hsp_perc {params.qcov} $masking \

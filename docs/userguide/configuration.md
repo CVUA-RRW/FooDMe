@@ -84,6 +84,7 @@ This will create a file called `samples.tsv` in the `raw_data` folder.
 | `taxid_filter`            | Taxonomic identifier      | Node under which to perform the BLAST search. <br>Equivalent to pruning the taxonomy above <br>this node. Use the Root Node number to keep <br>the entire taxonomy |
 | `blocklist`               | `extinct` or custom path  | Path to a list of taxonomic identifier to exclude <br>from the BLAST search |
 | `seq_blocklist`           | `None` or custom path | Path to a list of sequence accessions (e.g. `NC_0016400`) <br>to exclude from the results |
+| `blast_filter_low_complexity` | True/False | Wether to mask low-complexity regions in the BLAST search. On by default, deactivate if you expect barcode sequences with low complexity. | 
 | `blast_evalue`                 | Number (scientific)       | Minimal E-value threshold for the BLAST search |
 | `blast_identity`           | Number [0, 100]           | Minimal identity (in percent) between the query and <br>hit sequence for the BLAST search |
 | `blast_qcov`                    | Number [0, 100]           | Percent of the query to be covered by the hit <br>sequence for the BLAST search |
