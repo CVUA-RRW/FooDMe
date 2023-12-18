@@ -55,6 +55,6 @@ def get_acc_blocklist(wildcards):
 
 def get_blast_strategy(wildcards):
     if config["use_blastn"]:
-        return 'blastn'
+        return "blastn"
     else:
-        return 'megablast'
+        return "megablast"
