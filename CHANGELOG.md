@@ -1,3 +1,24 @@
+### 1.7.0
+
+#### Breaking changes
+
+Older configuration files are not compatible anymore. Update the files by adding the following line
+should yield the same results as before:
+
+```{yaml}
+blast_filter_low_complexity: True
+```
+
+#### New features
+
+It is now possible to desactivate the defualt low-complexity filter of the BLAST search.
+This can be advantageous if you expect your barcode to contain low-complexity sequences which could 
+prevent getting any match at all.
+This behaviour can be activated/deactivated by changing the `blast_filter_low_complexity` from `True` to `False`.
+
+The default behaviour (`False`) uses the default 'DUST' filter of the blast tool:
+`-dust 20 64 1 -soft_masking true`.
+
 ### 1.6.6
 
 #### Fixes

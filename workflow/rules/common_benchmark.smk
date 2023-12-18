@@ -62,3 +62,11 @@ def get_acc_blocklist(wildcards):
         return f"{wildcards.sample}/taxonomy/{wildcards.sample}_blast_report.tsv"
     else:
         return f"{wildcards.sample}/taxonomy/{wildcards.sample}_blast_report_prefiltered.tsv"
+
+
+def get_low_complexity_filter_params(wildcards):
+    # Filter is on by default in blastn
+    if config["blast_filter_low_complexity"]:
+        return ""
+    else:
+        return "-dust no -soft_masking false"
