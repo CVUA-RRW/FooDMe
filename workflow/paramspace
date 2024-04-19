@@ -20,7 +20,16 @@ workdir: config["workdir"]
 paramspace = Paramspace(pd.read_csv(config['paramspace'], sep="\t"))
 
 
-include: "rules/common_benchmark.smk"
+# Snakemake 8 compatibility ----------------------------------------------------
+
+
+def get_conda_prefix(wildcards):
+    try:
+        # snakemake < 8.0
+        return workflow.conda_prefix
+    except:
+        # snakemake > 8
+        return workflow.deployment_settings.conda_prefix
 
 
 # Input rule ------------------------------------------------------------------
