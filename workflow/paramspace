@@ -20,6 +20,18 @@ workdir: config["workdir"]
 paramspace = Paramspace(pd.read_csv(config['paramspace'], sep="\t"))
 
 
+# Snakemake 8 compatibility ----------------------------------------------------
+
+
+def get_conda_prefix(wildcards):
+    try:
+        # snakemake < 8.0
+        return workflow.conda_prefix
+    except:
+        # snakemake > 8
+        return workflow.deployment_settings.conda_prefix
+
+
 # Input rule ------------------------------------------------------------------
 
 
@@ -68,7 +80,7 @@ rule run_foodme_benchmark:
         workdir=f"foodme_runs/{paramspace.wildcard_pattern}",
         snakefile=os.path.join(workflow.basedir, "benchmark"),
         cores=workflow.cores,
-        conda_prefix=workflow.conda_prefix,
+        conda_prefix=get_conda_prefix,
         force_rerun="--forceall" if config["force_rerun"] else ""
     log:
         f"logs/{paramspace.wildcard_pattern}/snakemake.log"
