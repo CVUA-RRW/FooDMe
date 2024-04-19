@@ -20,6 +20,9 @@ workdir: config["workdir"]
 paramspace = Paramspace(pd.read_csv(config['paramspace'], sep="\t"))
 
 
+include: "rules/common_benchmark.smk"
+
+
 # Input rule ------------------------------------------------------------------
 
 
