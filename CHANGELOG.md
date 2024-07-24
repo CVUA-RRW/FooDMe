@@ -1,3 +1,9 @@
+### 1.7.1
+
+#### Bugfix
+
+Fixing some issues with blast report generation when using newer BLAST databases. Source of the problemis still unclear but appears to be linked to new realeses of the BLAST db and concerns only specific taxids or sequences.
+
 ### 1.7.0
 
 #### Breaking changes

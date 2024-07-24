@@ -155,6 +155,7 @@ rule blast_otus:
             -qcov_hsp_perc {params.qcov} $masking \
             -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxid length mismatch gaps stitle' \
             -num_threads {threads} \
+            -mt_mode 1 \
         2> {log} 
 
         sed -i '1 i\query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\tsubject_taxid\talignment_length\tmismatch\tgaps\tsubject_name' {output.report}
@@ -235,49 +236,52 @@ rule blast_stats:
         "{sample}/reports/{sample}_blast_stats.tsv",
     params:
         bit_diff=config["bit_score_diff"],
+        sample=lambda w: w.sample,
     message:
         "[{wildcards.sample}][assignement] collecting BLAST stats"
     conda:
         "../envs/pandas.yaml"
     log:
         "logs/{sample}/blast_stats.log",
-    shell:
-        """
-        exec 2> {log}
+    script:
+        "../scripts/blast_stats.py"
+    # shell:
+    #     """
+    #     exec 2> {log}
 
-        if [ -s {input.blast} ]
-        then
-            # Get list of all OTUs
-            OTUs=$(grep "^>" {input.otus} | cut -d";" -f1 | tr -d '>' | sort -u)
+    #     if [ -s {input.blast} ]
+    #     then
+    #         # Get list of all OTUs
+    #         OTUs=$(grep "^>" {input.otus} | cut -d";" -f1 | tr -d '>' | sort -u)
 
-            for otu in $OTUs
-            do
-                size=$(grep -E "^>${{otu}}\>" {input.otus}  | cut -d"=" -f2)
-                bhits=$(grep -c -E "^${{otu}};" {input.blast} || true)
-                if [ $bhits -eq 0 ]
-                then
-                    # When there is no blast hit
-                    echo "{wildcards.sample}\t$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-\t- (1.0)\t../{input.blast}\t../{input.filtered}" >> {output}
-                else
-                    # Otherwise collect and print stats to file
-                    bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -rn | head -n1)
-                    bit_low=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -n | head -n1)
-                    bit_thr=$(($bit_best - {params.bit_diff}))
-                    shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
-                    cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-5)
+    #         for otu in $OTUs
+    #         do
+    #             size=$(grep -E "^>${{otu}}\>" {input.otus}  | cut -d"=" -f2)
+    #             bhits=$(grep -c -E "^${{otu}};" {input.blast} || true)
+    #             if [ $bhits -eq 0 ]
+    #             then
+    #                 # When there is no blast hit
+    #                 echo "{wildcards.sample}\t$otu\t$size\t0\t0\t0\t0\t0\t-\t-\t-\t- (1.0)\t../{input.blast}\t../{input.filtered}" >> {output}
+    #             else
+    #                 # Otherwise collect and print stats to file
+    #                 bit_best=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -rn | head -n1)
+    #                 bit_low=$(grep -E "^${{otu}};" {input.blast} | cut -f5 | cut -d. -f1 | sort -n | head -n1)
+    #                 bit_thr=$(($bit_best - {params.bit_diff}))
+    #                 shits=$(grep -c -E "^${{otu}}\>" {input.filtered})
+    #                 cons=$(grep -E "^${{otu}}\>" {input.lca} | cut -d'\t' -f2-5)
 
-                    echo "{wildcards.sample}\t$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t../{input.blast}\t../{input.filtered}" >> {output}
-                fi
-            done
-            # Sort by size and add header (just to get hits on top)
-            sort -k3,3nr -o {output} {output}
-            sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
+    #                 echo "{wildcards.sample}\t$otu\t$size\t$bhits\t$bit_best\t$bit_low\t$bit_thr\t$shits\t$cons\t../{input.blast}\t../{input.filtered}" >> {output}
+    #             fi
+    #         done
+    #         # Sort by size and add header (just to get hits on top)
+    #         sort -k3,3nr -o {output} {output}
+    #         sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
 
-        else
-            echo "{wildcards.sample}\t-\t-\t0\t0\t0\t0\t0\t-\t-\t-\t-\t../{input.blast}\t../{input.filtered}" > {output}
-            sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
-        fi
-        """
+    #     else
+    #         echo "{wildcards.sample}\t-\t-\t0\t0\t0\t0\t0\t-\t-\t-\t-\t../{input.blast}\t../{input.filtered}" > {output}
+    #         sed -i '1 i\Sample\tQuery\tCount\tBlast hits\tBest bit-score\tLowest bit-score\tBit-score threshold\tSaved Blast hits\tConsensus\tRank\tTaxid\tDisambiguation\tlink_report\tlink_filtered' {output}
+    #     fi
+    #     """
 
 
 rule collect_blast_stats:
