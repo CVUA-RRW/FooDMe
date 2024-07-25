@@ -155,7 +155,6 @@ rule blast_otus:
             -qcov_hsp_perc {params.qcov} $masking \
             -outfmt '6 qseqid sseqid evalue pident bitscore sacc staxid length mismatch gaps stitle' \
             -num_threads {threads} \
-            -mt_mode 1 \
         2> {log} 
 
         sed -i '1 i\query\tsubject\tevalue\tidentity\tbitscore\tsubject_acc\tsubject_taxid\talignment_length\tmismatch\tgaps\tsubject_name' {output.report}

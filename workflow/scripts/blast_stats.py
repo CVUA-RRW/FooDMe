@@ -55,7 +55,7 @@ def main(otus_in, blast_in, filtered_in, lca_in, report_out, bit_diff, sample):
         if not os.path.isfile(blast_in) or os.stat(blast_in).st_size == 0:
             with open(report_out, "a") as fo:
                 fo.write("\t".join([
-                    sample,
+                    str(sample),
                     "-",
                     "-",
                     "0",
@@ -82,8 +82,8 @@ def main(otus_in, blast_in, filtered_in, lca_in, report_out, bit_diff, sample):
                 if bhits == 0:
                     with open(report_out, "a") as fo:
                         fo.write("\t".join([
-                            sample,
-                            otu,
+                            str(sample),
+                            str(otu),
                             str(size),
                             "0",
                             "0",
@@ -106,18 +106,18 @@ def main(otus_in, blast_in, filtered_in, lca_in, report_out, bit_diff, sample):
 
                     with open(report_out, "a") as fo:
                         fo.write("\t".join([
-                            sample,
-                            otu,
+                            str(sample),
+                            str(otu),
                             str(size),
                             str(bhits),
                             str(bit_best),
                             str(bit_low),
                             str(bit_thr),
                             str(shits),
-                            cons["Consensus"].values[0],
-                            cons["Rank"].values[0],
+                            str(cons["Consensus"].values[0]),
+                            str(cons["Rank"].values[0]),
                             str(cons["Taxid"].values[0]),
-                            cons["Disambiguation"].values[0],
+                            str(cons["Disambiguation"].values[0]),
                             f"../{blast_in}",
                             f"../{filtered_in}"
                         ])+"\n")
