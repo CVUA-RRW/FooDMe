@@ -8,15 +8,11 @@
 [![DOI](https://zenodo.org/badge/296584559.svg)](https://zenodo.org/badge/latestdoi/296584559)
 [![Snakemake](https://img.shields.io/badge/snakemake-≥6.3.0-brightgreen.svg?style=flat)](https://snakemake.readthedocs.io)
 
-FooDMe is a reproducible and scalable snakemake workflow for the analysis of 
-DNA metabarcoding experiments, with a special focus on food and feed samples.
 
-!!! tip FooDMe 2
+**Support for FooDMe has ended ! Check out [FooDMe2](https://bio-raum.github.io/FooDMe2)**
 
-    [FooDMe2](https://github.com/bio-raum/FooDMe2) is a complete re-write of FooDMe with improved capabilities and portability.
-    You can try it out and give your feedback using the link above.
+FooDMe2 is a complete rewrite of FooDMe. We designed FooDMe 2 to be more flexible and take away some of the complexity encountered in FooDMe 1. This not only concerns the installation procedure, which is vastly streamlined now, but also the process of configuring and starting individual analysis runs. The new implementation also maes it easier to deploy, maintain, and to add additonal functionalities in the future.
 
-    Support for FooDMe will continue until FooDMe2 reaches enough maturity for a stable release.
 
 ---
 
